@@ -1,0 +1,210 @@
+/* ============================================================
+   CONTACT.CSS — Contact Info + Footer
+   Amour Affairs · Premium Wedding Photography
+   ============================================================ */
+
+/* ── CTA Banner ── */
+.cta-banner {
+  background: var(--color-bg);
+  padding: clamp(60px, 8vw, 100px) 0;
+}
+
+.cta-banner__inner {
+  border: 1px solid var(--color-accent);
+  padding: clamp(48px, 6vw, 80px) clamp(32px, 4vw, 64px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-banner__inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(200, 169, 126, 0.04) 0%,
+    transparent 50%,
+    rgba(200, 169, 126, 0.04) 100%
+  );
+  z-index: 0;
+}
+
+.cta-banner__label {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 20px;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-banner__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--color-white);
+  line-height: 1.2;
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-banner__btn {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Footer Contact Info ── */
+.footer {
+  background: var(--color-surface);
+  padding-top: clamp(60px, 8vw, 100px);
+  padding-bottom: 0;
+}
+
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: clamp(32px, 4vw, 64px);
+  padding-bottom: clamp(60px, 8vw, 80px);
+}
+
+.footer__col-label {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 24px;
+  display: block;
+}
+
+.footer__address {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-text-dim);
+  line-height: 1.8;
+  font-style: normal;
+}
+
+.footer__link {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-text-dim);
+  padding: 6px 0;
+  transition: color 0.3s ease;
+}
+
+.footer__link:hover {
+  color: var(--color-accent);
+}
+
+.footer__social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--color-text-dim);
+  padding: 8px 0;
+  transition: color 0.3s ease;
+  letter-spacing: 0.1em;
+}
+
+.footer__social-link:hover {
+  color: var(--color-accent);
+}
+
+.footer__social-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.footer__social-link:hover .footer__social-icon {
+  opacity: 1;
+}
+
+/* Map */
+.footer__map {
+  width: 100%;
+  height: 180px;
+  border: none;
+  filter: grayscale(1) invert(0.92) contrast(0.85);
+  opacity: 0.7;
+  margin-top: 16px;
+  transition: var(--transition-default);
+}
+
+.footer__map:hover {
+  filter: grayscale(0.3) invert(0.92) contrast(0.9);
+  opacity: 1;
+}
+
+/* ── Footer Bar ── */
+.footer__bar {
+  border-top: var(--border-subtle);
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer__copyright {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+.footer__bar-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer__bar-link {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-dim);
+  transition: color 0.3s ease;
+  letter-spacing: 0.05em;
+}
+
+.footer__bar-link:hover {
+  color: var(--color-accent);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .footer__grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .footer__bar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
