@@ -67,7 +67,7 @@
 }
 
 .btn:hover {
-  color: var(--color-bg);
+  color: #FAF7F4;
   border-color: var(--color-accent);
 }
 
@@ -88,11 +88,26 @@
 
 .btn--solid {
   background: var(--color-accent);
-  color: var(--color-bg);
+  color: #FAF7F4;
 }
 
 .btn--solid::before {
-  background: var(--color-accent-light);
+  background: #7A5A30;
+}
+
+/* Button on photo/dark backgrounds — stays light outline */
+.btn--on-photo {
+  border-color: rgba(250, 247, 244, 0.6);
+  color: #FAF7F4;
+}
+
+.btn--on-photo::before {
+  background: rgba(250, 247, 244, 0.15);
+}
+
+.btn--on-photo:hover {
+  color: #FAF7F4;
+  border-color: #FAF7F4;
 }
 
 .btn .btn-arrow {
@@ -109,7 +124,7 @@
   width: 100%;
   height: 1px;
   background: var(--color-accent);
-  opacity: 0.35;
+  opacity: 0.25;
   margin: var(--gap-lg) 0;
 }
 
@@ -129,7 +144,7 @@
   border-radius: 50%;
   pointer-events: none;
   z-index: var(--z-cursor);
-  mix-blend-mode: difference;
+  mix-blend-mode: multiply;
   transform: translate(-50%, -50%);
   transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
 }
@@ -137,7 +152,7 @@
 .cursor-dot.cursor-hover {
   width: 48px;
   height: 48px;
-  background: rgba(200, 169, 126, 0.25);
+  background: rgba(158, 122, 78, 0.18);
   border: 1px solid var(--color-accent);
 }
 
@@ -147,7 +162,7 @@
   left: 0;
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(200, 169, 126, 0.35);
+  border: 1px solid rgba(158, 122, 78, 0.3);
   border-radius: 50%;
   pointer-events: none;
   z-index: var(--z-cursor);
@@ -158,7 +173,7 @@
 .cursor-ring.cursor-hover {
   width: 60px;
   height: 60px;
-  border-color: rgba(200, 169, 126, 0.1);
+  border-color: rgba(158, 122, 78, 0.08);
   opacity: 0;
 }
 
@@ -166,7 +181,7 @@
 .overlay {
   position: absolute;
   inset: 0;
-  background: var(--color-overlay);
+  background: var(--color-photo-overlay);
   z-index: 1;
 }
 
@@ -189,13 +204,13 @@
   font-size: 0.65rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: rgba(250, 247, 244, 0.75);
 }
 
 .scroll-indicator__arrow {
   width: 1px;
   height: 40px;
-  background: var(--color-accent);
+  background: rgba(250, 247, 244, 0.5);
   position: relative;
   overflow: hidden;
 }
@@ -207,7 +222,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--color-accent-light);
+  background: #FAF7F4;
   animation: scrollDown 1.8s ease-in-out infinite;
 }
 
@@ -246,7 +261,7 @@
 .img-reveal__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(20, 12, 6, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,7 +278,7 @@
   font-size: var(--text-small);
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: #FAF7F4;
   display: flex;
   align-items: center;
   gap: 8px;

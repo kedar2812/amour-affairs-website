@@ -5,22 +5,27 @@
    ============================================================ */
 
 :root {
-  /* ── Color Palette ── */
-  --color-bg:           #0A0A0A;
-  --color-bg-alt:       #111111;
-  --color-surface:      #1A1A1A;
-  --color-text:         #E8E2D9;
-  --color-text-dim:     #8A8178;
-  --color-accent:       #C8A97E;
-  --color-accent-light: #E8D5B0;
-  --color-white:        #F5F0EA;
-  --color-overlay:      rgba(0, 0, 0, 0.55);
-  --color-overlay-heavy: rgba(0, 0, 0, 0.7);
-  --color-overlay-light: rgba(0, 0, 0, 0.35);
+  /* ── Color Palette — Light / Bridal Edition ── */
+  --color-bg:           #FAF7F4;          /* warm off-white */
+  --color-bg-alt:       #F5F0EA;          /* soft linen */
+  --color-surface:      #EDE7DF;          /* warm sand surface */
+  --color-text:         #2C2420;          /* deep espresso */
+  --color-text-dim:     #7A6A5A;          /* warm taupe */
+  --color-accent:       #9E7A4E;          /* rich warm gold */
+  --color-accent-light: #C9A97C;          /* lighter champagne gold */
+  --color-white:        #2C2420;          /* repurposed: dark for text over light */
+  --color-overlay:      rgba(250, 247, 244, 0.55);
+  --color-overlay-heavy: rgba(250, 247, 244, 0.75);
+  --color-overlay-light: rgba(250, 247, 244, 0.35);
+
+  /* Photo overlays stay dark (images are photo-based) */
+  --color-photo-overlay:       rgba(20, 14, 10, 0.42);
+  --color-photo-overlay-heavy: rgba(20, 14, 10, 0.68);
+  --color-photo-overlay-light: rgba(20, 14, 10, 0.28);
 
   /* ── Typography ── */
-  --font-display:  'Cormorant Garamond', 'Georgia', serif;
-  --font-body:     'DM Sans', 'Helvetica Neue', sans-serif;
+  --font-display:  'Instrument Serif', 'Cormorant Garamond', 'Georgia', serif;
+  --font-body:     'Inter', 'DM Sans', 'Helvetica Neue', sans-serif;
 
   /* Fluid Type Scale */
   --text-hero:     clamp(4rem, 10vw, 10rem);
@@ -59,8 +64,8 @@
 
   /* ── Borders ── */
   --border-accent: 1px solid var(--color-accent);
-  --border-dim:    1px solid rgba(200, 169, 126, 0.2);
-  --border-subtle: 1px solid rgba(232, 226, 217, 0.08);
+  --border-dim:    1px solid rgba(158, 122, 78, 0.2);
+  --border-subtle: 1px solid rgba(44, 36, 32, 0.08);
 }
 
 /* ══════════════════════════════════════════════════
@@ -77,7 +82,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(200, 169, 126, 0.35);
+  background: rgba(158, 122, 78, 0.3);
   border-radius: 0;
   transition: background 0.3s ease;
 }
@@ -93,5 +98,5 @@
 /* Firefox */
 html {
   scrollbar-width: thin;
-  scrollbar-color: rgba(200, 169, 126, 0.35) var(--color-bg);
+  scrollbar-color: rgba(158, 122, 78, 0.3) var(--color-bg);
 }

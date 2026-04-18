@@ -4,7 +4,7 @@
    ============================================================ */
 
 /* Google Fonts preconnect handled in HTML <head> */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+/* Instrument Serif (display) + Inter (body) — loaded via <link> in index.html */
 
 body {
   font-family: var(--font-body);
@@ -12,6 +12,7 @@ body {
   font-weight: 400;
   color: var(--color-text);
   line-height: 1.8;
+  background-color: var(--color-bg);
 }
 
 /* ── Display / Hero Headlines ── */
@@ -22,7 +23,7 @@ body {
   line-height: 0.95;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: #FAF7F4; /* always light over photo backgrounds */
 }
 
 .display-lg {
@@ -32,7 +33,7 @@ body {
   line-height: 1.0;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: #FAF7F4;
 }
 
 /* ── Section Headlines ── */
@@ -43,7 +44,7 @@ body {
   line-height: 1.1;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-white);
+  color: var(--color-text);
 }
 
 .heading-editorial {
@@ -60,7 +61,7 @@ body {
   font-size: clamp(1.8rem, 2.5vw, 2.5rem);
   font-weight: 600;
   line-height: 1.2;
-  color: var(--color-white);
+  color: #FAF7F4; /* cards are over dark photo backgrounds */
 }
 
 /* ── Subheadlines & Labels ── */
@@ -121,7 +122,8 @@ body {
 
 /* ── Utility ── */
 .text-accent { color: var(--color-accent); }
-.text-white  { color: var(--color-white); }
+.text-white  { color: #FAF7F4; }         /* use literal light for photo contexts */
+.text-dark   { color: var(--color-text); } /* for UI sections */
 .text-dim    { color: var(--color-text-dim); }
 .italic      { font-style: italic; }
 .uppercase   { text-transform: uppercase; }

@@ -49,7 +49,7 @@
   width: 100%;
   height: 1px;
   background: var(--color-accent);
-  opacity: 0.4;
+  opacity: 0.2;
   margin-top: var(--gap-lg);
 }
 

@@ -60,7 +60,7 @@ async function init() {
   // 2. Initialize navigation
   initNav(lenis);
 
-  // 3. Initialize hero slider
+  // 3. Initialize cinematic video hero
   initHero();
 
   // 4. Initialize all scroll-triggered animations

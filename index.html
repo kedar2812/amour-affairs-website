@@ -21,6 +21,7 @@
   <!-- Preconnect Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 
   <!-- Schema.org LocalBusiness -->
   <script type="application/ld+json">
@@ -69,16 +70,16 @@
 
   <!-- ═══════════════ NAVIGATION (5.1) ═══════════════ -->
   <nav class="nav" id="nav">
-    <a href="#" class="nav__logo"><span>Amour</span> Affairs</a>
+    <a href="#" class="nav__logo"><span>Amour</span> Affairs<sup>®</sup></a>
 
     <div class="nav__links hide-mobile">
-      <a href="#hero" class="nav__link">Home</a>
+      <a href="#hero" class="nav__link nav__link--active">Home</a>
       <a href="#services" class="nav__link">Weddings</a>
       <a href="#services" class="nav__link">Couples</a>
       <a href="#services" class="nav__link">Films</a>
       <a href="#about" class="nav__link">About</a>
       <a href="#contact" class="nav__link">Contact</a>
-      <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn btn--pill btn--small nav__book hide-mobile">Book Now</a>
+      <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
     </div>
 
     <div class="nav__hamburger hide-desktop" id="hamburger">
@@ -105,83 +106,79 @@
   </div>
 
 
-  <!-- ═══════════════ HERO SECTION (5.2) ═══════════════ -->
+  <!-- ═══════════════ HERO SECTION (5.2) — Cinematic Video ═══════════════ -->
   <section class="hero" id="hero">
-    <div class="hero__slider">
 
-      <!-- Slide 1 -->
-      <div class="hero__slide active">
-        <div class="hero__slide-bg" style="background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80&auto=format&fit=crop')"></div>
-        <div class="hero__content">
-          <div class="hero__line1">
-            <span class="word"><span class="word-inner">A</span></span>
-            <span class="word"><span class="word-inner">TIMELESS</span></span>
-          </div>
-          <div class="hero__line2">
-            <span class="word"><span class="word-inner">ART.</span></span>
-          </div>
-          <p class="hero__tagline">Capturing Love. One Photograph At A Time.</p>
-        </div>
-      </div>
+    <!-- ── Video Background Layer ── -->
+    <div class="hero__video-layer">
+      <video
+        id="heroVideo"
+        class="hero__video"
+        muted
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+      >
+        <source
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4"
+          type="video/mp4"
+        >
+      </video>
+      <!-- Gradient masks that blend video with page background -->
+      <div class="hero__vgrad hero__vgrad--top"></div>
+      <div class="hero__vgrad hero__vgrad--bottom"></div>
+      <div class="hero__vgrad hero__vgrad--sides"></div>
+    </div>
 
-      <!-- Slide 2 -->
-      <div class="hero__slide">
-        <div class="hero__slide-bg" style="background-image: url('https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1920&q=80&auto=format&fit=crop')"></div>
-        <div class="hero__content">
-          <div class="hero__line1">
-            <span class="word"><span class="word-inner">ROLLING</span></span>
-            <span class="word"><span class="word-inner">THE</span></span>
-          </div>
-          <div class="hero__line2">
-            <span class="word"><span class="word-inner">REEL.</span></span>
-          </div>
-          <p class="hero__tagline">Passionate About Telling Your Story</p>
-        </div>
-      </div>
+    <!-- ── Hero Body (content above video) ── -->
+    <div class="hero__body">
 
-      <!-- Slide 3 -->
-      <div class="hero__slide">
-        <div class="hero__slide-bg" style="background-image: url('https://images.unsplash.com/photo-1591604466107-ec97de577aff?w=1920&q=80&auto=format&fit=crop')"></div>
-        <div class="hero__content">
-          <div class="hero__line1">
-            <span class="word"><span class="word-inner">PICTURE</span></span>
-          </div>
-          <div class="hero__line2">
-            <span class="word"><span class="word-inner">PERFECT.</span></span>
-          </div>
-          <p class="hero__tagline">Re-live What You Love</p>
-        </div>
+      <!-- Eyebrow label -->
+      <span class="hero__eyebrow animate-fade-rise">
+        Wedding Photography &amp; Films &middot; Pune, India
+      </span>
+
+      <!-- Main headline -->
+      <h1 class="hero__headline animate-fade-rise-delay">
+        Beyond the moment,<br>
+        <em>we capture the eternal.</em>
+      </h1>
+
+      <!-- Description -->
+      <p class="hero__desc animate-fade-rise-delay-2">
+        Pune&rsquo;s most celebrated wedding photographers and filmmakers.
+        We immortalize every stolen glance, every teardrop of joy &mdash;
+        crafting cinematic love stories that endure a lifetime.
+      </p>
+
+      <!-- CTA -->
+      <a
+        href="https://wa.me/919921000052"
+        target="_blank"
+        rel="noopener"
+        class="hero__cta animate-fade-rise-delay-3"
+      >
+        Begin Your Story
+        <span class="hero__cta-arrow" aria-hidden="true">&#8594;</span>
+      </a>
+
+      <!-- Social proof strip -->
+      <div class="hero__proof animate-fade-rise-delay-4">
+        <span class="hero__proof-stat">500<sup>+</sup> Weddings</span>
+        <span class="hero__proof-dot" aria-hidden="true">&#183;</span>
+        <span class="hero__proof-stat">15 Years</span>
+        <span class="hero__proof-dot" aria-hidden="true">&#183;</span>
+        <span class="hero__proof-stat">1000<sup>+</sup> Happy Couples</span>
       </div>
 
     </div>
 
-    <!-- Slide Indicators -->
-    <div class="hero__indicators">
-      <div class="hero__indicator active" data-slide="0">
-        <span class="hero__indicator-number">01</span>
-        <div class="hero__indicator-line">
-          <div class="hero__indicator-progress"></div>
-        </div>
-      </div>
-      <div class="hero__indicator" data-slide="1">
-        <span class="hero__indicator-number">02</span>
-        <div class="hero__indicator-line">
-          <div class="hero__indicator-progress"></div>
-        </div>
-      </div>
-      <div class="hero__indicator" data-slide="2">
-        <span class="hero__indicator-number">03</span>
-        <div class="hero__indicator-line">
-          <div class="hero__indicator-progress"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Scroll CTA -->
+    <!-- ── Scroll CTA ── -->
     <div class="scroll-indicator" id="scrollCTA">
       <span class="scroll-indicator__text">Scroll</span>
       <div class="scroll-indicator__arrow"></div>
     </div>
+
   </section>
 
 
