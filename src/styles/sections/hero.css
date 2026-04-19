@@ -435,8 +435,9 @@
 .scroll-indicator {
   position: absolute;
   bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 18px;
+  left: auto;
+  transform: none;
   display: flex;
   flex-direction: column;
   align-items: center;

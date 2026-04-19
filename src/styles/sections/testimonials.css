@@ -1,0 +1,175 @@
+/* ============================================================
+   TESTIMONIALS.CSS — Infinite-scroll 3-column card wall
+   Amour Affairs · Premium Wedding Photography
+
+   Design: Three columns of testimonial cards that auto-scroll
+   at different speeds (pure CSS @keyframes, no JS needed).
+   Top/bottom fade achieved with CSS mask-image gradient.
+   ============================================================ */
+
+
+/* ── Section wrapper ── */
+.testimonials {
+  background: var(--color-bg);
+  padding: clamp(80px, 10vw, 140px) 0 0;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.testimonials__header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto clamp(48px, 6vw, 72px);
+}
+
+.testimonials__label {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 18px;
+}
+
+.testimonials__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 4.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.testimonials__sub {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--color-text-dim);
+  line-height: 1.7;
+}
+
+/* ── Columns outer wrap — full width, clipped ── */
+.testimonials__columns-wrap {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start;
+  height: 740px;
+  overflow: hidden;
+  /* Gradient mask fades cards at top and bottom */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+}
+
+/* ── Individual column ── */
+.testimonials__col {
+  flex: 0 0 320px;
+  min-width: 0;
+}
+
+/* Hide 2nd column on medium screens, 3rd on small */
+@media (max-width: 1024px) {
+  .testimonials__col--last { display: none; }
+  .testimonials__columns-wrap { height: 680px; }
+}
+
+@media (max-width: 680px) {
+  .testimonials__col--mid { display: none; }
+  .testimonials__col { flex: 0 0 90vw; }
+  .testimonials__columns-wrap { height: 600px; }
+}
+
+/* ── Scrolling track ── */
+@keyframes tcolScroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(-50% - 10px)); } /* accounting for missing flex gap at end */
+}
+
+.testimonials__col-track {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  animation: tcolScroll linear infinite;
+  will-change: transform;
+  transform: translateZ(0); /* engage GPU rasterisation */
+  /* duration set inline per column */
+}
+
+/* Pause only the column being hovered — other columns keep scrolling */
+.testimonials__col:hover .testimonials__col-track {
+  animation-play-state: paused;
+}
+
+/* ── Testimonial card ── */
+.tcard {
+  background: var(--color-bg);
+  border: 1px solid rgba(158, 122, 78, 0.18);
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 4px 28px rgba(158, 122, 78, 0.07);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tcard:hover {
+  border-color: rgba(158, 122, 78, 0.4);
+  box-shadow: 0 8px 40px rgba(158, 122, 78, 0.14);
+}
+
+/* ── Quote text ── */
+.tcard__text {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.65;
+  color: var(--color-text);
+  margin-bottom: 22px;
+}
+
+/* ── Author row ── */
+.tcard__author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tcard__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(158, 122, 78, 0.25);
+  flex-shrink: 0;
+}
+
+.tcard__name {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.tcard__location {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+  margin-top: 2px;
+}

@@ -14,6 +14,7 @@ import './styles/sections/about.css';
 import './styles/sections/services.css';
 import './styles/sections/process.css';
 import './styles/sections/gallery.css';
+import './styles/sections/testimonials.css';
 import './styles/sections/press.css';
 import './styles/sections/contact.css';
 
@@ -27,7 +28,7 @@ import { initCursor } from './js/cursor.js';
 import { initNav } from './js/nav.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
-import { initTestimonials, initGalleryHovers } from './js/gallery.js';
+import { initGalleryHovers } from './js/gallery.js';
 
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
@@ -90,10 +91,7 @@ async function init() {
   // 4. Initialize all scroll-triggered animations
   initAllAnimations();
 
-  // 5. Initialize testimonials carousel
-  initTestimonials();
-
-  // 6. Initialize gallery hovers
+  // 5. Initialize gallery hovers
   initGalleryHovers();
 
   // 7. Initialize custom cursor (last, after all elements are in DOM)
