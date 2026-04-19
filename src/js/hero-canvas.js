@@ -151,16 +151,57 @@ export async function initHeroCanvas() {
   canvasCtx = canvasEl.getContext('2d');
   sizeCanvas();
 
-  // Draw frame 0 immediately as placeholder while loading
-  // (will blank, that's fine)
+  // Hide hero body immediately to prevent text flash
+  gsap.set(bodyEl, { opacity: 0 });
+
+  // ── Scroll-driven state object ──
+  const scrollObj = {
+    frame: 0,
+    scale: 1.20,
+  };
+
+  // ── CREATE SCROLLTRIGGER SYNCHRONOUSLY BEFORE PRELOADING ──
+  // This ensures the 350vh pin spacer is created immediately, 
+  // pushing the rest of the landing page down so it doesn't flash
+  const scrubTl = gsap.timeline()
+    .to(scrollObj, {
+      frame: TOTAL_FRAMES - 1,
+      scale: 0.72,
+      ease: 'none',
+      onUpdate: () => drawFrame(scrollObj.frame, scrollObj.scale),
+    });
+
+  ScrollTrigger.create({
+    animation:     scrubTl,
+    trigger:       heroEl,
+    start:         'top top',
+    end:           '+=350%',
+    scrub:         1.0,
+    pin:           true,
+    pinSpacing:    true,
+    anticipatePin: 1,
+    onUpdate: (self) => {
+      updateHeroTextLayers(self.progress, bodyEl);
+    },
+  });
+
+  // ── Hero text layers animate in based on scroll progress ──
+  setupTextLayerAnimations(bodyEl);
+
+  // ── Resize handler — redraw current state ──
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      sizeCanvas();
+      drawFrame(scrollObj.frame, scrollObj.scale);
+    }, 100);
+  });
 
   // ── Create loading indicator ──
   const loader = createLoadingBar(heroEl);
 
-  // Hide hero body until frames ready (will fade in)
-  gsap.set(bodyEl, { opacity: 0 });
-
-  // ── Preload frames, show progress ──
+  // ── Preload frames (ASYNC WAIT) ──
   await preloadFrames((loaded, total) => {
     const pct = loaded / total;
     loader.fill.style.width  = `${pct * 100}%`;
@@ -168,7 +209,7 @@ export async function initHeroCanvas() {
       ? `${Math.round(pct * 100)}%`
       : 'Ready';
 
-    // Draw whatever frame we have for visual progress (at full opening scale)
+    // Draw whatever frame we have for visual progress
     if (frames[0]) drawFrame(0, 1.20);
   });
 
@@ -184,55 +225,7 @@ export async function initHeroCanvas() {
     { opacity: 1, duration: 1.0, ease: 'power2.out' }
   );
 
-  // ── Scroll-driven state object ──
-  // frame: 0 → 119  (rotation)
-  // scale: 1.20 → 0.72  (model shrinks as user scrolls)
-  //   1.20 = starts huge/dramatic on load
-  //   0.72 = settles to a refined, slightly larger than "normal" size
-  const scrollObj = {
-    frame: 0,
-    scale: 1.20,
-  };
-
-  // ── Draw the very first frame at full big scale ──
   drawFrame(0, 1.20);
-
-  // ── Resize handler — redraw current state ──
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      sizeCanvas();
-      drawFrame(scrollObj.frame, scrollObj.scale);
-    }, 100);
-  });
-
-  // ── GSAP timeline: animate both frame + scale together ──
-  // Both are driven by the same single scrub so they are perfectly in sync
-  const scrubTl = gsap.timeline()
-    .to(scrollObj, {
-      frame: TOTAL_FRAMES - 1,   // full 360° rotation
-      scale: 0.72,               // shrinks to refined resting size
-      ease: 'none',              // linear — scrub controls pacing
-      onUpdate: () => drawFrame(scrollObj.frame, scrollObj.scale),
-    });
-
-  ScrollTrigger.create({
-    animation:     scrubTl,
-    trigger:       heroEl,
-    start:         'top top',
-    end:           '+=350%',  // 3.5x viewport = slow, cinematic
-    scrub:         1.0,       // 1s lag = silky, never feels rushed
-    pin:           true,
-    pinSpacing:    true,
-    anticipatePin: 1,
-    onUpdate: (self) => {
-      updateHeroTextLayers(self.progress, bodyEl);
-    },
-  });
-
-  // ── Hero text layers animate in based on scroll progress ──
-  setupTextLayerAnimations(bodyEl);
 }
 
 /* ─────────────────────────────────────────────────

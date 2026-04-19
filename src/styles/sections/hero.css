@@ -62,10 +62,10 @@
 }
 
 .nav__link {
-  font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
   font-weight: 400;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: none;
   color: #6F6F6F;
   position: relative;
@@ -95,10 +95,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   text-transform: none;
   padding: 9px 22px;
   border-radius: 50px;
@@ -259,6 +259,7 @@
     transparent 100%
   );
   padding-top: 80px;
+  opacity: 0;
 }
 
 /* Make interactive elements clickable again */
@@ -327,10 +328,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-body);
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
   padding: 16px 48px;
   border-radius: 50px;
   background: var(--color-accent);
