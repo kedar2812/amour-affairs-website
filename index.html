@@ -106,46 +106,35 @@
   </div>
 
 
-  <!-- ═══════════════ HERO SECTION (5.2) — Cinematic Video ═══════════════ -->
-  <section class="hero" id="hero">
+  <!-- ═══════════════ HERO SECTION (5.2) — 3D Canvas Scroll Reveal ═══════════════ -->
+  <section class="hero hero--canvas" id="hero">
 
-    <!-- ── Video Background Layer ── -->
-    <div class="hero__video-layer">
-      <video
-        id="heroVideo"
-        class="hero__video"
-        muted
-        playsinline
-        preload="auto"
-        aria-hidden="true"
-      >
-        <source
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_083109_283f3553-e28f-428b-a723-d639c617eb2b.mp4"
-          type="video/mp4"
-        >
-      </video>
-      <!-- Gradient masks that blend video with page background -->
-      <div class="hero__vgrad hero__vgrad--top"></div>
-      <div class="hero__vgrad hero__vgrad--bottom"></div>
-      <div class="hero__vgrad hero__vgrad--sides"></div>
-    </div>
+    <!-- ── 3D Canvas — scroll-driven couple animation ── -->
+    <canvas
+      id="coupleCanvas"
+      class="hero__canvas"
+      aria-hidden="true"
+    ></canvas>
 
-    <!-- ── Hero Body (content above video) ── -->
+    <!-- ── Subtle gradient floor ── -->
+    <div class="hero__canvas-glow" aria-hidden="true"></div>
+
+    <!-- ── Hero Body (text overlays canvas) ── -->
     <div class="hero__body">
 
       <!-- Eyebrow label -->
-      <span class="hero__eyebrow animate-fade-rise">
+      <span class="hero__eyebrow">
         Wedding Photography &amp; Films &middot; Pune, India
       </span>
 
       <!-- Main headline -->
-      <h1 class="hero__headline animate-fade-rise-delay">
+      <h1 class="hero__headline">
         Beyond the moment,<br>
         <em>we capture the eternal.</em>
       </h1>
 
       <!-- Description -->
-      <p class="hero__desc animate-fade-rise-delay-2">
+      <p class="hero__desc">
         Pune&rsquo;s most celebrated wedding photographers and filmmakers.
         We immortalize every stolen glance, every teardrop of joy &mdash;
         crafting cinematic love stories that endure a lifetime.
@@ -156,24 +145,25 @@
         href="https://wa.me/919921000052"
         target="_blank"
         rel="noopener"
-        class="hero__cta animate-fade-rise-delay-3"
+        class="hero__cta"
+        id="heroCTA"
       >
         Begin Your Story
         <span class="hero__cta-arrow" aria-hidden="true">&#8594;</span>
       </a>
 
       <!-- Social proof strip -->
-      <div class="hero__proof animate-fade-rise-delay-4">
+      <div class="hero__proof">
         <span class="hero__proof-stat">500<sup>+</sup> Weddings</span>
         <span class="hero__proof-dot" aria-hidden="true">&#183;</span>
-        <span class="hero__proof-stat">15 Years</span>
+        <span class="hero__proof-stat">15<sup>+</sup> Years</span>
         <span class="hero__proof-dot" aria-hidden="true">&#183;</span>
         <span class="hero__proof-stat">1000<sup>+</sup> Happy Couples</span>
       </div>
 
     </div>
 
-    <!-- ── Scroll CTA ── -->
+    <!-- ── Scroll hint (auto-hides once scrolled) ── -->
     <div class="scroll-indicator" id="scrollCTA">
       <span class="scroll-indicator__text">Scroll</span>
       <div class="scroll-indicator__arrow"></div>

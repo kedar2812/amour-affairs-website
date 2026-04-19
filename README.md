@@ -1,69 +1,62 @@
-# Amour Affairs - Premium Wedding Photography Website
+# Amour Affairs Photography
 
-A high-end, production-ready website for Amour Affairs, a premium wedding photography studio based in Pune, India. Built with a focus on cinematic aesthetics, smooth scrolling, and immersive animations.
+A premium, highly interactive portfolio website for a luxury wedding photography and filmmaking studio based in Pune, India. 
 
-## Live Demo
-Run locally using Vite: `npm run dev`
+## Overview
 
-## Core Technologies
-- **HTML5:** Semantic structure.
-- **CSS3:** Custom variables, modern layouts (Grid/Flexbox), dark cinematic aesthetic (`#0A0A0A` base, `#C8A97E` gold accents). No CSS frameworks were used (strictly Vanilla CSS).
-- **Vanilla JavaScript (ES6+):** Modular architecture for animations, navigation, and components.
-- **GSAP & ScrollTrigger:** Powering complex, high-performance scroll-driven animations, parallax effects, text reveals, and staggered entry animations.
-- **Lenis Smooth Scroll:** Providing buttery smooth, momentum-based scrolling synced seamlessly with GSAP's ticker.
-- **Swiper.js:** Lightweight carousel implementation for the client testimonials section.
-- **Vite:** Next-generation frontend tooling for rapid development and optimized production builds.
+This project delivers a cinematic, award-winning user experience utilizing advanced scroll-driven animations and a custom 3D canvas rendering engine. The core feature is "The Reveal" — a seamless 360-degree interactive 3D model of a dancing couple, rendered frame-by-frame on a HTML5 Canvas synchronized to the user's scroll.
+
+## Architecture & Tech Stack
+
+* **Core Build Tool**: Vite
+* **Frontend Languages**: HTML5, Vanilla JavaScript, Vanilla CSS (Custom Design System with variables)
+* **Animation Engine**: GSAP (GreenSock Animation Platform)
+* **Scroll Physics**: Lenis Smooth Scroll
+* **Scroll Interaction**: GSAP ScrollTrigger combined with a custom `scrollerProxy` to connect Lenis scroll physics with GSAP pinning.
+* **Canvas Rendering**: Custom module `hero-canvas.js` preloads compressed WebP frames and maps browser scroll events directly to a 3D model rotation and scale transformation.
 
 ## Key Features
-- **Custom Cursor:** GSAP-animated custom cursor that reacts to interactive elements.
-- **Cinematic Hero:** Manual GSAP slider featuring parallax backgrounds, per-word text splitting reveals, and animated progress indicators.
-- **Dynamic Scroll Animations:** 
-  - Iterative fade-ups and slide-ins.
-  - Parallax image reveals.
-  - Interactive, scroll-scrubbed process timeline that illuminates as the user scrolls.
-- **Masonry Gallery:** Responsive image grid with hover scale reveals and overlays.
-- **Responsive Navigation:** Glassmorphism headers that hide/show dynamically based on scroll direction, plus an animated mobile overlay menu.
-- **Performance Optimized:** Uses `loading="lazy"` on images, modern CSS properties (`will-change`, `transform`), and optimized asset loading.
 
-## Project Structure
-```text
-├── index.html            // Main entry point
-├── package.json          // Dependencies and scripts
-├── vite.config.js        // Vite configuration and PostCSS
-├── src/
-│   ├── main.js           // JS entry point (initializes Lenis, GSAP, modular components)
-│   ├── js/               // JavaScript modules
-│   │   ├── animations.js // ScrollTrigger and global animation logic
-│   │   ├── cursor.js     // Custom cursor logic
-│   │   ├── gallery.js    // Swiper instances and gallery events
-│   │   ├── hero.js       // Hero slider logic
-│   │   └── nav.js        // Navigation states and mobile menu
-│   └── styles/           // CSS architecture (Vanilla CSS + PostCSS)
-│       ├── reset.css
-│       ├── variables.css // Design system tokens
-│       ├── typography.css
-│       ├── components.css
-│       └── sections/     // Component-scoped CSS files
-```
+1. **3D Interactive Hero Sequence**:
+   * Uses 120 sequentially pre-rendered frames of a 3D couple.
+   * `mix-blend-mode: multiply` automatically strips away the white environment, placing the model directly into the website's DOM.
+   * Frame scrubbing is tied to `ScrollTrigger` progress, combined with dynamic scaling (1.20 opening scale shrinking to 0.72 display scale).
+   * Sequential fade-ins for typography based on specific scroll-progress milestones.
+
+2. **Custom Typography & Aesthetic System**:
+   * "Bridal/Gallery" aesthetic focusing on large negative space, typography (`Instrument Serif` & `Inter`), and a warm champagne color palette.
+   * Fluid typography bridging `clamp()` functions across all viewpoints.
+
+3. **Performance First**:
+   * High-fidelity PNG sequences compressed to lightweight WebP using Sharp (custom `compress-frames.mjs` script), yielding a 97% reduction in size.
+   * DOM elements pinned without jitter using `anticipatePin` and dedicated Lenis frame synchronization.
 
 ## Setup & Development
-1. Clone the repository.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Build for production:
-   ```bash
-   npm run build
-   ```
 
-## Design System
-- **Palette**: Midnight Background (`#0A0A0A`), Charcoal Alternate (`#111111`), Champagne Gold Accent (`#C8A97E`), Pearl White (`#F5F0EA`).
-- **Typography**: `Cormorant Garamond` (Display/Headings), `DM Sans` (Body/UI).
+### Requirements
+* Node.js (v16+ recommended)
+* npm 
 
-## Credits
-Built with passion, conforming strictly to high-end agency standards and the visual benchmarks established by leading creative portfolios.
+### Installation
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Start the local development server:
+```bash
+npm run dev
+```
+
+### Building for Production
+
+Compile optimized static assets:
+```bash
+npm run build
+```
+This generates a `dist/` directory ready for deployment. Compressed WebP sequences in `/public/frames` are mapped statically without bundling for optimal load performance.
+
+## License
+
+This is a proprietary website tailored specifically for Amour Affairs. All photography assets, branding, and structural code are reserved.

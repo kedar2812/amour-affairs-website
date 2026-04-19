@@ -3,3 +3,4 @@ node_modules/
 dist/
 .env
 .vite/
+3d model/

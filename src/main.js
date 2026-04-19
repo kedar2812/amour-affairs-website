@@ -25,7 +25,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // ── Modules ──
 import { initCursor } from './js/cursor.js';
 import { initNav } from './js/nav.js';
-import { initHero } from './js/hero.js';
+import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
 import { initTestimonials, initGalleryHovers } from './js/gallery.js';
 
@@ -40,7 +40,7 @@ const lenis = new Lenis({
   smoothWheel: true,
 });
 
-// Store globally for hero scroll CTA
+// Store globally for other modules
 window.__lenis = lenis;
 
 // CRITICAL: Connect Lenis to GSAP ticker
@@ -49,8 +49,32 @@ gsap.ticker.add((time) => {
 });
 gsap.ticker.lagSmoothing(0);
 
-// CRITICAL: Connect Lenis scroll to ScrollTrigger
-lenis.on('scroll', ScrollTrigger.update);
+// CRITICAL: Lenis + ScrollTrigger integration for pinned sections
+// Without scrollerProxy, pinned heroes jitter with Lenis
+lenis.on('scroll', (e) => {
+  ScrollTrigger.update();
+});
+
+// Tell ScrollTrigger to use Lenis scroll values
+ScrollTrigger.scrollerProxy(document.body, {
+  scrollTop(value) {
+    if (arguments.length) {
+      lenis.scrollTo(value, { immediate: true });
+    }
+    return lenis.scroll;
+  },
+  getBoundingClientRect() {
+    return {
+      top: 0, left: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+  },
+  pinType: document.body.style.transform ? 'transform' : 'fixed',
+});
+
+ScrollTrigger.addEventListener('refresh', () => lenis.resize());
+ScrollTrigger.defaults({ scroller: document.body });
 
 // ── Boot Sequence ──
 async function init() {
@@ -60,8 +84,8 @@ async function init() {
   // 2. Initialize navigation
   initNav(lenis);
 
-  // 3. Initialize cinematic video hero
-  initHero();
+  // 3. Initialize 3D canvas scroll sequence (async — preloads frames)
+  await initHeroCanvas();
 
   // 4. Initialize all scroll-triggered animations
   initAllAnimations();
