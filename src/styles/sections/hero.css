@@ -36,17 +36,21 @@
 }
 
 .nav__logo {
-  font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-family: 'Instrument Serif', Georgia, serif !important;
+  font-size: clamp(1.35rem, 2vw, 1.7rem);
   font-weight: 400;
+  font-style: normal;
   letter-spacing: -0.01em;
-  color: #1A1410;
-  text-transform: none;
+  color: #1A1410 !important;
+  text-transform: none !important;
   white-space: nowrap;
   transition: color 0.3s ease;
 }
 
-.nav__logo span { font-weight: 400; }
+.nav__logo span { 
+  font-weight: 400; 
+  margin-right: 0.1em; /* Reduced spacing between Amour and Affairs */
+}
 
 .nav__logo sup {
   font-size: 0.5em;
