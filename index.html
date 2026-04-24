@@ -56,6 +56,9 @@
 
   <!-- ═══════════════ PRELOADER ═══════════════ -->
   <div class="preloader" id="preloader">
+    <div class="preloader__logo-wrap">
+      <img src="/logo.png" alt="" class="preloader__logo-img" />
+    </div>
     <div class="preloader__text">
       <span>A</span><span>m</span><span>o</span><span>u</span><span>r</span>
       <span>&nbsp;</span>
@@ -70,7 +73,10 @@
 
   <!-- ═══════════════ NAVIGATION (5.1) ═══════════════ -->
   <nav class="nav" id="nav">
-    <a href="#" class="nav__logo"><span>Amour</span> Affairs<sup>®</sup></a>
+    <a href="#" class="nav__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span>Amour</span> Affairs<sup>®</sup>
+    </a>
 
     <div class="nav__links hide-mobile">
       <a href="#hero" class="nav__link nav__link--active">Home</a>
@@ -784,7 +790,7 @@
           </p>
           <iframe
             class="footer__map"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.2!2d73.8567!3d18.5204!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTjCsDMxJzEzLjQiTiA3M8KwNTEnMjQuMSJF!5e0!3m2!1sen!2sin!4v1"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.2!2d73.87461!3d18.5248108!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c0f8213bba83%3A0x12965147119b443c!2sAmour%20Affairs%20Photography%2C%20Since%202011!5e0!3m2!1sen!2sin!4v1"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
             title="Amour Affairs office location in Pune"
@@ -825,15 +831,22 @@
 
       <!-- Footer Bar -->
       <div class="footer__bar">
-        <span class="footer__copyright">© 2011–2025 Amour Affairs. All rights reserved.</span>
+        <span class="footer__copyright">© 2011–<span class="dynamic-year">2025</span> Amour Affairs. All rights reserved.</span>
         <div class="footer__bar-links">
-          <a href="#" class="footer__bar-link">Privacy Policy</a>
-          <a href="#" class="footer__bar-link">Terms & Conditions</a>
+          <a href="/privacy-policy/" class="footer__bar-link">Privacy Policy</a>
+          <a href="/disclaimer/" class="footer__bar-link">Disclaimer</a>
+          <a href="/terms-and-conditions/" class="footer__bar-link">Terms &amp; Conditions</a>
+          <a href="/faqs/" class="footer__bar-link">FAQs</a>
+          <a href="/careers/" class="footer__bar-link">Careers</a>
           <a href="#" class="footer__bar-link">Designed by Kedar</a>
         </div>
       </div>
     </div>
   </footer>
 
+  <script>
+    document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
+    document.querySelectorAll('.dynamic-years-elapsed').forEach(el => el.textContent = new Date().getFullYear() - 2011);
+  </script>
 </body>
 </html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | Amour Affairs</title>
+  <meta name="description" content="Learn how Amour Affairs collects, uses and protects your personal information.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-bg:           #FAF7F4;
+      --color-bg-alt:       #F5F0EA;
+      --color-surface:      #EDE7DF;
+      --color-text:         #2C2420;
+      --color-text-dim:     #7A6A5A;
+      --color-accent:       #9E7A4E;
+      --color-accent-light: #C9A97C;
+      --font-display:       'Instrument Serif', Georgia, serif;
+      --font-body:          'Inter', 'Helvetica Neue', sans-serif;
+      --container-max:      860px;
+      --container-gutter:   clamp(24px, 6vw, 80px);
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--color-bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(158,122,78,0.3); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+    html { scrollbar-width: thin; scrollbar-color: rgba(158,122,78,0.3) var(--color-bg); }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.8;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+    }
+    a { color: var(--color-accent); text-decoration: none; transition: opacity 0.3s ease; }
+    a:hover { opacity: 0.7; }
+
+    /* ── Navigation ── */
+    .nav {
+      position: fixed; top: 0; left: 0; width: 100%;
+      padding: 10px var(--container-gutter);
+      display: flex; align-items: center; justify-content: space-between;
+      z-index: 1000; background: rgba(250,247,244,0.92);
+      backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+      border-bottom: 1px solid rgba(158,122,78,0.1);
+    }
+    .nav__logo {
+      font-family: var(--font-display); font-size: 1.5rem; font-weight: 400;
+      text-decoration: none; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.02em;
+      display: inline-flex; align-items: center; gap: 6px;
+      color: #1A1410;
+    }
+    .nav__logo span { font-weight: 400; margin-right: 0.02em; }
+    .nav__logo sup { font-size: 0.45em; position: relative; top: -0.7em; margin-left: 0.05em; font-weight: 300; opacity: 0.85; }
+    .nav__logo-img {
+      height: clamp(22px, 2.8vw, 32px); width: auto; object-fit: contain;
+      opacity: 0.85; transition: opacity 0.3s ease;
+    }
+    .nav__logo:hover .nav__logo-img { opacity: 1; }
+    .nav__back {
+      font-family: var(--font-body); font-size: 0.72rem; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-text-dim);
+      display: flex; align-items: center; gap: 8px; transition: color 0.3s ease;
+    }
+    .nav__back:hover { color: var(--color-accent); }
+    .nav__back::before { content: '←'; font-size: 1em; }
+
+    /* ── Page Hero ── */
+    .page-hero {
+      padding-top: 140px; padding-bottom: 60px;
+      padding-left: var(--container-gutter); padding-right: var(--container-gutter);
+      border-bottom: 1px solid rgba(158,122,78,0.15);
+    }
+    .page-hero__inner { max-width: var(--container-max); margin: 0 auto; }
+    .page-hero__eyebrow {
+      display: inline-block; font-family: var(--font-body); font-size: 0.7rem;
+      font-weight: 500; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--color-accent); margin-bottom: 18px;
+    }
+    .page-hero__title {
+      font-family: var(--font-display); font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 400; line-height: 1.05; letter-spacing: -0.02em;
+      color: var(--color-text);
+    }
+    .page-hero__title em { font-style: italic; color: var(--color-text-dim); }
+    .page-hero__meta {
+      margin-top: 20px; font-family: var(--font-body); font-size: 0.8rem;
+      color: var(--color-text-dim); letter-spacing: 0.05em;
+    }
+
+    /* ── Content ── */
+    .page-content {
+      padding: 80px var(--container-gutter) 120px;
+    }
+    .page-content__inner { max-width: var(--container-max); margin: 0 auto; }
+
+    .section-block { margin-bottom: 56px; }
+    .section-block__heading {
+      font-family: var(--font-body); font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-accent);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 14px;
+    }
+    .section-block__heading::after {
+      content: ''; flex: 1; height: 1px; background: rgba(158,122,78,0.2);
+    }
+    .section-block p {
+      font-family: var(--font-body); font-size: 1rem; line-height: 1.85;
+      color: var(--color-text-dim); margin-bottom: 18px;
+    }
+    .section-block p:last-child { margin-bottom: 0; }
+
+    /* ── Decorative intro ── */
+    .intro-quote {
+      font-family: var(--font-display); font-size: clamp(1.1rem, 2vw, 1.35rem);
+      font-style: italic; line-height: 1.75; color: var(--color-text);
+      padding: 32px 0; border-top: 1px solid rgba(158,122,78,0.15);
+      border-bottom: 1px solid rgba(158,122,78,0.15); margin-bottom: 56px;
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      border-top: 1px solid rgba(158,122,78,0.15);
+      padding: 48px var(--container-gutter);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .page-footer__logo {
+      font-family: var(--font-display); font-size: 1.2rem; color: var(--color-text);
+    }
+    .page-footer__links {
+      display: flex; gap: 28px; flex-wrap: wrap;
+    }
+    .page-footer__links a {
+      font-family: var(--font-body); font-size: 0.72rem; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--color-text-dim);
+    }
+    .page-footer__links a:hover { color: var(--color-accent); }
+
+    @media (max-width: 600px) {
+      .page-footer { flex-direction: column; text-align: center; }
+      .page-footer__links { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="/" class="nav__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span>Amour</span> Affairs<sup>®</sup>
+    </a>
+    <a href="/" class="nav__back">Back to Home</a>
+  </nav>
+
+  <!-- Page Hero -->
+  <header class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Legal</span>
+      <h1 class="page-hero__title">Privacy<br><em>Policy</em></h1>
+      <p class="page-hero__meta">Effective as of <span class="dynamic-year">2024</span> &nbsp;·&nbsp; Amour Affairs, Pune</p>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="page-content">
+    <div class="page-content__inner">
+
+      <p class="intro-quote">
+        "This privacy policy depicts how Amour Affairs uses, stores and protects the information you provide to us when you use this website."
+      </p>
+
+      <div class="section-block">
+        <div class="section-block__heading">How We Use Your Information</div>
+        <p>Amour Affairs uses the information provided by you to deliver better customer support, for our customer database and internal record keeping, and/or to facilitate any specific service provided through the website.</p>
+        <p>Amour Affairs may change the terms in this privacy policy on a timely basis by updating this page. Notification is not mandatory. We request you to kindly visit this page occasionally to view our updated terms.</p>
+        <p>Amour Affairs collects user information to better understand your needs and provide you with the services and support you require. All the information collected through our website is used solely for this purpose and for the sake of our internal record keeping.</p>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block__heading">Cookies</div>
+        <p>Our website makes use of Cookies in a purely harmless way and solely in order to make your browsing experience seamless. We make use of two types of Cookies — 'session' Cookies that remove themselves from your device when you close your browser, and 'persistent' Cookies that remain on your device until deleted manually or they reach their expiration date.</p>
+        <p>We use Cookies harmlessly for purposes such as recognising that you are re-visiting our site and hence to load static elements quicker, to improve the usability and security of the site, as part of our analytics platform, and to serve you content that is more specific to you. No personal information is stored in the process.</p>
+      </div>
+
+      <div class="section-block">
+        <div class="section-block__heading">Confidentiality & Data Sharing</div>
+        <p>The Amour Affairs website is programmed to send your inquiry as an email to <a href="mailto:info@amouraffairs.in">info@amouraffairs.in</a>. Information provided by you will be kept strictly confidential and will not be provided to any third-party vendor or marketing agency.</p>
+        <p>Information provided by the end user or visitor may be used for Amour Affairs's promotional campaigns. A user may opt out of our database by using the 'Unsubscribe' details provided in the promotional e-mails or by sending us an email at <a href="mailto:info@amouraffairs.in">info@amouraffairs.in</a>.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <div class="page-footer__logo">Amour Affairs<sup style="font-size:0.5em; vertical-align:super;">®</sup></div>
+    <nav class="page-footer__links">
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/disclaimer/">Disclaimer</a>
+      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+      <a href="/faqs/">FAQs</a>
+      <a href="/careers/">Careers</a>
+    </nav>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
+  </script>
+</body>
+</html>

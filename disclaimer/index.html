@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disclaimer | Amour Affairs</title>
+  <meta name="description" content="Read the disclaimer for Amour Affairs — accuracy, liability, intellectual property and applicable law.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#FAF7F4;--bg-alt:#F5F0EA;--text:#2C2420;--dim:#7A6A5A;
+      --accent:#9E7A4E;--serif:'Instrument Serif',Georgia,serif;
+      --sans:'Inter','Helvetica Neue',sans-serif;
+      --max:860px;--gutter:clamp(24px,6vw,80px);
+    }
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:rgba(158,122,78,.3)}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+    html{scrollbar-width:thin;scrollbar-color:rgba(158,122,78,.3) var(--bg)}
+    body{font-family:var(--sans);font-size:1rem;line-height:1.8;color:var(--text);background:var(--bg)}
+    a{color:var(--accent);text-decoration:none;transition:opacity .3s}
+    a:hover{opacity:.7}
+
+    .nav{position:fixed;top:0;left:0;width:100%;padding:10px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;z-index:1000;
+      background:rgba(250,247,244,.92);backdrop-filter:blur(22px);
+      border-bottom:1px solid rgba(158,122,78,.1)}
+    .nav__logo{font-family:var(--serif);font-size:1.5rem;font-weight:400;
+      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.02em;
+      display:inline-flex;align-items:center;gap:6px;color:#1A1410}
+    .nav__logo span{font-weight:400;margin-right:0.02em}
+    .nav__logo sup{font-size:.45em;position:relative;top:-.7em;margin-left:.05em;font-weight:300;opacity:.85}
+    .nav__logo-img{height:clamp(22px, 2.8vw, 32px);width:auto;object-fit:contain;opacity:.85;
+      transition:opacity .3s ease}
+    .nav__logo:hover .nav__logo-img{opacity:1}
+    .nav__back{font-family:var(--sans);font-size:.72rem;font-weight:500;
+      letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+      display:flex;align-items:center;gap:8px;text-decoration:none;transition:color .3s}
+    .nav__back:hover{color:var(--accent);opacity:1}
+    .nav__back::before{content:'←'}
+
+    .page-hero{padding:140px var(--gutter) 60px;border-bottom:1px solid rgba(158,122,78,.15)}
+    .page-hero__inner{max-width:var(--max);margin:0 auto}
+    .page-hero__eyebrow{display:inline-block;font-family:var(--sans);font-size:.7rem;
+      font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+    .page-hero__title{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);
+      font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--text)}
+    .page-hero__title em{font-style:italic;color:var(--dim)}
+    .page-hero__meta{margin-top:20px;font-size:.8rem;color:var(--dim)}
+
+    .page-content{padding:80px var(--gutter) 120px}
+    .page-content__inner{max-width:var(--max);margin:0 auto}
+
+    .intro-note{font-family:var(--serif);font-size:clamp(1.05rem,1.8vw,1.25rem);
+      font-style:italic;line-height:1.75;color:var(--text);
+      padding:32px 0;border-top:1px solid rgba(158,122,78,.15);
+      border-bottom:1px solid rgba(158,122,78,.15);margin-bottom:56px}
+
+    .disclaimer-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;
+      background:rgba(158,122,78,.12);margin-bottom:56px}
+    @media(max-width:640px){.disclaimer-grid{grid-template-columns:1fr}}
+    .disclaimer-card{background:var(--bg);padding:36px 32px;transition:background .3s}
+    .disclaimer-card:hover{background:var(--bg-alt)}
+    .disclaimer-card__label{display:block;font-family:var(--sans);font-size:.62rem;
+      font-weight:600;letter-spacing:.32em;text-transform:uppercase;
+      color:var(--accent);margin-bottom:14px}
+    .disclaimer-card__text{font-size:.95rem;line-height:1.8;color:var(--dim)}
+
+    .page-footer{border-top:1px solid rgba(158,122,78,.15);padding:48px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+    .page-footer__logo{font-family:var(--serif);font-size:1.2rem;color:var(--text)}
+    .page-footer__links{display:flex;gap:28px;flex-wrap:wrap}
+    .page-footer__links a{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+    .page-footer__links a:hover{color:var(--accent);opacity:1}
+    @media(max-width:600px){.page-footer{flex-direction:column;text-align:center}
+      .page-footer__links{justify-content:center}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span>Amour</span> Affairs<sup>®</sup>
+    </a>
+    <a href="/" class="nav__back">Back to Home</a>
+  </nav>
+
+  <header class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Legal</span>
+      <h1 class="page-hero__title">Dis<em>claimer</em></h1>
+      <p class="page-hero__meta">By continuing to view this website you agree to the following terms.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="page-content__inner">
+      <p class="intro-note">"On continuing to view this website you are agreeing to be bound to the following terms and conditions of use."</p>
+      <div class="disclaimer-grid">
+        <div class="disclaimer-card">
+          <span class="disclaimer-card__label">Accuracy &amp; Liability</span>
+          <p class="disclaimer-card__text">Every effort has been taken to ensure that the most current, correct, and clearly expressed information is provided. Nevertheless, inadvertent errors in information may occur. Amour Affairs disclaims any responsibility for typographical errors and accuracy of the information. Your use of any information or materials on this website is entirely at your own risk.</p>
+        </div>
+        <div class="disclaimer-card">
+          <span class="disclaimer-card__label">Reliability</span>
+          <p class="disclaimer-card__text">Amour Affairs makes no representations or warranties regarding the condition or functionality of this website, its suitability for use, or that this website would be uninterrupted or error-free.</p>
+        </div>
+        <div class="disclaimer-card">
+          <span class="disclaimer-card__label">Intellectual Content</span>
+          <p class="disclaimer-card__text">Amour Affairs owns the rights for all content found on this website including but not limited to the text, layout, appearance, look, and the creative content (photographs and films). Reproduction of any content is strictly prohibited, and is subject to the Copyright laws of India.</p>
+        </div>
+        <div class="disclaimer-card">
+          <span class="disclaimer-card__label">Electronic Communications</span>
+          <p class="disclaimer-card__text">When contacting Amour Affairs you consent to receive communications from us electronically.</p>
+        </div>
+        <div class="disclaimer-card" style="grid-column:1/-1">
+          <span class="disclaimer-card__label">Applicable Law</span>
+          <p class="disclaimer-card__text">By visiting this website you implicitly agree to be bound by the laws of Pune (India), under the jurisdiction of the District Court of India (Pune, Maharashtra).</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <div class="page-footer__logo">Amour Affairs<sup style="font-size:.5em;vertical-align:super">®</sup></div>
+    <nav class="page-footer__links">
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/disclaimer/">Disclaimer</a>
+      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+      <a href="/faqs/">FAQs</a>
+      <a href="/careers/">Careers</a>
+    </nav>
+  </footer>
+</body>
+</html>

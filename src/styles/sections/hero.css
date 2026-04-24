@@ -19,7 +19,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  padding: 16px var(--container-gutter);
+  padding: 10px var(--container-gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,7 +31,7 @@
   background: rgba(250, 247, 244, 0.92);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
-  padding: 10px var(--container-gutter);
+  padding: 6px var(--container-gutter);
   box-shadow: 0 1px 0 rgba(158, 122, 78, 0.1);
 }
 
@@ -40,23 +40,41 @@
   font-size: clamp(1.35rem, 2vw, 1.7rem);
   font-weight: 400;
   font-style: normal;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
   color: #1A1410 !important;
-  text-transform: none !important;
+  text-transform: uppercase !important;
   white-space: nowrap;
   transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .nav__logo span { 
   font-weight: 400; 
-  margin-right: 0.1em; /* Reduced spacing between Amour and Affairs */
+  margin-right: 0.02em;
 }
 
 .nav__logo sup {
-  font-size: 0.5em;
-  vertical-align: super;
+  font-size: 0.45em;
+  position: relative;
+  top: -0.7em;
+  margin-left: 0.05em;
   letter-spacing: 0;
-  opacity: 0.7;
+  opacity: 0.85;
+  font-weight: 300;
+}
+
+.nav__logo-img {
+  height: clamp(22px, 2.8vw, 32px);
+  width: auto;
+  object-fit: contain;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+.nav__logo:hover .nav__logo-img {
+  opacity: 1;
 }
 
 .nav__links {

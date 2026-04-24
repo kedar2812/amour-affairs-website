@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQs | Amour Affairs</title>
+  <meta name="description" content="Frequently asked questions about Amour Affairs wedding photography and cinematography services — before, during and after your wedding.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#FAF7F4;--bg-alt:#F5F0EA;--surface:#EDE7DF;
+      --text:#2C2420;--dim:#7A6A5A;--accent:#9E7A4E;--accent-light:#C9A97C;
+      --serif:'Instrument Serif',Georgia,serif;--sans:'Inter','Helvetica Neue',sans-serif;
+      --max:820px;--gutter:clamp(24px,6vw,80px);
+    }
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:rgba(158,122,78,.3)}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+    html{scrollbar-width:thin;scrollbar-color:rgba(158,122,78,.3) var(--bg)}
+    body{font-family:var(--sans);font-size:1rem;line-height:1.8;color:var(--text);background:var(--bg)}
+    a{color:var(--accent);text-decoration:none;transition:opacity .3s}a:hover{opacity:.7}
+
+    /* Nav */
+    .nav{position:fixed;top:0;left:0;width:100%;padding:10px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;z-index:1000;
+      background:rgba(250,247,244,.92);backdrop-filter:blur(22px);
+      border-bottom:1px solid rgba(158,122,78,.1)}
+    .nav__logo{font-family:var(--serif);font-size:1.5rem;font-weight:400;
+      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.02em;
+      display:inline-flex;align-items:center;gap:6px;color:#1A1410}
+    .nav__logo span{font-weight:400;margin-right:0.02em}
+    .nav__logo sup{font-size:.45em;position:relative;top:-.7em;margin-left:.05em;font-weight:300;opacity:.85}
+    .nav__logo-img{height:clamp(22px, 2.8vw, 32px);width:auto;object-fit:contain;opacity:.85;
+      transition:opacity .3s ease}
+    .nav__logo:hover .nav__logo-img{opacity:1}
+    .nav__back{font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;
+      color:var(--dim);display:flex;align-items:center;gap:8px;text-decoration:none;transition:color .3s}
+    .nav__back:hover{color:var(--accent);opacity:1}
+    .nav__back::before{content:'←'}
+
+    /* Hero */
+    .page-hero{padding:140px var(--gutter) 72px;border-bottom:1px solid rgba(158,122,78,.15)}
+    .page-hero__inner{max-width:var(--max);margin:0 auto}
+    .page-hero__eyebrow{display:inline-block;font-size:.7rem;font-weight:500;
+      letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+    .page-hero__title{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);
+      font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--text)}
+    .page-hero__title em{font-style:italic;color:var(--dim)}
+    .page-hero__sub{margin-top:20px;font-size:1rem;color:var(--dim);max-width:480px;line-height:1.75}
+
+    /* Tabs */
+    .faq-wrap{padding:72px var(--gutter) 120px}
+    .faq-inner{max-width:var(--max);margin:0 auto}
+
+    .tabs{display:flex;gap:0;margin-bottom:56px;border-bottom:1px solid rgba(158,122,78,.15)}
+    .tab-btn{
+      font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.25em;
+      text-transform:uppercase;color:var(--dim);background:none;border:none;cursor:pointer;
+      padding:14px 28px 14px 0;position:relative;transition:color .3s;
+    }
+    .tab-btn::after{
+      content:'';position:absolute;bottom:-1px;left:0;width:0;height:2px;
+      background:var(--accent);transition:width .4s cubic-bezier(.25,.46,.45,.94);
+    }
+    .tab-btn.active{color:var(--accent)}
+    .tab-btn.active::after{width:100%}
+    .tab-btn:hover{color:var(--text)}
+
+    /* Tab panels */
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+
+    /* Accordion items */
+    .faq-item{border-bottom:1px solid rgba(158,122,78,.12);overflow:hidden}
+    .faq-item:first-child{border-top:1px solid rgba(158,122,78,.12)}
+
+    .faq-q{
+      width:100%;background:none;border:none;cursor:pointer;text-align:left;
+      padding:26px 0;display:flex;align-items:center;justify-content:space-between;gap:24px;
+    }
+    .faq-q__text{
+      font-family:var(--serif);font-size:clamp(1rem,1.8vw,1.2rem);
+      font-weight:400;color:var(--text);line-height:1.4;transition:color .3s;
+    }
+    .faq-q:hover .faq-q__text{color:var(--accent)}
+    .faq-q__icon{
+      flex-shrink:0;width:28px;height:28px;border:1px solid rgba(158,122,78,.3);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      transition:background .3s,border-color .3s,transform .4s;
+    }
+    .faq-q__icon svg{width:10px;height:10px;stroke:var(--accent);transition:transform .4s}
+    .faq-item.open .faq-q__icon{background:var(--accent);border-color:var(--accent)}
+    .faq-item.open .faq-q__icon svg{stroke:#FAF7F4;transform:rotate(45deg)}
+
+    .faq-a{
+      max-height:0;overflow:hidden;
+      transition:max-height .5s cubic-bezier(.25,.46,.45,.94), padding .4s ease;
+    }
+    .faq-item.open .faq-a{max-height:400px}
+    .faq-a__inner{padding-bottom:28px}
+    .faq-a__inner p{font-size:.97rem;line-height:1.85;color:var(--dim)}
+
+    /* Bottom CTA */
+    .faq-cta{
+      margin-top:72px;padding:48px 40px;background:var(--surface);
+      display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;
+    }
+    @media(max-width:600px){.faq-cta{flex-direction:column;text-align:center;padding:36px 24px}}
+    .faq-cta__text h3{font-family:var(--serif);font-size:1.6rem;font-weight:400;margin-bottom:6px}
+    .faq-cta__text h3 em{font-style:italic;color:var(--accent)}
+    .faq-cta__text p{font-size:.9rem;color:var(--dim)}
+    .faq-cta__btn{
+      display:inline-flex;align-items:center;gap:10px;
+      font-size:.72rem;font-weight:500;letter-spacing:.25em;text-transform:uppercase;
+      padding:16px 36px;border:1px solid var(--accent);color:var(--accent);
+      background:transparent;position:relative;overflow:hidden;transition:color .5s;
+      white-space:nowrap;text-decoration:none;
+    }
+    .faq-cta__btn::before{
+      content:'';position:absolute;inset:0;background:var(--accent);
+      transform:scaleX(0);transform-origin:right;
+      transition:transform .5s cubic-bezier(.25,.46,.45,.94);z-index:-1;
+    }
+    .faq-cta__btn:hover{color:#FAF7F4;opacity:1}
+    .faq-cta__btn:hover::before{transform:scaleX(1);transform-origin:left}
+
+    /* Footer */
+    .page-footer{border-top:1px solid rgba(158,122,78,.15);padding:48px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+    .page-footer__logo{font-family:var(--serif);font-size:1.2rem;color:var(--text)}
+    .page-footer__links{display:flex;gap:28px;flex-wrap:wrap}
+    .page-footer__links a{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+    .page-footer__links a:hover{color:var(--accent);opacity:1}
+    @media(max-width:600px){.page-footer{flex-direction:column;text-align:center}
+      .page-footer__links{justify-content:center}}
+    @media(max-width:480px){.tab-btn{padding:14px 16px 14px 0;font-size:.65rem}}
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="/" class="nav__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span>Amour</span> Affairs<sup>®</sup>
+    </a>
+    <a href="/" class="nav__back">Back to Home</a>
+  </nav>
+
+  <header class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Got Questions?</span>
+      <h1 class="page-hero__title">F.A.<em>Q.s</em></h1>
+      <p class="page-hero__sub">Everything you need to know about working with us — before, during, and after your wedding day.</p>
+    </div>
+  </header>
+
+  <main class="faq-wrap">
+    <div class="faq-inner">
+
+      <!-- Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" role="tab" data-tab="before" aria-selected="true">01. Before</button>
+        <button class="tab-btn" role="tab" data-tab="during" aria-selected="false">02. During</button>
+        <button class="tab-btn" role="tab" data-tab="after" aria-selected="false">03. After</button>
+      </div>
+
+      <!-- Before -->
+      <div class="tab-panel active" id="tab-before" role="tabpanel">
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">How would you describe your style of photography?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We're storytellers first and foremost. Our approach is not confined to one genre of photography but is driven by your unique story, who you are, your personal tastes, and design interests. We are dedicated to giving you photographs that celebrate your life, and are cherished by generations to come.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">We'd love to go ahead with you. What next?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Yay! We may even be more excited than you about this! If you think you want to book us for your wedding but would like to meet first, we're more than happy to do so! We'll go for a cup of coffee, have an informal tête-à-tête and the next bit is up to you! Alternatively, we can Skype or chat on the phone. Once we understand the nitty-gritties, we'll sign a contract along with a 50% booking advance to secure the date. The remainder comes in before the last day of your wedding.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">How far in advance should we book?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>A year in advance is most common. We take not more than 30 weddings a year and we book up quickly, but there's no saying we are not available on your date. So whether it's in two years or two days, shout out to us and see where we're at!</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">We're on a budget. Can we have a discount?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>For years we have worked with couples on all kinds of budgets, but we have had to be firmer with our pricing. We believe it's important that we are compensated adequately for the love, talent, creativity and time we put into what we do. We offer a variety of packages typically ranging from INR 40,000 to INR 4,00,000 per day, so please see what suits your needs best!</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Will you meet us before the big day?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Always! We'll be spending probably the most important day of your life with you, so as much as you love our photography, you must love us too! We'll have a good chat through your plans and talk you through what we do throughout the celebrations — and more importantly, get super excited about your wedding! A month or so before the occasion, we'll finalise a shot planner containing all the key details for each ceremony: timings, contact details, a group portrait list — so we're fully prepped for your big day.</p></div></div>
+        </div>
+
+      </div>
+
+      <!-- During -->
+      <div class="tab-panel" id="tab-during" role="tabpanel">
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">What type of equipment do you use?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We use top of the line professional equipment for our cameras and lenses while also using lots of different professional lighting systems and props. We even come fully prepared with a backup to make sure we don't miss out on any of your wedding drama!</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Our wedding is in Bali / Dubai / abroad — do you travel?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Absolutely! We'd be happy to get in the car and drive, or fly in a plane to work with an amazing couple like you. We're not very fussy and any accommodation that you provide for your guests works perfectly fine for us as well.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">If the event runs longer than expected, will you stay? Is there an additional charge?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We understand that not everything goes as planned, especially during an Indian wedding — in fact, perhaps only 1 in 10 weddings we've shot have ever gone on time. We never pack up before or on the dot of the contracted time. If you would like us to extend, we will charge the rates specified in your contract.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Are you photographing other events on the same day as ours?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Absolutely not! We pride ourselves in providing you with the celebrity-like treatment you deserve on your wedding day.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Besides stills, can you also film our wedding cinematically?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We believe wedding photography and cinematography belong together — they're like two peas in a pod. Unlike typical videography, we offer a short 'forever film' (10–15 minutes long, along with a 3–4 minute trailer and a 50–60 second teaser) that will ignite memories of that sneakily-drinking friend, booty-shaking uncle and forever-hyper mother, whilst still infusing the magic and mayhem of your happy day. Our guarantee — you'll fall in love again and again!</p></div></div>
+        </div>
+
+      </div>
+
+      <!-- After -->
+      <div class="tab-panel" id="tab-after" role="tabpanel">
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">When can we expect our photos?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>While it takes time to create a masterpiece, you can expect your photos within 60–90 working days. You'll receive the couple shots within a week because we know you're dying to see the images. And because we're super awesome, we'll even send you a sneak peek of a few pictures by email, drive or WhatsApp.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Is there a limit on the number of pictures we receive?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>Absolutely not! We'll share with you ALL the pictures. Yes, you read it right — not just some, not just the ones that we "think" are good, not just a certain amount. ALL OF THEM. It's your wedding. You deserve them. If you insist on a number, a typical 6–8 hour shoot delivers 600–800 pictures.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Do we get edited images? Can we have the RAW files?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>As a service to you, nothing leaves our studio unfinished — this includes the RAW files. We spend a lot of time to ensure you only get a perfectly edited set of photos.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Who owns the copyright of the images?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We do — but you have the rights to print the images, just not to use them for sales or marketing purposes. If you want to show off your photos on social media, we would be really grateful if you would credit us.</p></div></div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" aria-expanded="false">
+            <span class="faq-q__text">Do you provide any assistance in creating a wedding album?</span>
+            <span class="faq-q__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+          </button>
+          <div class="faq-a"><div class="faq-a__inner"><p>We sure do! Our album design is simple yet elegant and showcases the best images from your day, carefully selected between both you and us. We will share a digital draft with you before printing and you sure will be delighted with the final result!</p></div></div>
+        </div>
+
+      </div>
+
+      <!-- Bottom CTA -->
+      <div class="faq-cta">
+        <div class="faq-cta__text">
+          <h3>Still have a question? <em>Let's talk.</em></h3>
+          <p>We're happy to answer anything over a coffee or a call.</p>
+        </div>
+        <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="faq-cta__btn">WhatsApp Us →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <div class="page-footer__logo">Amour Affairs<sup style="font-size:.5em;vertical-align:super">®</sup></div>
+    <nav class="page-footer__links">
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/disclaimer/">Disclaimer</a>
+      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+      <a href="/faqs/">FAQs</a>
+      <a href="/careers/">Careers</a>
+    </nav>
+  </footer>
+
+  <script>
+    // ── Tab switching ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        // Close all accordions on tab switch
+        document.querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        });
+      });
+    });
+
+    // ── Accordion ──
+    document.querySelectorAll('.faq-q').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        // Close all in current tab
+        btn.closest('.tab-panel').querySelectorAll('.faq-item').forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Careers | Amour Affairs</title>
+  <meta name="description" content="Join the Amour Affairs team. We're looking for passionate creatives who love love.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#FAF7F4;--bg-alt:#F5F0EA;--surface:#EDE7DF;
+      --text:#2C2420;--dim:#7A6A5A;--accent:#9E7A4E;--accent-light:#C9A97C;
+      --serif:'Instrument Serif',Georgia,serif;--sans:'Inter','Helvetica Neue',sans-serif;
+      --max:900px;--gutter:clamp(24px,6vw,80px);
+    }
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:rgba(158,122,78,.3)}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+    html{scrollbar-width:thin;scrollbar-color:rgba(158,122,78,.3) var(--bg)}
+    body{font-family:var(--sans);font-size:1rem;line-height:1.8;color:var(--text);background:var(--bg)}
+    a{color:var(--accent);text-decoration:none;transition:opacity .3s}
+    a:hover{opacity:.7}
+
+    .nav{position:fixed;top:0;left:0;width:100%;padding:10px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;z-index:1000;
+      background:rgba(250,247,244,.92);backdrop-filter:blur(22px);
+      border-bottom:1px solid rgba(158,122,78,.1)}
+    .nav__logo{font-family:var(--serif);font-size:1.5rem;font-weight:400;
+      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.02em;
+      display:inline-flex;align-items:center;gap:6px;color:#1A1410}
+    .nav__logo span{font-weight:400;margin-right:0.02em}
+    .nav__logo sup{font-size:.45em;position:relative;top:-.7em;margin-left:.05em;font-weight:300;opacity:.85}
+    .nav__logo-img{height:clamp(22px, 2.8vw, 32px);width:auto;object-fit:contain;opacity:.85;
+      transition:opacity .3s ease}
+    .nav__logo:hover .nav__logo-img{opacity:1}
+    .nav__back{font-family:var(--sans);font-size:.72rem;font-weight:500;
+      letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+      display:flex;align-items:center;gap:8px;text-decoration:none;transition:color .3s}
+    .nav__back:hover{color:var(--accent);opacity:1}
+    .nav__back::before{content:'←'}
+
+    /* Hero with warm linen background */
+    .page-hero{
+      padding:140px var(--gutter) 80px;
+      background:var(--bg-alt);
+      border-bottom:1px solid rgba(158,122,78,.15);
+      position:relative;overflow:hidden;
+    }
+    .page-hero::before{
+      content:'';position:absolute;right:-5%;bottom:-30%;
+      width:500px;height:500px;border-radius:50%;
+      background:radial-gradient(circle,rgba(158,122,78,.08) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .page-hero__inner{max-width:var(--max);margin:0 auto;position:relative}
+    .page-hero__eyebrow{display:inline-block;font-family:var(--sans);font-size:.7rem;
+      font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+    .page-hero__title{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);
+      font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--text)}
+    .page-hero__title em{font-style:italic;color:var(--dim)}
+    .page-hero__sub{margin-top:24px;font-size:1rem;line-height:1.75;color:var(--dim);max-width:520px}
+
+    .page-content{padding:80px var(--gutter) 120px}
+    .page-content__inner{max-width:var(--max);margin:0 auto}
+
+    /* Open role card */
+    .role-intro{
+      display:grid;grid-template-columns:1fr 1fr;gap:60px;
+      padding-bottom:56px;border-bottom:1px solid rgba(158,122,78,.15);margin-bottom:64px;
+      align-items:center;
+    }
+    @media(max-width:700px){.role-intro{grid-template-columns:1fr;gap:32px}}
+    .role-intro__heading{font-family:var(--serif);font-size:clamp(1.8rem,4vw,3rem);
+      font-weight:400;line-height:1.15;color:var(--text);margin-bottom:16px}
+    .role-intro__heading em{font-style:italic;color:var(--accent)}
+    .role-intro__text{font-size:1rem;line-height:1.85;color:var(--dim)}
+    .role-intro__tag{display:inline-block;margin-top:20px;font-size:.68rem;
+      letter-spacing:.28em;text-transform:uppercase;color:var(--dim);
+      border:1px solid rgba(158,122,78,.3);padding:8px 18px}
+
+    /* Values */
+    .values{margin-bottom:72px}
+    .values__label{font-family:var(--sans);font-size:.68rem;font-weight:600;
+      letter-spacing:.32em;text-transform:uppercase;color:var(--accent);
+      margin-bottom:36px;display:flex;align-items:center;gap:14px}
+    .values__label::after{content:'';flex:1;height:1px;background:rgba(158,122,78,.2)}
+    .values__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+      background:rgba(158,122,78,.12)}
+    @media(max-width:640px){.values__grid{grid-template-columns:1fr}}
+    .value-card{background:var(--bg);padding:32px 28px;transition:background .3s}
+    .value-card:hover{background:var(--bg-alt)}
+    .value-card__num{font-family:var(--serif);font-size:2.5rem;color:var(--accent);
+      opacity:.2;line-height:1;margin-bottom:12px}
+    .value-card__title{font-family:var(--serif);font-size:1.15rem;margin-bottom:10px;color:var(--text)}
+    .value-card__text{font-size:.9rem;line-height:1.75;color:var(--dim)}
+
+    /* CTA */
+    .cta-block{background:var(--surface);padding:56px 48px;text-align:center}
+    @media(max-width:600px){.cta-block{padding:40px 24px}}
+    .cta-block__title{font-family:var(--serif);font-size:clamp(1.6rem,3.5vw,2.5rem);
+      font-weight:400;line-height:1.2;color:var(--text);margin-bottom:12px}
+    .cta-block__title em{font-style:italic;color:var(--accent)}
+    .cta-block__sub{font-size:.95rem;color:var(--dim);margin-bottom:0}
+
+    .page-footer{border-top:1px solid rgba(158,122,78,.15);padding:48px var(--gutter);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+    .page-footer__logo{font-family:var(--serif);font-size:1.2rem;color:var(--text)}
+    .page-footer__links{display:flex;gap:28px;flex-wrap:wrap}
+    .page-footer__links a{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
+    .page-footer__links a:hover{color:var(--accent);opacity:1}
+    @media(max-width:600px){.page-footer{flex-direction:column;text-align:center}
+      .page-footer__links{justify-content:center}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="/" class="nav__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span>Amour</span> Affairs<sup>®</sup>
+    </a>
+    <a href="/" class="nav__back">Back to Home</a>
+  </nav>
+
+  <header class="page-hero">
+    <div class="page-hero__inner">
+      <span class="page-hero__eyebrow">Work With Us</span>
+      <h1 class="page-hero__title">Join Our<br><em>Team</em></h1>
+      <p class="page-hero__sub">Aspiring to work on exciting projects that make a difference? We'd like to catch up with you then. We have the right set of missions to sharpen your superpowers.</p>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="page-content__inner">
+
+      <div class="role-intro">
+        <div>
+          <h2 class="role-intro__heading">We're always looking for <em>passionate creatives</em></h2>
+          <p class="role-intro__tag">Experience preferred · Excitement guaranteed</p>
+        </div>
+        <div>
+          <p class="role-intro__text">At Amour Affairs, we believe that great work is born from a love of what you do. We're a close-knit team of photographers, cinematographers, editors, and storytellers who pour our hearts into every wedding we document. If that sounds like your kind of place, we'd love to hear from you.</p>
+        </div>
+      </div>
+
+      <div class="values">
+        <div class="values__label">Why Amour Affairs</div>
+        <div class="values__grid">
+          <div class="value-card">
+            <div class="value-card__num">01</div>
+            <div class="value-card__title">Real Stories</div>
+            <p class="value-card__text">Every project is a unique love story. We capture candid emotions, not posed performances.</p>
+          </div>
+          <div class="value-card">
+            <div class="value-card__num">02</div>
+            <div class="value-card__title">Creative Freedom</div>
+            <p class="value-card__text">We trust our team. You'll have the creative latitude to bring your vision to life on every shoot.</p>
+          </div>
+          <div class="value-card">
+            <div class="value-card__num">03</div>
+            <div class="value-card__title"><span class="dynamic-years-elapsed">15</span>+ Years of Craft</div>
+            <p class="value-card__text">Learn from one of Pune's most celebrated studios — 500+ weddings and counting since 2011.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-block">
+        <h2 class="cta-block__title">Ready to tell<br><em>love stories?</em></h2>
+        <p class="cta-block__sub">Send your portfolio and resume — we'd love to see your work.<br><br>
+        Reach out to us at <a href="mailto:info@amouraffairs.in" style="font-weight:500;">info@amouraffairs.in</a></p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <div class="page-footer__logo">Amour Affairs<sup style="font-size:.5em;vertical-align:super">®</sup></div>
+    <nav class="page-footer__links">
+      <a href="/privacy-policy/">Privacy Policy</a>
+      <a href="/disclaimer/">Disclaimer</a>
+      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
+      <a href="/faqs/">FAQs</a>
+      <a href="/careers/">Careers</a>
+    </nav>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
+    document.querySelectorAll('.dynamic-years-elapsed').forEach(el => el.textContent = new Date().getFullYear() - 2011);
+  </script>
+</body>
+</html>

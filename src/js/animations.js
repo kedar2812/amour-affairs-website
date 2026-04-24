@@ -231,6 +231,7 @@ export function initPreloader() {
       return;
     }
 
+    const logoImg = preloader.querySelector('.preloader__logo-img');
     const chars = preloader.querySelectorAll('.preloader__text span');
 
     const tl = gsap.timeline({
@@ -247,23 +248,44 @@ export function initPreloader() {
       },
     });
 
-    // Animate preloader text
+    // Logo zooms IN (scale 0.5 → 1)
+    if (logoImg) {
+      tl.from(logoImg, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.out',
+      });
+    }
+
+    // Text slides up (entry — unchanged)
     tl.from(chars, {
       y: 80,
       opacity: 0,
       duration: 0.8,
       ease: 'power3.out',
       stagger: 0.05,
-    });
+    }, logoImg ? '-=0.3' : '0');
 
+    // Logo shrinks back out (exact reverse of entry: scale 1 → 0.5)
+    if (logoImg) {
+      tl.to(logoImg, {
+        scale: 0.5,
+        opacity: 0,
+        duration: 0.9,
+        ease: 'power3.in',
+        delay: 0.5,
+      });
+    }
+
+    // Text slides out (exit — unchanged)
     tl.to(chars, {
       y: -40,
       opacity: 0,
       duration: 0.5,
       ease: 'power2.in',
       stagger: 0.03,
-      delay: 0.6,
-    });
+    }, logoImg ? '-=0.5' : '+=0.5');
   });
 }
 
