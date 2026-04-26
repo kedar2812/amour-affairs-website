@@ -21,6 +21,10 @@ export default defineConfig({
       input: {
         main:               resolve(__dirname, 'index.html'),
         shop:               resolve(__dirname, 'shop.html'),
+        weddings:           resolve(__dirname, 'weddings/index.html'),
+        films:              resolve(__dirname, 'films/index.html'),
+        coupleShoots:       resolve(__dirname, 'couple-shoots/index.html'),
+        premiumAlbums:      resolve(__dirname, 'premium-albums/index.html'),
         privacyPolicy:      resolve(__dirname, 'privacy-policy/index.html'),
         disclaimer:         resolve(__dirname, 'disclaimer/index.html'),
         careers:            resolve(__dirname, 'careers/index.html'),
