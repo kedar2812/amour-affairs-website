@@ -1,24 +1,31 @@
 /* ============================================================
    PAGE-INIT.JS — Shared init for service detail pages
    Amour Affairs · Premium Wedding Photography
+   Lenis smooth-scroll, GSAP ScrollTrigger, premium reveals
    ============================================================ */
 
+// ── Styles ──
 import '../styles/reset.css';
 import '../styles/variables.css';
 import '../styles/typography.css';
 import '../styles/components.css';
+import '../styles/sections/hero.css';
+import '../styles/sections/contact.css';
 import '../styles/service-pages.css';
 
+// ── Libraries ──
 import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+// ── Modules ──
 import { initCursor } from './cursor.js';
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ── Lenis Smooth Scroll ──
 const lenis = new Lenis({
   duration: 1.4,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -28,9 +35,7 @@ const lenis = new Lenis({
 
 window.__lenis = lenis;
 
-gsap.ticker.add((time) => {
-  lenis.raf(time * 1000);
-});
+gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
 lenis.on('scroll', () => { ScrollTrigger.update(); });
@@ -49,11 +54,66 @@ ScrollTrigger.scrollerProxy(document.body, {
 ScrollTrigger.addEventListener('refresh', () => lenis.resize());
 ScrollTrigger.defaults({ scroller: document.body });
 
-/* ── Scroll-driven fade-up ── */
+
+/* ═══════════════════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Hero headline cinematic entrance ── */
+function initHeroEntrance() {
+  const tl = gsap.timeline({ delay: 0.15 });
+
+  // Eyebrow slides in from above
+  tl.from('.page-hero__eyebrow', {
+    y: -30, opacity: 0, duration: 0.9, ease: 'power3.out',
+  });
+
+  // Headline words stagger up
+  const headline = document.querySelector('.page-hero__headline');
+  if (headline) {
+    const text = headline.innerHTML;
+    // Wrap each line in a span for clip reveal
+    headline.querySelectorAll('.word-inner')?.forEach(w => {
+      gsap.set(w, { y: '110%', opacity: 0 });
+    });
+
+    tl.from(headline, {
+      y: 50, opacity: 0, duration: 1.2, ease: 'power3.out',
+    }, '-=0.5');
+  }
+
+  // Subtext fades up
+  tl.from('.page-hero__sub', {
+    y: 40, opacity: 0, duration: 1.0, ease: 'power3.out',
+  }, '-=0.7');
+
+  // Scroll cue
+  tl.from('.page-hero__scroll-cue', {
+    y: 20, opacity: 0, duration: 0.8, ease: 'power3.out',
+  }, '-=0.4');
+}
+
+/* ── Parallax hero background ── */
+function initHeroParallax() {
+  const bg = document.querySelector('.page-hero__bg');
+  if (!bg) return;
+  gsap.to(bg, {
+    yPercent: 20,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.page-hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true,
+    },
+  });
+}
+
+/* ── Fade Up Reveals ── */
 function initFadeUps() {
   gsap.utils.toArray('.fade-up').forEach((el) => {
     gsap.from(el, {
-      y: 50,
+      y: 60,
       opacity: 0,
       duration: 1.0,
       ease: 'power3.out',
@@ -66,21 +126,82 @@ function initFadeUps() {
   });
 }
 
-/* ── Page hero headline slide-up on load ── */
-function initHeroEntrance() {
-  const targets = document.querySelectorAll('.page-hero__headline, .page-hero__sub, .page-hero__eyebrow');
-  gsap.from(targets, {
-    y: 60,
-    opacity: 0,
-    duration: 1.1,
-    ease: 'power3.out',
-    stagger: 0.15,
-    delay: 0.2,
+/* ── Text Reveal (word-by-word) ── */
+function initTextReveals() {
+  document.querySelectorAll('.text-reveal').forEach((el) => {
+    const text = el.textContent;
+    const words = text.split(' ').filter(w => w.length > 0);
+    el.innerHTML = words.map((word) =>
+      `<span class="word"><span class="word-inner">${word}</span></span>`
+    ).join(' ');
+  });
+
+  document.querySelectorAll('.text-reveal').forEach((el) => {
+    const wordInners = el.querySelectorAll('.word-inner');
+    gsap.set(wordInners, { y: '110%', opacity: 0 });
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 85%',
+      onEnter: () => {
+        gsap.to(wordInners, {
+          y: '0%', opacity: 1, duration: 1.0, ease: 'power3.out', stagger: 0.06,
+        });
+      },
+      once: true,
+    });
   });
 }
 
-/* ── Gallery hover tint ── */
-function initGallery() {
+/* ── Slide from sides ── */
+function initSlideReveals() {
+  gsap.utils.toArray('.slide-left').forEach((el) => {
+    gsap.from(el, {
+      x: -60, opacity: 0, duration: 1.0, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+    });
+  });
+
+  gsap.utils.toArray('.slide-right').forEach((el) => {
+    gsap.from(el, {
+      x: 60, opacity: 0, duration: 1.0, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' },
+    });
+  });
+}
+
+/* ── Stagger children of a container ── */
+function initStaggerGroups() {
+  document.querySelectorAll('[data-stagger]').forEach((group) => {
+    const children = group.children;
+    gsap.from(children, {
+      y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12,
+      scrollTrigger: { trigger: group, start: 'top 85%', toggleActions: 'play none none none' },
+    });
+  });
+}
+
+/* ── Counter / number animation ── */
+function initCounters() {
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const end = parseInt(el.dataset.count, 10);
+    const obj = { val: 0 };
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 90%',
+      once: true,
+      onEnter: () => {
+        gsap.to(obj, {
+          val: end, duration: 2, ease: 'power2.out', roundProps: 'val',
+          onUpdate: () => { el.textContent = obj.val; },
+        });
+      },
+    });
+  });
+}
+
+/* ── Gallery hover zoom + tint ── */
+function initGalleryHovers() {
   document.querySelectorAll('.pg-gallery__item').forEach((item) => {
     const img = item.querySelector('img');
     const overlay = item.querySelector('.pg-gallery__overlay');
@@ -105,12 +226,34 @@ function initMarquee() {
   });
 }
 
+/* ── Horizontal rule / divider draw ── */
+function initLineDraws() {
+  document.querySelectorAll('.sp-col__rule').forEach((line) => {
+    gsap.from(line, {
+      scaleX: 0, transformOrigin: 'left center',
+      duration: 1.2, ease: 'power3.out',
+      scrollTrigger: { trigger: line, start: 'top 90%', toggleActions: 'play none none none' },
+    });
+  });
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   BOOT SEQUENCE
+   ═══════════════════════════════════════════════════════ */
+
 async function init() {
   await initPreloader();
   initNav(lenis);
-  initFadeUps();
   initHeroEntrance();
-  initGallery();
+  initHeroParallax();
+  initTextReveals();
+  initFadeUps();
+  initSlideReveals();
+  initStaggerGroups();
+  initCounters();
+  initLineDraws();
+  initGalleryHovers();
   initMarquee();
   initCursor();
   ScrollTrigger.refresh();
