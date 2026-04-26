@@ -7,13 +7,13 @@
   <meta name="description" content="Terms and conditions for Amour Affairs photography and cinematography services.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
       --bg:#FAF7F4;--bg-alt:#F5F0EA;--surface:#EDE7DF;
       --text:#2C2420;--dim:#7A6A5A;--accent:#9E7A4E;
-      --serif:'Instrument Serif',Georgia,serif;--sans:'Inter','Helvetica Neue',sans-serif;
+      --serif:'Montserrat','Helvetica Neue',Arial,sans-serif;--sans:'Montserrat','Helvetica Neue',Arial,sans-serif;
       --max:860px;--gutter:clamp(24px,6vw,80px);
     }
     ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
@@ -28,12 +28,14 @@
       display:flex;align-items:center;justify-content:space-between;z-index:1000;
       background:rgba(250,247,244,.92);backdrop-filter:blur(22px);
       border-bottom:1px solid rgba(158,122,78,.1)}
-    .nav__logo{font-family:var(--serif);font-size:1.5rem;font-weight:400;
-      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.02em;
-      display:inline-flex;align-items:center;gap:6px;color:#1A1410}
+    .nav__logo{font-family:'Montserrat','Helvetica Neue',Arial,sans-serif;font-size:clamp(1rem,1.5vw,1.25rem);font-weight:800;
+      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.01em;
+      display:inline-flex;align-items:center;gap:0;color:#000000}
+    .nav__logo .logo-amour{font-weight:400;font-style:normal}
+    .nav__logo .logo-affairs{font-weight:800;font-style:italic}
     .nav__logo span{font-weight:400;margin-right:0.02em}
     .nav__logo sup{font-size:.45em;position:relative;top:-.7em;margin-left:.05em;font-weight:300;opacity:.85}
-    .nav__logo-img{height:clamp(22px, 2.8vw, 32px);width:auto;object-fit:contain;opacity:.85;
+    .nav__logo-img{height:clamp(22px, 2.8vw, 32px);width:auto;object-fit:contain;opacity:.85;margin-right:6px;
       transition:opacity .3s ease}
     .nav__logo:hover .nav__logo-img{opacity:1}
     .nav__back{font-family:var(--sans);font-size:.72rem;font-weight:500;
@@ -102,7 +104,7 @@
   <nav class="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span>Amour</span> Affairs<sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
     </a>
     <a href="/" class="nav__back">Back to Home</a>
   </nav>
@@ -174,7 +176,7 @@
   </main>
 
   <footer class="page-footer">
-    <div class="page-footer__logo">Amour Affairs<sup style="font-size:.5em;vertical-align:super">®</sup></div>
+    <div class="page-footer__logo"><span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup style="font-size:.5em;vertical-align:super">®</sup></div>
     <nav class="page-footer__links">
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/disclaimer/">Disclaimer</a>

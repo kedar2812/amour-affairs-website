@@ -231,61 +231,40 @@ export function initPreloader() {
       return;
     }
 
-    const logoImg = preloader.querySelector('.preloader__logo-img');
-    const chars = preloader.querySelectorAll('.preloader__text span');
+    const fill = preloader.querySelector('.preloader__progress-fill');
+    
+    // Simulate loading progress from 0 to 100 over 2 seconds
+    let progress = 0;
+    const duration = 2000; // ms
+    const intervalTime = 20;
+    const step = 100 / (duration / intervalTime);
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        gsap.to(preloader, {
-          opacity: 0,
-          duration: 0.6,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            preloader.classList.add('loaded');
-            resolve();
-          },
-        });
-      },
-    });
+    const interval = setInterval(() => {
+      progress += step;
+      
+      if (fill) {
+        fill.style.transform = `translateX(-${100 - Math.min(progress, 100)}%)`;
+      }
 
-    // Logo zooms IN (scale 0.5 → 1)
-    if (logoImg) {
-      tl.from(logoImg, {
-        scale: 0.5,
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power3.out',
-      });
-    }
-
-    // Text slides up (entry — unchanged)
-    tl.from(chars, {
-      y: 80,
-      opacity: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      stagger: 0.05,
-    }, logoImg ? '-=0.3' : '0');
-
-    // Logo shrinks back out (exact reverse of entry: scale 1 → 0.5)
-    if (logoImg) {
-      tl.to(logoImg, {
-        scale: 0.5,
-        opacity: 0,
-        duration: 0.9,
-        ease: 'power3.in',
-        delay: 0.5,
-      });
-    }
-
-    // Text slides out (exit — unchanged)
-    tl.to(chars, {
-      y: -40,
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.in',
-      stagger: 0.03,
-    }, logoImg ? '-=0.5' : '+=0.5');
+      if (progress >= 100) {
+        clearInterval(interval);
+        
+        // Wait briefly at 100% before fading out
+        setTimeout(() => {
+          gsap.to(preloader, {
+            opacity: 0,
+            duration: 0.6,
+            ease: 'power2.inOut',
+            onComplete: () => {
+              preloader.classList.add('loaded');
+              preloader.remove(); // Clean up from DOM
+              document.body.classList.remove('is-loading');
+              resolve();
+            },
+          });
+        }, 300);
+      }
+    }, intervalTime);
   });
 }
 

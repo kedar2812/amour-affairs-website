@@ -21,7 +21,7 @@
   <!-- Preconnect Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
 
   <!-- Schema.org LocalBusiness -->
   <script type="application/ld+json">
@@ -52,17 +52,13 @@
   <!-- Entry Point -->
   <script type="module" src="/src/main.js"></script>
 </head>
-<body>
+<body class="is-loading">
 
   <!-- ═══════════════ PRELOADER ═══════════════ -->
   <div class="preloader" id="preloader">
-    <div class="preloader__logo-wrap">
-      <img src="/logo.png" alt="" class="preloader__logo-img" />
-    </div>
-    <div class="preloader__text">
-      <span>A</span><span>m</span><span>o</span><span>u</span><span>r</span>
-      <span>&nbsp;</span>
-      <span>A</span><span>f</span><span>f</span><span>a</span><span>i</span><span>r</span><span>s</span>
+    <img src="/logo.svg" alt="Amour Affairs Logo" class="preloader__logo-svg" />
+    <div class="preloader__progress">
+      <div class="preloader__progress-fill"></div>
     </div>
   </div>
 
@@ -75,7 +71,7 @@
   <nav class="nav" id="nav">
     <a href="#" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span>Amour</span> Affairs<sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
     </a>
 
     <div class="nav__links hide-mobile">
