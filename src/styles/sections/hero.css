@@ -232,6 +232,7 @@
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100svh; /* avoids mobile browser chrome overlap */
   overflow: hidden;
   background: var(--color-bg);
   display: flex;
@@ -240,15 +241,28 @@
   justify-content: center;
 }
 
-/* ── Canvas — full viewport, model drawn large ── */
+/* ── Background canvas — full-bleed landscape image sequence ── */
+.hero__bg-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  will-change: contents;
+  transform: translateZ(0); /* GPU compositing layer */
+}
+
+/* ── 3D Model canvas — transparent frames stack cleanly above bg ── */
 .hero__canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  mix-blend-mode: multiply;
   pointer-events: none;
+  z-index: 1;
   will-change: contents;
+  /* No mix-blend-mode needed — model frames have alpha transparency */
 }
 
 /* ── Warm vignette glow underneath the model ── */
@@ -265,7 +279,7 @@
     transparent 70%
   );
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 /* ── Hero body — text anchored to bottom center ── */
@@ -283,13 +297,14 @@
   padding-left: var(--container-gutter);
   padding-right: var(--container-gutter);
   pointer-events: none;
+  /* Subtle bottom vignette — just enough for text contrast, not a whitewash */
   background: linear-gradient(
     to top,
-    rgba(250, 247, 244, 0.92) 0%,
-    rgba(250, 247, 244, 0.60) 40%,
-    transparent 100%
+    rgba(250, 247, 244, 0.75) 0%,
+    rgba(250, 247, 244, 0.20) 25%,
+    transparent 55%
   );
-  padding-top: 60px;
+  padding-top: 80px;
   opacity: 0;
 }
 

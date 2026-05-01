@@ -1,13 +1,23 @@
 /* ============================================================
-   HERO-CANVAS.JS — Scroll-driven 3D Frame Scrubbing
+   HERO-CANVAS.JS — Dual-canvas scroll scrubbing
    Amour Affairs · Premium Wedding Photography
-   
+
    Architecture:
-   - Preloads all 120 WebP frames into Image[] array
-   - Draws each frame onto a native <canvas>
-   - GSAP ScrollTrigger maps scroll position → frame index
-   - Hero section is pinned for 300vh; text layers animate in
-   - mix-blend-mode: multiply makes the white bg invisible
+   ┌─────────────────────────────────────────────────────────┐
+   │  #bgCanvas     z:0  — landscape background (WebP seq)  │
+   │  #coupleCanvas z:1  — 3D model (transparent WebP seq)  │
+   └─────────────────────────────────────────────────────────┘
+
+   Why image sequences, not <video>.currentTime?
+   → Each video seek triggers a full decode cycle → choppy.
+   → Pre-decoded Image[] drawn to canvas is GPU-composited
+     in the same microtask as the ScrollTrigger tick → silky.
+
+   Both canvases advance to the SAME frame index from a single
+   GSAP ScrollTrigger onUpdate.
+
+   Background: COVER fill (full-bleed, any aspect ratio)
+   Model:      height-scale 1.20→0.72 as scroll progresses
    ============================================================ */
 
 import { gsap } from 'gsap';
@@ -15,112 +25,110 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+/* ─── Constants ─────────────────────────────────────────── */
 const TOTAL_FRAMES = 120;
-const frames       = new Array(TOTAL_FRAMES);
-let   framesLoaded = 0;
-let   canvasCtx    = null;
-let   canvasEl     = null;
-let   canvasW      = 0;
-let   canvasH      = 0;
 
-/* ─────────────────────────────────────────────────
-   Pad number → "0042"
-───────────────────────────────────────────────── */
-function pad(n) {
-  return String(n).padStart(4, '0');
+/* ─── Shared scroll state ────────────────────────────────── */
+const scrollObj = { frame: 0, scale: 1.20 };
+
+/* ─── Background canvas ──────────────────────────────────── */
+const bgFrames = new Array(TOTAL_FRAMES);
+let bgCtx      = null;
+let bgEl       = null;
+
+/* ─── Model canvas ───────────────────────────────────────── */
+const modelFrames = new Array(TOTAL_FRAMES);
+let modelCtx      = null;
+let modelEl       = null;
+
+/* ─── Helpers ────────────────────────────────────────────── */
+function pad(n) { return String(n).padStart(4, '0'); }
+
+function getDpr() { return Math.min(window.devicePixelRatio || 1, 2); }
+
+function sizeCanvas(el, ctx) {
+  const dpr  = getDpr();
+  const rect = el.getBoundingClientRect();
+  el.width   = rect.width  * dpr;
+  el.height  = rect.height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { w: rect.width, h: rect.height };
 }
 
-/* ─────────────────────────────────────────────────
-   Preload all frames, resolve when >= threshold loaded
-   so we can start showing frames before all 120 are done
-───────────────────────────────────────────────── */
-function preloadFrames(onProgress) {
-  return new Promise((resolve) => {
-    let resolved = false;
-    const EARLY_RESOLVE_THRESHOLD = 40; // Start animation after 40 frames loaded
+/* ─── Draw background frame — COVER fill ────────────────── */
+function drawBgFrame(idx) {
+  const img = bgFrames[Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(idx)))];
+  if (!img || !bgCtx) return;
 
+  const dpr = getDpr();
+  const cw  = bgEl.width  / dpr;
+  const ch  = bgEl.height / dpr;
+  const ia  = img.naturalWidth / img.naturalHeight;
+  const ca  = cw / ch;
+
+  // COVER: scale so the image fills all of the canvas, crop the overflow
+  let dw, dh;
+  if (ia > ca) { dh = ch; dw = ch * ia; }   // image wider → fit height
+  else         { dw = cw; dh = cw / ia; }   // image taller → fit width
+
+  const dx = (cw - dw) / 2;
+  const dy = (ch - dh) / 2;
+
+  bgCtx.clearRect(0, 0, cw, ch);
+  bgCtx.drawImage(img, dx, dy, dw, dh);
+}
+
+/* ─── Draw model frame — height-based scale ─────────────── */
+function drawModelFrame(idx, scale) {
+  const img = modelFrames[Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(idx)))];
+  if (!img || !modelCtx) return;
+
+  const dpr = getDpr();
+  const cw  = modelEl.width  / dpr;
+  const ch  = modelEl.height / dpr;
+  const ia  = img.naturalWidth / img.naturalHeight;
+
+  let dh = ch * scale;
+  let dw = dh * ia;
+  if (dw > cw * 0.98) { dw = cw * 0.98; dh = dw / ia; }
+
+  const dx = (cw - dw) / 2;
+  const dy = ch * 0.44 - dh / 2;   // center-of-model at 44% height
+
+  modelCtx.clearRect(0, 0, cw, ch);
+  modelCtx.drawImage(img, dx, dy, dw, dh);
+}
+
+/* ─── Composite draw ─────────────────────────────────────── */
+function drawAll() {
+  drawBgFrame(scrollObj.frame);
+  drawModelFrame(scrollObj.frame, scrollObj.scale);
+}
+
+/* ─── Preload a frame set ────────────────────────────────── */
+function preloadFrameSet({ frames, urlFn, earlyCount, onProgress }) {
+  return new Promise((resolve) => {
+    let loaded = 0, resolved = false;
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
       img.decoding = 'async';
-
       img.onload = () => {
         frames[i] = img;
-        framesLoaded++;
-        onProgress(framesLoaded, TOTAL_FRAMES);
-
-        // Resolve early once enough frames are ready
-        if (!resolved && framesLoaded >= EARLY_RESOLVE_THRESHOLD) {
-          resolved = true;
-          resolve();
-        }
-        // Also resolve when 100% loaded (in case threshold never met)
-        if (framesLoaded === TOTAL_FRAMES && !resolved) {
-          resolved = true;
-          resolve();
-        }
+        loaded++;
+        onProgress(loaded);
+        if (!resolved && loaded >= earlyCount) { resolved = true; resolve(); }
+        if (!resolved && loaded === TOTAL_FRAMES) { resolved = true; resolve(); }
       };
-
       img.onerror = () => {
-        framesLoaded++;
-        if (!resolved && framesLoaded >= EARLY_RESOLVE_THRESHOLD) {
-          resolved = true;
-          resolve();
-        }
+        loaded++;
+        if (!resolved && loaded >= earlyCount) { resolved = true; resolve(); }
       };
-
-      img.src = `/frames/frame-${pad(i + 1)}.webp`;
+      img.src = urlFn(i + 1);
     }
   });
 }
 
-/* ─────────────────────────────────────────────────
-   Size canvas to fill its CSS container
-───────────────────────────────────────────────── */
-function sizeCanvas() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2); // cap at 2x for perf
-  const rect = canvasEl.getBoundingClientRect();
-  canvasW = rect.width;
-  canvasH = rect.height;
-  canvasEl.width  = canvasW * dpr;
-  canvasEl.height = canvasH * dpr;
-  canvasCtx.scale(dpr, dpr);
-}
-
-/* ─────────────────────────────────────────────────
-   Draw a single frame at a given scale (0–1 fraction
-   of canvas height). Scale=1.25 = fills 125% of height.
-───────────────────────────────────────────────── */
-function drawFrame(index, scale) {
-  const safeIdx = Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(index)));
-  const img     = frames[safeIdx];
-  if (!img || !canvasCtx) return;
-
-  canvasCtx.clearRect(0, 0, canvasW, canvasH);
-
-  const imgAspect = img.naturalWidth / img.naturalHeight;
-
-  // Height-based scaling: scale=1.0 means model fills 100% of canvas height
-  let drawH = canvasH * scale;
-  let drawW = drawH * imgAspect;
-
-  // Safety clamp — never exceed 98% of canvas width
-  if (drawW > canvasW * 0.98) {
-    drawW = canvasW * 0.98;
-    drawH = drawW / imgAspect;
-  }
-
-  // Center horizontally; model center at 44% from top
-  // (slightly above center so feet appear and text sits below)
-  const drawX  = (canvasW - drawW) / 2;
-  const centerY = canvasH * 0.44;
-  const drawY  = centerY - drawH / 2;
-
-  canvasCtx.drawImage(img, drawX, drawY, drawW, drawH);
-}
-
-/* ─────────────────────────────────────────────────
-   Loading bar UI  (sits inside the hero)
-───────────────────────────────────────────────── */
+/* ─── Loading bar ────────────────────────────────────────── */
 function createLoadingBar(heroEl) {
   const bar = document.createElement('div');
   bar.className = 'canvas-loader';
@@ -138,38 +146,30 @@ function createLoadingBar(heroEl) {
   };
 }
 
-/* ─────────────────────────────────────────────────
-   Main export
-───────────────────────────────────────────────── */
+/* ─── MAIN ───────────────────────────────────────────────── */
 export async function initHeroCanvas() {
-  const heroEl   = document.querySelector('.hero');
-  const bodyEl   = document.querySelector('.hero__body');
-  canvasEl       = document.getElementById('coupleCanvas');
+  const heroEl = document.querySelector('.hero');
+  const bodyEl = document.querySelector('.hero__body');
+  bgEl         = document.getElementById('bgCanvas');
+  modelEl      = document.getElementById('coupleCanvas');
 
-  if (!canvasEl || !heroEl) return;
+  if (!heroEl || !modelEl) return;
 
-  canvasCtx = canvasEl.getContext('2d');
-  sizeCanvas();
+  bgCtx    = bgEl ? bgEl.getContext('2d') : null;
+  modelCtx = modelEl.getContext('2d');
 
-  // Hide hero body immediately to prevent text flash
+  if (bgCtx) sizeCanvas(bgEl, bgCtx);
+  sizeCanvas(modelEl, modelCtx);
+
   gsap.set(bodyEl, { opacity: 0 });
 
-  // ── Scroll-driven state object ──
-  const scrollObj = {
-    frame: 0,
-    scale: 1.20,
-  };
-
-  // ── CREATE SCROLLTRIGGER SYNCHRONOUSLY BEFORE PRELOADING ──
-  // This ensures the 350vh pin spacer is created immediately, 
-  // pushing the rest of the landing page down so it doesn't flash
-  const scrubTl = gsap.timeline()
-    .to(scrollObj, {
-      frame: TOTAL_FRAMES - 1,
-      scale: 0.72,
-      ease: 'none',
-      onUpdate: () => drawFrame(scrollObj.frame, scrollObj.scale),
-    });
+  // ── ScrollTrigger created synchronously (pin-spacer must exist immediately) ──
+  const scrubTl = gsap.timeline().to(scrollObj, {
+    frame: TOTAL_FRAMES - 1,
+    scale: 0.72,
+    ease:  'none',
+    onUpdate: drawAll,
+  });
 
   ScrollTrigger.create({
     animation:     scrubTl,
@@ -180,38 +180,53 @@ export async function initHeroCanvas() {
     pin:           true,
     pinSpacing:    true,
     anticipatePin: 1,
-    onUpdate: (self) => {
-      updateHeroTextLayers(self.progress, bodyEl);
-    },
+    onUpdate: (self) => updateHeroTextLayers(self.progress, bodyEl),
   });
 
-  // ── Hero text layers animate in based on scroll progress ──
   setupTextLayerAnimations(bodyEl);
 
-  // ── Resize handler — redraw current state ──
+  // ── Resize ──
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      sizeCanvas();
-      drawFrame(scrollObj.frame, scrollObj.scale);
+      if (bgCtx) sizeCanvas(bgEl, bgCtx);
+      sizeCanvas(modelEl, modelCtx);
+      drawAll();
     }, 100);
   });
 
-  // ── Create loading indicator ──
+  // ── Loading bar ──
   const loader = createLoadingBar(heroEl);
+  let bgDone = 0, mdDone = 0;
 
-  // ── Preload frames (ASYNC WAIT) ──
-  await preloadFrames((loaded, total) => {
-    const pct = loaded / total;
+  function updateLoader() {
+    const pct = (bgDone + mdDone) / (TOTAL_FRAMES * 2);
     loader.fill.style.width  = `${pct * 100}%`;
-    loader.label.textContent = loaded < total
-      ? `${Math.round(pct * 100)}%`
-      : 'Ready';
+    loader.label.textContent = pct < 1 ? `${Math.round(pct * 100)}%` : 'Ready';
+    // Render whatever we have so far
+    if (bgFrames[0]) drawBgFrame(0);
+    if (modelFrames[0]) drawModelFrame(0, 1.20);
+  }
 
-    // Draw whatever frame we have for visual progress
-    if (frames[0]) drawFrame(0, 1.20);
-  });
+  // ── Preload BOTH frame sets in parallel, resolve early at 35 frames each ──
+  await Promise.all([
+    bgEl
+      ? preloadFrameSet({
+          frames:     bgFrames,
+          urlFn:      (n) => `/bg-frames/bg-frame-${pad(n)}.webp`,
+          earlyCount: 35,
+          onProgress: (n) => { bgDone = n; updateLoader(); },
+        })
+      : Promise.resolve(),
+
+    preloadFrameSet({
+      frames:     modelFrames,
+      urlFn:      (n) => `/frames/frame-${pad(n)}.webp`,
+      earlyCount: 35,
+      onProgress: (n) => { mdDone = n; updateLoader(); },
+    }),
+  ]);
 
   // ── Hide loader ──
   gsap.to(loader.bar, {
@@ -219,84 +234,47 @@ export async function initHeroCanvas() {
     onComplete: () => loader.bar.remove(),
   });
 
-  // ── Fade in canvas ──
-  gsap.fromTo(canvasEl,
+  // ── Fade in both canvases ──
+  gsap.fromTo(
+    [bgEl, modelEl].filter(Boolean),
     { opacity: 0 },
     { opacity: 1, duration: 1.0, ease: 'power2.out' }
   );
 
-  drawFrame(0, 1.20);
+  drawAll();
 }
 
-/* ─────────────────────────────────────────────────
-   Text layer state machine — driven by scroll progress
-   0–15%:  eyebrow fades in, canvas fades in
-   15–40%: headline fades in, scales up
-   40–65%: description + CTA fade in
-   65–100%: proof strip fades in
-───────────────────────────────────────────────── */
-let textState = -1; // Track which state we're in to avoid re-running
+/* ─── Text layer state machine ───────────────────────────── */
+let textState = -1;
 
 function setupTextLayerAnimations(bodyEl) {
-  // Start all hero body children invisible
-  const children = bodyEl.querySelectorAll(
-    '.hero__eyebrow, .hero__headline, .hero__desc, .hero__cta, .hero__proof'
+  gsap.set(
+    bodyEl.querySelectorAll('.hero__eyebrow, .hero__headline, .hero__desc, .hero__cta, .hero__proof'),
+    { opacity: 0, y: 30 }
   );
-  gsap.set(children, { opacity: 0, y: 30 });
-
-  // Fade in the body wrapper itself immediately
   gsap.to(bodyEl, { opacity: 1, duration: 0.8, ease: 'power2.out', delay: 0.3 });
 }
 
-function updateHeroTextLayers(progress, bodyEl) {
-  const eyebrow  = bodyEl.querySelector('.hero__eyebrow');
-  const headline = bodyEl.querySelector('.hero__headline');
-  const desc     = bodyEl.querySelector('.hero__desc');
-  const cta      = bodyEl.querySelector('.hero__cta');
-  const proof    = bodyEl.querySelector('.hero__proof');
+function updateHeroTextLayers(p, bodyEl) {
+  const q = (sel) => bodyEl.querySelector(sel);
 
-  // State 0: eyebrow visible (progress > 5%)
-  if (progress > 0.05 && textState < 0) {
-    textState = 0;
-    gsap.to(eyebrow, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
-  } else if (progress <= 0.05 && textState >= 0) {
-    textState = -1;
-    gsap.to(eyebrow, { opacity: 0, y: 30, duration: 0.4 });
-  }
+  const show = (el, delay = 0) =>
+    gsap.to(el, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', delay });
+  const hide = (el) =>
+    gsap.to(el, { opacity: 0, y: 30, duration: 0.4 });
 
-  // State 1: headline (progress > 18%)
-  if (progress > 0.18 && textState < 1) {
-    textState = 1;
-    gsap.to(headline, { opacity: 1, y: 0, duration: 1.0, ease: 'power3.out', delay: 0.05 });
-  } else if (progress <= 0.18 && textState >= 1) {
-    textState = 0;
-    gsap.to(headline, { opacity: 0, y: 30, duration: 0.4 });
-  }
+  if (p > 0.05 && textState < 0)  { textState = 0; show(q('.hero__eyebrow')); }
+  if (p <= 0.05 && textState >= 0) { textState = -1; hide(q('.hero__eyebrow')); }
 
-  // State 2: desc (progress > 38%)
-  if (progress > 0.38 && textState < 2) {
-    textState = 2;
-    gsap.to(desc, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
-  } else if (progress <= 0.38 && textState >= 2) {
-    textState = 1;
-    gsap.to(desc, { opacity: 0, y: 30, duration: 0.4 });
-  }
+  if (p > 0.18 && textState < 1)  { textState = 1; show(q('.hero__headline'), 0.05); }
+  if (p <= 0.18 && textState >= 1) { textState = 0; hide(q('.hero__headline')); }
 
-  // State 3: CTA (progress > 50%)
-  if (progress > 0.50 && textState < 3) {
-    textState = 3;
-    gsap.to(cta, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
-  } else if (progress <= 0.50 && textState >= 3) {
-    textState = 2;
-    gsap.to(cta, { opacity: 0, y: 30, duration: 0.4 });
-  }
+  if (p > 0.38 && textState < 2)  { textState = 2; show(q('.hero__desc')); }
+  if (p <= 0.38 && textState >= 2) { textState = 1; hide(q('.hero__desc')); }
 
-  // State 4: proof strip (progress > 68%)
-  if (progress > 0.68 && textState < 4) {
-    textState = 4;
-    gsap.to(proof, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' });
-  } else if (progress <= 0.68 && textState >= 4) {
-    textState = 3;
-    gsap.to(proof, { opacity: 0, y: 30, duration: 0.4 });
-  }
+  if (p > 0.50 && textState < 3)  { textState = 3; show(q('.hero__cta')); }
+  if (p <= 0.50 && textState >= 3) { textState = 2; hide(q('.hero__cta')); }
+
+  if (p > 0.68 && textState < 4)  { textState = 4; show(q('.hero__proof')); }
+  if (p <= 0.68 && textState >= 4) { textState = 3; hide(q('.hero__proof')); }
 }

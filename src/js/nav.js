@@ -14,12 +14,19 @@ export function initNav(lenisInstance) {
   if (!nav) return;
 
   // ── Scroll-based background transition ──
+  // The hero is pinned by GSAP for 350vh (end: '+=350%').
+  // We only activate the frosted-glass nav AFTER the hero pin spacer is fully scrolled.
   let lastScroll = 0;
-  const scrollThreshold = 80;
+
+  function getNavThreshold() {
+    // 3.5 × viewport height = the scroll distance of the hero pin spacer
+    // Add a small buffer (0.05) so it doesn't flicker right at the edge
+    return window.innerHeight * 3.55;
+  }
 
   function updateNav() {
     const currentScroll = window.scrollY || document.documentElement.scrollTop;
-    nav.classList.toggle('scrolled', currentScroll > scrollThreshold);
+    nav.classList.toggle('scrolled', currentScroll > getNavThreshold());
     lastScroll = currentScroll;
   }
 
