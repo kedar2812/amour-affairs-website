@@ -548,6 +548,15 @@
     padding: 12px clamp(16px, 4vw, 32px);
   }
 
+  .nav__logo {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+  }
+
+  .nav__logo-img {
+    height: clamp(28px, 5vw, 36px);
+  }
+
+
   .nav__hamburger {
     padding: 10px;
     gap: 5px;

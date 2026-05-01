@@ -50,17 +50,26 @@ export function initNav(lenisInstance) {
   // Close on mobile link click
   mobileLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
-      toggleMobileMenu(false);
-      isOpen = false;
+      const href = link.getAttribute('href');
+      
+      // Only prevent default and smooth scroll if it's an anchor link
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        toggleMobileMenu(false);
+        isOpen = false;
 
-      // Small delay for menu close animation
-      setTimeout(() => {
-        if (target && lenisInstance) {
-          lenisInstance.scrollTo(target, { offset: -80 });
-        }
-      }, 600);
+        // Small delay for menu close animation
+        setTimeout(() => {
+          if (target && lenisInstance) {
+            lenisInstance.scrollTo(target, { offset: -80 });
+          }
+        }, 600);
+      } else {
+        // Normal link - let the browser navigate
+        toggleMobileMenu(false);
+        isOpen = false;
+      }
     });
   });
 
