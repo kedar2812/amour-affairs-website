@@ -362,21 +362,7 @@
 .hero__headline em {
   font-style: italic;
   font-weight: 700;
-  color: #F7E7CE; /* Fallback Champagne */
-
-  /* Champagne Base with Silver Shimmer */
-  background: linear-gradient(
-    110deg,
-    #F7E7CE 30%,
-    #e5e4e2 50%,
-    #F7E7CE 70%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 5s linear infinite;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  color: #ffffff;
 }
 
 @keyframes shimmer {
