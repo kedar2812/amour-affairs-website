@@ -176,7 +176,7 @@ export async function initHeroCanvas() {
     trigger:       heroEl,
     start:         'top top',
     end:           '+=350%',
-    scrub:         1.0,
+    scrub:         0.5,
     pin:           true,
     pinSpacing:    true,
     anticipatePin: 1,

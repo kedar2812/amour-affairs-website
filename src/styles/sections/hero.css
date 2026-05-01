@@ -549,11 +549,11 @@
   }
 
   .nav__logo {
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
   }
 
   .nav__logo-img {
-    height: clamp(28px, 5vw, 36px);
+    height: clamp(38px, 8vw, 55px);
   }
 
 
