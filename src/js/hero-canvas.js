@@ -92,12 +92,43 @@ function drawModelFrame(idx, scale) {
   let dw = dh * ia;
   if (dw > cw * 0.98) { dw = cw * 0.98; dh = dw / ia; }
 
-  const dx = (cw - dw) / 2;
-  const dy = ch * 0.44 - dh / 2;   // center-of-model at 44% height
+  const dx  = (cw - dw) / 2;
+  const dy  = ch * 0.44 - dh / 2;   // center-of-model at 44% height
+
+  // Feet position (bottom of the drawn model area, offset slightly up)
+  const feetY = dy + dh * 0.97;
+  const cx    = cw / 2;
 
   modelCtx.clearRect(0, 0, cw, ch);
+
+  // ── 1. Ground shadow ellipse — anchors the model to the landscape ──
+  const shadowRadX = dw * 0.26;
+  const shadowRadY = dh * 0.028;
+  const shadowGrad = modelCtx.createRadialGradient(
+    cx, feetY, 0,
+    cx, feetY, shadowRadX
+  );
+  shadowGrad.addColorStop(0,   'rgba(20, 40, 10, 0.50)');
+  shadowGrad.addColorStop(0.5, 'rgba(20, 40, 10, 0.22)');
+  shadowGrad.addColorStop(1,   'rgba(20, 40, 10, 0)');
+  modelCtx.save();
+  modelCtx.scale(1, shadowRadY / shadowRadX);   // squash into an ellipse
+  modelCtx.fillStyle = shadowGrad;
+  modelCtx.beginPath();
+  modelCtx.arc(cx, feetY * (shadowRadX / shadowRadY), shadowRadX, 0, Math.PI * 2);
+  modelCtx.fill();
+  modelCtx.restore();
+
+  // ── 2. Drop shadow on the model — directional light from top-right ──
+  modelCtx.save();
+  modelCtx.shadowColor    = 'rgba(15, 35, 10, 0.55)';
+  modelCtx.shadowBlur     = 28;
+  modelCtx.shadowOffsetX  = 6;
+  modelCtx.shadowOffsetY  = 14;
   modelCtx.drawImage(img, dx, dy, dw, dh);
+  modelCtx.restore();
 }
+
 
 /* ─── Composite draw ─────────────────────────────────────── */
 function drawAll() {
