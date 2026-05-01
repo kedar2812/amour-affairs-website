@@ -362,20 +362,21 @@
 .hero__headline em {
   font-style: italic;
   font-weight: 700;
-  color: var(--color-text); /* Fallback */
+  color: #ffffff; /* Fallback */
 
-  /* Shop 'Coming Soon' shimmer — charcoal → accent → charcoal */
+  /* Lightened Shimmer — white → accent → white */
   background: linear-gradient(
     110deg,
-    var(--color-text) 30%,
+    #ffffff 30%,
     var(--color-accent) 50%,
-    var(--color-text) 70%
+    #ffffff 70%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 5s linear infinite;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
 @keyframes shimmer {
