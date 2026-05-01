@@ -362,14 +362,14 @@
 .hero__headline em {
   font-style: italic;
   font-weight: 700;
-  color: #ffffff; /* Fallback */
+  color: #e5e4e2; /* Fallback platinum/silver */
 
-  /* Lightened Shimmer — white → accent → white */
+  /* Platinum Shimmer — silver → accent → silver */
   background: linear-gradient(
     110deg,
-    #ffffff 30%,
+    #e5e4e2 30%,
     var(--color-accent) 50%,
-    #ffffff 70%
+    #e5e4e2 70%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
