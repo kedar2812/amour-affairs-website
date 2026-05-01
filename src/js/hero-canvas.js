@@ -278,7 +278,31 @@ export async function initHeroCanvas() {
 /* ─── Text layer state machine ───────────────────────────── */
 let textState = -1;
 
+/* Split the <em> inside headline into per-char <span>s for blur shimmer */
+function splitEmChars(bodyEl) {
+  const em = bodyEl.querySelector('.hero__headline em');
+  if (!em || em.dataset.split) return;
+  em.dataset.split = 'true';
+
+  const text = em.textContent;
+  em.textContent = '';
+
+  text.split('').forEach((ch) => {
+    const span = document.createElement('span');
+    span.className  = 'em-char';
+    span.textContent = ch;
+    // Preserve spaces — inline-block collapses them otherwise
+    span.style.display     = ch === ' ' ? 'inline' : 'inline-block';
+    span.style.whiteSpace  = 'pre';
+    em.appendChild(span);
+  });
+
+  // Set initial blur state
+  gsap.set(em.querySelectorAll('.em-char'), { opacity: 0, filter: 'blur(12px)' });
+}
+
 function setupTextLayerAnimations(bodyEl) {
+  splitEmChars(bodyEl);
   gsap.set(
     bodyEl.querySelectorAll('.hero__eyebrow, .hero__headline, .hero__desc, .hero__cta, .hero__proof'),
     { opacity: 0, y: 30 }
@@ -297,8 +321,27 @@ function updateHeroTextLayers(p, bodyEl) {
   if (p > 0.05 && textState < 0)  { textState = 0; show(q('.hero__eyebrow')); }
   if (p <= 0.05 && textState >= 0) { textState = -1; hide(q('.hero__eyebrow')); }
 
-  if (p > 0.18 && textState < 1)  { textState = 1; show(q('.hero__headline'), 0.05); }
-  if (p <= 0.18 && textState >= 1) { textState = 0; hide(q('.hero__headline')); }
+  if (p > 0.18 && textState < 1) {
+    textState = 1;
+    const headline = q('.hero__headline');
+    show(headline, 0.05);
+    // ── Per-char blur shimmer on the em (framer-motion blur preset equivalent) ──
+    gsap.to(headline.querySelectorAll('.em-char'), {
+      opacity: 1,
+      filter:   'blur(0px)',
+      duration: 0.55,
+      stagger:  0.04,
+      ease:     'power2.out',
+      delay:    0.3,
+    });
+  }
+  if (p <= 0.18 && textState >= 1) {
+    textState = 0;
+    const headline = q('.hero__headline');
+    hide(headline);
+    // Reset chars for next entrance
+    gsap.set(headline.querySelectorAll('.em-char'), { opacity: 0, filter: 'blur(12px)' });
+  }
 
   if (p > 0.38 && textState < 2)  { textState = 2; show(q('.hero__desc')); }
   if (p <= 0.38 && textState >= 2) { textState = 1; hide(q('.hero__desc')); }
