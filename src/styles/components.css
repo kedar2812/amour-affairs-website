@@ -149,6 +149,12 @@
   transition: width 0.3s ease, height 0.3s ease, background 0.3s ease;
 }
 
+/* Hide custom cursor on touch devices */
+@media (hover: none) or (pointer: coarse) {
+  .cursor-dot,
+  .cursor-ring { display: none !important; }
+}
+
 .cursor-dot.cursor-hover {
   width: 48px;
   height: 48px;
@@ -310,7 +316,8 @@ body.is-loading {
 }
 
 .preloader__logo-svg {
-  width: clamp(450px, 60vw, 750px);
+  width: clamp(260px, 75vw, 750px);
+  max-width: calc(100vw - 40px);
   object-fit: contain;
   animation: zoomInLogo 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
@@ -357,4 +364,20 @@ body.is-loading {
 
 @media (min-width: 769px) {
   .hide-desktop { display: none !important; }
+}
+
+/* ── Mobile global tweaks ── */
+@media (max-width: 480px) {
+  /* Tighten section padding on very small screens */
+  .section {
+    padding-top: clamp(48px, 8vw, 80px);
+    padding-bottom: clamp(48px, 8vw, 80px);
+  }
+
+  /* Make standard buttons full-width on tiny screens */
+  .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
 }

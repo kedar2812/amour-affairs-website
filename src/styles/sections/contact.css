@@ -208,4 +208,20 @@
     align-items: center;
     text-align: center;
   }
+
+  .cta-banner__title {
+    font-size: clamp(1.6rem, 5vw, 3rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .footer__bar-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .footer__map {
+    height: 140px;
+  }
 }

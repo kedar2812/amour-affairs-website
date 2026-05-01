@@ -177,16 +177,44 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+  .services__title {
+    font-size: clamp(1.8rem, 6vw, 3.5rem);
+  }
+
   .services__grid {
     grid-template-columns: 1fr;
   }
 
   .service-card {
     height: 50vh;
-    min-height: 320px;
+    min-height: 280px;
   }
 
   .parallax-break {
-    height: 60vh;
+    height: 55vh;
+  }
+
+  .parallax-break__text {
+    font-size: clamp(2rem, 8vw, 5rem);
+    padding: 0 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-card {
+    height: 45vh;
+    min-height: 240px;
+  }
+
+  .service-card__content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .service-card__arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
 }

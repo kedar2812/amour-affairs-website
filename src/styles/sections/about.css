@@ -91,7 +91,26 @@
     gap: var(--gap-md);
   }
 
+  .about__headline {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+  }
+
+  .about__text {
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+
   .about__stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .about__stat {
+    padding: var(--gap-sm) 0;
+  }
+
+  .about__stat-number {
+    font-size: clamp(2rem, 8vw, 3rem);
   }
 }

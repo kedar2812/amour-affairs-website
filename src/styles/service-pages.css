@@ -28,10 +28,17 @@
   inset: 0;
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;
+  /* Disable fixed attachment on mobile — causes rendering bugs on iOS */
+  background-attachment: scroll;
   will-change: transform;
   transform: scale(1.08);
   transition: transform 8s ease-out;
+}
+
+@media (min-width: 769px) {
+  .page-hero__bg {
+    background-attachment: fixed;
+  }
 }
 
 .page-hero__overlay {
@@ -85,7 +92,7 @@
 
 /* ── Section Base ── */
 .sp-section {
-  padding: clamp(70px, 10vw, 130px) var(--container-gutter);
+  padding: clamp(50px, 8vw, 130px) var(--container-gutter);
   max-width: var(--container-max);
   margin: 0 auto;
 }
@@ -904,4 +911,232 @@
   font-family: var(--font-body);
   font-size: 0.75rem;
   color: var(--color-text-dim);
+}
+
+/* ════════════════════════════════════════
+   COMPREHENSIVE MOBILE OVERRIDES
+   (phones ≤ 768px and tablets ≤ 1024px)
+   ════════════════════════════════════════ */
+
+@media (max-width: 1024px) {
+  .page-hero__headline {
+    font-size: clamp(2.2rem, 6vw, 5rem);
+  }
+}
+
+@media (max-width: 768px) {
+  /* ── Page Hero ── */
+  .page-hero {
+    min-height: 100svh;
+    align-items: flex-end;
+    padding-bottom: 60px;
+  }
+
+  .page-hero__body {
+    padding: 0 clamp(20px, 5vw, 40px);
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .page-hero__headline {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    margin-bottom: 20px;
+  }
+
+  .page-hero__eyebrow {
+    margin-bottom: 16px;
+  }
+
+  .page-hero__sub {
+    font-size: 0.9rem;
+    max-width: 100%;
+  }
+
+  /* ── Approach grid → single col ── */
+  .sp-columns {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 40px;
+  }
+
+  /* ── Package Cards ── */
+  .sp-packages {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .sp-package {
+    padding: 36px 28px;
+  }
+
+  /* ── Page Gallery ── */
+  .pg-gallery {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .pg-gallery__item--tall {
+    grid-row: span 1;
+  }
+
+  /* ── Film Cards ── */
+  .sp-film-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  /* ── Featured Stills ── */
+  .sp-stills {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── Benefit Tiles ── */
+  .sp-benefit-tiles {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  /* ── Location grid ── */
+  .sp-locations {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  .sp-location img {
+    height: 220px;
+  }
+
+  /* ── Album split ── */
+  .sp-split {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 40px;
+  }
+
+  /* ── Album cards ── */
+  .sp-album-cards {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  /* ── Album detail gallery ── */
+  .sp-album-gallery {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 40px;
+  }
+
+  .sp-album-gallery__item img {
+    height: 240px;
+  }
+
+  /* ── Craftsmanship steps ── */
+  .sp-steps {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .sp-step {
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .sp-step__icon {
+    margin: 0;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* ── Session card ── */
+  .sp-session-card {
+    padding: 36px 24px;
+    margin-top: 40px;
+  }
+
+  /* ── Timeline ── */
+  .sp-timeline {
+    padding-left: 32px;
+    margin-top: 40px;
+  }
+
+  /* ── Quote strip ── */
+  .sp-quote-strip {
+    padding: clamp(40px, 6vw, 70px) clamp(20px, 5vw, 40px);
+  }
+
+  .sp-quote__mark {
+    font-size: 5rem;
+  }
+
+  /* ── CTA strip ── */
+  .sp-cta-strip {
+    padding: clamp(40px, 6vw, 70px) clamp(20px, 5vw, 40px);
+  }
+
+  /* ── Vimeo section ── */
+  .sp-vimeo {
+    padding: clamp(40px, 6vw, 70px) clamp(20px, 5vw, 40px);
+  }
+
+  /* ── Marquee ── */
+  .marquee__img {
+    width: 180px;
+    height: 260px;
+  }
+
+  /* ── Footer ── */
+  .sp-footer__grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .sp-footer__bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* ── Buttons full width on small screens ── */
+  .btn--champagne {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* ── Heading sizes ── */
+  .sp-heading {
+    font-size: clamp(1.6rem, 7vw, 2.5rem);
+  }
+
+  .page-hero__headline {
+    font-size: clamp(1.8rem, 9vw, 3rem);
+  }
+
+  /* ── Gallery: 1 col on tiny phones ── */
+  .pg-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Session card row flex-wrap ── */
+  .sp-session-card__row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sp-session-card__value {
+    color: var(--color-accent);
+  }
 }
