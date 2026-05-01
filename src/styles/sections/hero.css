@@ -362,26 +362,28 @@
 .hero__headline em {
   font-style: italic;
   font-weight: 700;
-  color: #e5e4e2; /* Fallback platinum/silver */
+  color: #f7e7ce; /* Champagne fallback */
 
-  /* Platinum Shimmer — silver → accent → silver */
+  /* Shimmer effect adapted from the provided React component */
   background: linear-gradient(
-    110deg,
-    #e5e4e2 30%,
-    var(--color-accent) 50%,
-    #e5e4e2 70%
+    to right,
+    #f7e7ce 0%,
+    rgba(255, 255, 255, 0.8) 40%,
+    rgba(255, 255, 255, 0.8) 60%,
+    #f7e7ce 100%
   );
-  background-size: 200% auto;
+  background-size: 50% 200%;
+  background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer 5s linear infinite;
+  animation: shimmer-horizontal 3s linear infinite;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
-@keyframes shimmer {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
+@keyframes shimmer-horizontal {
+  0%   { background-position: -100% center; }
+  100% { background-position: 250% center; }
 }
 
 /* ── Description ── */
