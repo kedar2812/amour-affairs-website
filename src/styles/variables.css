@@ -69,36 +69,18 @@
 }
 
 /* ══════════════════════════════════════════════════
-   CUSTOM SCROLLBAR — Brand-matched luxury scrollbar
+   HIDE NATIVE SCROLLBAR — Site uses Lenis smooth scroll
    ══════════════════════════════════════════════════ */
 
-/* Webkit browsers (Chrome, Safari, Edge) */
+/* Webkit browsers (Chrome, Safari, newer Edge) */
 ::-webkit-scrollbar {
-  width: 6px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--color-bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(158, 122, 78, 0.3);
-  border-radius: 0;
-  transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
-}
-
-::-webkit-scrollbar-corner {
-  background: var(--color-bg);
-}
-
-/* Firefox */
+/* Firefox and IE/Edge */
 html {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(158, 122, 78, 0.3) var(--color-bg);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* ════════════════════════════════════════
