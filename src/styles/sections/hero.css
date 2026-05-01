@@ -363,13 +363,12 @@
   font-style: italic;
   font-weight: 700;
 
-  /* Gold shimmer — warm & luxe against the green landscape */
+  /* Original shimmer — dark grey → accent → dark grey */
   background: linear-gradient(
     110deg,
-    #f5e0a0 20%,
-    var(--color-accent) 45%,
-    #e8c97a 60%,
-    #fff8e8 80%
+    #3a3a3a 30%,
+    var(--color-accent) 50%,
+    #3a3a3a 70%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
