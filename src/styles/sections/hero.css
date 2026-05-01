@@ -363,12 +363,12 @@
   font-style: italic;
   font-weight: 700;
 
-  /* Original shimmer — dark grey → accent → dark grey */
+  /* Shop 'Coming Soon' shimmer — charcoal → accent → charcoal */
   background: linear-gradient(
     110deg,
-    #3a3a3a 30%,
+    var(--color-text) 30%,
     var(--color-accent) 50%,
-    #3a3a3a 70%
+    var(--color-text) 70%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
