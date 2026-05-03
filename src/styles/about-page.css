@@ -1,0 +1,608 @@
+/* ============================================================
+   ABOUT-PAGE.CSS — About Page Styles
+   Amour Affairs · Premium Wedding Photography
+   ============================================================ */
+
+/* ── Page Base ── */
+.about-page {
+  background: #FAF7F4;
+  color: #2C2420;
+  min-height: 100vh;
+}
+
+/* ── Nav light mode over dark hero ── */
+.about-page .nav {
+  background: transparent;
+}
+
+.about-page .nav .nav__logo {
+  color: #FAF7F4 !important;
+}
+
+.about-page .nav .nav__logo .logo-amour,
+.about-page .nav .nav__logo .logo-affairs {
+  color: #FAF7F4;
+}
+
+.about-page .nav .nav__logo sup {
+  color: #FAF7F4;
+}
+
+.about-page .nav .nav__logo-img {
+  filter: brightness(0) invert(1);
+  opacity: 1;
+}
+
+.about-page .nav .nav__link {
+  color: rgba(250, 247, 244, 0.7);
+}
+
+.about-page .nav .nav__link--active {
+  color: #FAF7F4;
+}
+
+.about-page .nav .nav__link:hover {
+  color: #FAF7F4;
+}
+
+.about-page .nav .nav__link::after {
+  background: #C9A97C;
+}
+
+.about-page .nav .nav__hamburger span {
+  background: #FAF7F4;
+}
+
+/* ── Scrolled state — revert to normal dark nav ── */
+.about-page .nav.scrolled {
+  background: rgba(250, 247, 244, 0.92);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.about-page .nav.scrolled .nav__logo {
+  color: #000000 !important;
+}
+
+.about-page .nav.scrolled .nav__logo .logo-amour,
+.about-page .nav.scrolled .nav__logo .logo-affairs {
+  color: #000000;
+}
+
+.about-page .nav.scrolled .nav__logo sup {
+  color: #000000;
+}
+
+.about-page .nav.scrolled .nav__logo-img {
+  filter: none;
+  opacity: 0.85;
+}
+
+.about-page .nav.scrolled .nav__link {
+  color: #6F6F6F;
+}
+
+.about-page .nav.scrolled .nav__link--active {
+  color: #1A1410;
+}
+
+.about-page .nav.scrolled .nav__link:hover {
+  color: #1A1410;
+}
+
+.about-page .nav.scrolled .nav__link::after {
+  background: var(--color-accent);
+}
+
+.about-page .nav.scrolled .nav__hamburger span {
+  background: #1A1410;
+}
+
+
+/* ══════════════════════════════════════════════════
+   1. CINEMATIC HERO REVEAL
+   ══════════════════════════════════════════════════ */
+
+.about-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1A1410;
+  overflow: hidden;
+}
+
+.about-hero__watermark {
+  position: absolute;
+  right: 5%;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 40vw;
+  font-weight: 300;
+  color: #9E7A4E;
+  opacity: 0;
+  line-height: 0.8;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.about-hero__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 0 var(--container-gutter);
+}
+
+.about-hero__title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(3rem, 8vw, 9rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.15em;
+  color: #C9A97C;
+  line-height: 1.05;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.about-hero__sub {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  font-weight: 400;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #7A6A5A;
+  margin: 24px 0 0;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.about-hero__line {
+  width: 60px;
+  height: 1px;
+  background: #9E7A4E;
+  margin: 28px auto 0;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+
+/* ══════════════════════════════════════════════════
+   2. FOUNDER SECTION — SPLIT EDITORIAL
+   ══════════════════════════════════════════════════ */
+
+.founder {
+  background: #FAF7F4;
+  padding: 120px var(--container-gutter);
+}
+
+.founder__inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(48px, 6vw, 100px);
+  align-items: start;
+}
+
+
+/* ── LEFT COLUMN — Photo ── */
+
+.founder__photo-col {
+  position: relative;
+}
+
+.photo-frame {
+  position: relative;
+  overflow: hidden;
+}
+
+.photo-frame::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  border: 1px solid #C9A97C;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.photo-frame.frame-revealed::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.founder__img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+/* Film grain overlay */
+.photo-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mix-blend-mode: overlay;
+}
+
+.founder__photo-caption {
+  display: none;
+}
+
+
+/* ── RIGHT COLUMN — Text ── */
+
+.founder__text-col {
+  padding-top: 20px;
+}
+
+.founder__name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 600;
+  color: #2C2420;
+  margin: 0 0 0.25em;
+  line-height: 1.1;
+}
+
+.founder__role {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #9E7A4E;
+  margin-bottom: 2rem;
+}
+
+.founder__pullquote {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-weight: 300;
+  font-style: italic;
+  color: #7A6A5A;
+  border-left: 2px solid #9E7A4E;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  line-height: 1.7;
+}
+
+.founder__body {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.9;
+  color: #7A6A5A;
+  margin: 0 0 1.5rem;
+}
+
+.founder__body em {
+  font-style: italic;
+  color: #9E7A4E;
+}
+
+.founder__philosophy-quote {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: 400;
+  font-style: italic;
+  color: #9E7A4E;
+  line-height: 1.7;
+  margin: 0 0 1.5rem;
+}
+
+.founder__signature {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2rem;
+  color: #C9A97C;
+  margin-top: 2.5rem;
+}
+
+
+/* ══════════════════════════════════════════════════
+   3. PHILOSOPHY STRIP
+   ══════════════════════════════════════════════════ */
+
+.philosophy {
+  background: #231C16;
+  padding: 100px var(--container-gutter);
+}
+
+.philosophy__inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+
+.philosophy__block {
+  text-align: center;
+  flex: 0 1 auto;
+}
+
+.philosophy__numeral {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.4em;
+  color: #9E7A4E;
+  margin-bottom: 0.5rem;
+}
+
+.philosophy__word {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 600;
+  color: #FFFFFF;
+  margin: 0 0 12px;
+}
+
+.philosophy__desc {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #7A6A5A;
+  max-width: 180px;
+  margin: 0 auto;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.philosophy__divider {
+  width: 1px;
+  height: 60px;
+  background: #9E7A4E;
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════════════
+   4. PARALLAX PHOTO BREAK
+   ══════════════════════════════════════════════════ */
+
+.about-parallax {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-parallax__bg {
+  position: absolute;
+  top: -15%;
+  left: 0;
+  width: 100%;
+  height: 130%;
+  background-size: cover;
+  background-position: center;
+  will-change: transform;
+}
+
+.about-parallax__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 20, 16, 0.45);
+  z-index: 1;
+}
+
+.about-parallax__quote {
+  position: relative;
+  z-index: 2;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-weight: 300;
+  font-style: italic;
+  color: #FAF7F4;
+  letter-spacing: 0.05em;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 var(--container-gutter);
+  line-height: 1.6;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+
+/* ══════════════════════════════════════════════════
+   5. CTA SECTION
+   ══════════════════════════════════════════════════ */
+
+.about-cta {
+  background: #F5F0EA;
+  padding: 80px var(--container-gutter);
+  text-align: center;
+}
+
+.about-cta__label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #9E7A4E;
+  margin-bottom: 1rem;
+}
+
+.about-cta__heading {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 600;
+  color: #2C2420;
+  margin: 0 0 2rem;
+  line-height: 1.2;
+}
+
+.about-cta__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.about-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 14px 36px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.about-cta__btn--primary {
+  background: #9E7A4E;
+  color: #FFFFFF;
+  border: 1px solid #9E7A4E;
+}
+
+.about-cta__btn--primary:hover {
+  background: transparent;
+  color: #9E7A4E;
+}
+
+.about-cta__btn--secondary {
+  background: transparent;
+  color: #9E7A4E;
+  border: 1px solid #9E7A4E;
+}
+
+.about-cta__btn--secondary:hover {
+  background: #9E7A4E;
+  color: #FFFFFF;
+}
+
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Tablet (≤ 900px)
+   ══════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .about-hero__title {
+    font-size: clamp(2.5rem, 7vw, 6rem);
+  }
+
+  .founder__inner {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
+  .founder {
+    padding: 80px var(--container-gutter);
+  }
+
+  .founder__text-col {
+    padding-top: 0;
+  }
+
+  .philosophy__inner {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .philosophy__divider {
+    width: 60px;
+    height: 1px;
+  }
+
+  .philosophy__desc {
+    max-width: 280px;
+  }
+
+  .about-cta__heading {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+  }
+}
+
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE — Mobile (≤ 600px)
+   ══════════════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+  .about-hero__title {
+    font-size: clamp(2rem, 10vw, 4rem);
+    letter-spacing: 0.08em;
+  }
+
+  .about-hero__sub {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+  }
+
+  .founder {
+    padding: 60px var(--container-gutter);
+  }
+
+  .founder__name {
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+  }
+
+  .founder__pullquote {
+    font-size: 1rem;
+  }
+
+  .founder__body {
+    font-size: 0.92rem;
+  }
+
+  .philosophy {
+    padding: 60px var(--container-gutter);
+  }
+
+  .about-parallax {
+    height: 50vh;
+  }
+
+  .about-parallax__quote {
+    font-size: clamp(1rem, 4vw, 1.4rem);
+  }
+
+  .about-cta {
+    padding: 60px var(--container-gutter);
+  }
+
+  .about-cta__buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .about-cta__btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

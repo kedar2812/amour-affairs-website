@@ -102,7 +102,6 @@
   white-space: nowrap;
 }
 
-.nav__link:first-child,
 .nav__link--active { color: #1A1410; }
 
 .nav__link::after {
