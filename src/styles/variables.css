@@ -69,30 +69,10 @@
 }
 
 /* ══════════════════════════════════════════════════
-   HIDE NATIVE SCROLLBAR — Site uses Lenis smooth scroll
+   CUSTOM SCROLLBAR
    ══════════════════════════════════════════════════ */
 
-/* Webkit browsers (Chrome, Safari, newer Edge) */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  border: none;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-accent-light);
-  border-radius: 4px;
-  border: none;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
-}
-
-/* Firefox and IE/Edge */
+/* Modern browsers support scrollbar-color natively without breaking overlay scrollbars */
 html {
   scrollbar-width: thin;
   scrollbar-color: var(--color-accent-light) transparent;
