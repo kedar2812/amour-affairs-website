@@ -329,7 +329,7 @@
   </section>
 
 
-  <!-- ═══════════════ GALLERY (5.7) ═══════════════ -->
+  <!-- ═══════════════ GALLERY / INSTAGRAM FEED (5.7) ═══════════════ -->
   <section class="section section--dark gallery" id="gallery">
     <div class="container">
       <div class="gallery__header">
@@ -338,61 +338,14 @@
           <h2 class="gallery__title text-reveal">Our Work</h2>
         </div>
       </div>
-      <div class="gallery__grid">
-        <!-- Column 1: Two portrait images -->
-        <div class="gallery__col">
-          <div class="gallery__item gallery__item--portrait">
-            <img src="https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=800&q=80&auto=format&fit=crop" alt="Bride portrait - Amour Affairs wedding photography" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-          <div class="gallery__item gallery__item--portrait">
-            <img src="https://images.unsplash.com/photo-1460978812857-470ed1c77af0?w=800&q=80&auto=format&fit=crop" alt="Wedding details and decor" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-        </div>
-        <!-- Column 2: One landscape image -->
-        <div class="gallery__col">
-          <div class="gallery__item gallery__item--landscape">
-            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80&auto=format&fit=crop" alt="Couple holding hands - candid wedding moment" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-          <div class="gallery__item gallery__item--landscape">
-            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80&auto=format&fit=crop" alt="Wedding ceremony wide shot" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-        </div>
-        <!-- Column 3: Two portrait images (offset) -->
-        <div class="gallery__col gallery__col--offset">
-          <div class="gallery__item gallery__item--portrait">
-            <img src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=800&q=80&auto=format&fit=crop" alt="Wedding reception celebration" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-          <div class="gallery__item gallery__item--portrait">
-            <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&auto=format&fit=crop" alt="Floral wedding decorations" loading="lazy">
-            <div class="gallery__item-overlay">
-              <span class="gallery__item-label">View Gallery</span>
-              <div class="gallery__item-arrow">→</div>
-            </div>
-          </div>
-        </div>
+
+      <!-- ── Instagram Feed (Embedista — widget 1707) ── -->
+      <div class="insta-feed-wrapper fade-up">
+        <div id="n"></div>
       </div>
+
       <div class="gallery__cta fade-up">
-        <a href="/weddings" class="btn">See All Weddings <span class="btn-arrow">→</span></a>
+        <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener" class="btn">Follow on Instagram <span class="btn-arrow">→</span></a>
       </div>
     </div>
   </section>
@@ -851,5 +804,11 @@
     document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
     document.querySelectorAll('.dynamic-years-elapsed').forEach(el => el.textContent = new Date().getFullYear() - 2011);
   </script>
+
+  <!-- Embedista Instagram Feed Widget (Wrapped to prevent 1x1 iframe whitespace) -->
+  <div style="position: absolute; width: 0; height: 0; overflow: hidden; visibility: hidden;" aria-hidden="true">
+    <script type="text/javascript" src="https://www.embedista.com/j/instagramfeed1707.js"></script>
+  </div>
+
 </body>
 </html>

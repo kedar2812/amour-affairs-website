@@ -117,6 +117,7 @@ function initFadeUps() {
       opacity: 0,
       duration: 1.0,
       ease: 'power3.out',
+      clearProps: 'transform',
       scrollTrigger: {
         trigger: el,
         start: 'top 88%',

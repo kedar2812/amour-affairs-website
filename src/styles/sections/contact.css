@@ -68,6 +68,10 @@
   padding-bottom: 0;
 }
 
+.footer > .container {
+  padding-bottom: 0;
+}
+
 .footer__grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -162,13 +166,22 @@
 /* ── Footer Bar ── */
 .footer__bar {
   border-top: var(--border-subtle);
-  padding: 24px 0;
+  padding: 20px 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+  margin-bottom: 0;
 }
+
+footer.footer {
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+
+
 
 .footer__copyright {
   font-family: var(--font-body);
