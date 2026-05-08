@@ -1,5 +1,5 @@
 /* ============================================================
-   GALLERY.CSS — Gallery Preview + Testimonials
+   GALLERY.CSS — Instagram Feed + Gallery Section
    Amour Affairs · Premium Wedding Photography
    ============================================================ */
 
@@ -35,273 +35,186 @@
   color: var(--color-text);
 }
 
-/* Masonry Grid */
-.gallery__grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
-
-.gallery__col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.gallery__col--offset {
-  margin-top: 60px;
-}
-
-.gallery__item {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.gallery__item--portrait {
-  aspect-ratio: 3 / 4;
-}
-
-.gallery__item--landscape {
-  aspect-ratio: 16 / 10;
-}
-
-.gallery__item--tall {
-  aspect-ratio: 2 / 3;
-}
-
-.gallery__item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.gallery__item:hover img {
-  transform: scale(1.06);
-}
-
-.gallery__item-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(12, 8, 4, 0.6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.gallery__item:hover .gallery__item-overlay {
-  opacity: 1;
-}
-
-.gallery__item-label {
-  font-family: var(--font-body);
-  font-size: var(--text-small);
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #FAF7F4;
-}
-
-.gallery__item-arrow {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--color-accent-light);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent-light);
-  font-size: 0.9rem;
-}
-
 .gallery__cta {
   text-align: center;
   margin-top: clamp(48px, 6vw, 80px);
 }
 
+/* ── Button icon alignment ── */
+.btn-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  position: relative;
+  top: -1px;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 
 
 /* ══════════════════════════════════════════════════
-   TESTIMONIALS SECTION
+   INSTAGRAM FEED GRID
    ══════════════════════════════════════════════════ */
-.testimonials {
+
+.insta-feed {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ── Skeleton placeholders ── */
+.insta-feed__skeleton {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(
+    110deg,
+    rgba(158, 122, 78, 0.06) 30%,
+    rgba(158, 122, 78, 0.14) 50%,
+    rgba(158, 122, 78, 0.06) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s linear infinite;
+  border-radius: 2px;
+}
+
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Individual tile ── */
+.insta-tile {
+  display: block;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
   background: var(--color-bg-alt);
+  border-radius: 2px;
+
+  /* Staggered entrance */
+  opacity: 0;
+  transform: translateY(16px) scale(0.98);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.insta-tile--entering {
+  /* initial state — JS sets delay per tile */
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.insta-tile--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Thumbnail image ── */
+.insta-tile__thumb {
+  position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
-.testimonials__header {
-  text-align: center;
-  margin-bottom: clamp(48px, 6vw, 80px);
-}
-
-.testimonials__label {
-  font-family: var(--font-body);
-  font-size: var(--text-small);
-  font-weight: 500;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  margin-bottom: 20px;
+.insta-tile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.testimonials__title {
-  font-family: var(--font-display);
-  font-size: var(--text-h2);
+.insta-tile:hover .insta-tile__img {
+  transform: scale(1.07);
+}
+
+/* ── Post-type badge (Reel / Gallery) ── */
+.insta-tile__badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(12, 8, 4, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #FAF7F4;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
   font-weight: 600;
-  line-height: 1.1;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text);
-}
-
-/* Slider + Nav wrapper */
-.testimonials__slider {
-  max-width: 860px;
-  margin: 0 auto;
-  position: relative;
-}
-
-/* Navigation below */
-.testimonials__nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 48px;
-}
-
-.testimonials__arrow {
-  width: 52px;
-  height: 52px;
-  border: 1px solid rgba(158, 122, 78, 0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent);
-  background: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: var(--transition-default);
-  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+  z-index: 2;
   line-height: 1;
 }
 
-.testimonials__arrow:hover {
-  background: var(--color-accent);
-  color: #FAF7F4;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 20px rgba(158, 122, 78, 0.25);
-}
-
-/* Testimonial card */
-.testimonial {
-  text-align: center;
-  padding: 0 clamp(16px, 4vw, 60px);
-  user-select: none;
-}
-
-/* Person avatar */
-.testimonial__avatar {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--color-accent);
-  margin: 0 auto 32px;
-  display: block;
-  filter: grayscale(10%);
-  box-shadow: 0 0 0 4px rgba(158, 122, 78, 0.1), 0 8px 24px rgba(44, 36, 32, 0.12);
-}
-
-/* Big gold quote mark */
-.testimonial__quote-mark {
-  font-family: var(--font-display);
-  font-size: clamp(4rem, 7vw, 7rem);
-  font-weight: 600;
-  color: var(--color-accent);
-  line-height: 0.5;
-  margin-bottom: 28px;
-  opacity: 0.3;
-  display: block;
-}
-
-/* Review text */
-.testimonial__text {
-  font-family: var(--font-display);
-  font-size: clamp(1.05rem, 1.75vw, 1.35rem);
-  font-weight: 300;
-  font-style: italic;
-  line-height: 1.9;
-  color: var(--color-text);
-  max-width: 660px;
-  margin: 0 auto 36px;
-}
-
-/* Author info */
-.testimonial__meta {
+/* ── Hover overlay ── */
+.insta-tile__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(12, 8, 4, 0.88) 0%,
+    rgba(12, 8, 4, 0.55) 40%,
+    rgba(12, 8, 4, 0.20) 70%,
+    transparent 100%
+  );
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: 1;
 }
 
-.testimonial__divider {
-  width: 32px;
-  height: 1px;
-  background: var(--color-accent);
-  opacity: 0.4;
-  margin-bottom: 12px;
-}
-
-.testimonial__author {
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-}
-
-.testimonial__event {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  color: var(--color-text-dim);
-}
-
-/* Swiper overrides — dash bullets */
-.testimonials .swiper-pagination {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  position: static;
-  height: auto;
-  margin: 0;
-}
-
-.testimonials .swiper-pagination-bullet {
-  width: 20px;
-  height: 2px;
-  border-radius: 0;
-  background: rgba(158, 122, 78, 0.2);
+.insta-tile:hover .insta-tile__overlay {
   opacity: 1;
-  transition: width 0.4s ease, background 0.4s ease;
-  margin: 0 !important;
 }
 
-.testimonials .swiper-pagination-bullet-active {
-  width: 44px;
-  background: var(--color-accent);
+.insta-tile__overlay-inner {
+  padding: 20px 18px;
+  width: 100%;
+  transform: translateY(6px);
+  transition: transform 0.4s ease;
 }
+
+.insta-tile:hover .insta-tile__overlay-inner {
+  transform: translateY(0);
+}
+
+.insta-tile__overlay-icon {
+  color: var(--color-accent-light, #d4b896);
+  margin-bottom: 10px;
+}
+
+.insta-tile__caption {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: rgba(250, 247, 244, 0.82);
+  margin: 0 0 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.insta-tile__view {
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent, #9e7a4e);
+}
+
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
@@ -311,26 +224,20 @@
     gap: 16px;
   }
 
-  .gallery__grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .gallery__col--offset {
-    margin-top: 0;
+  .insta-feed {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 }
 
 @media (max-width: 600px) {
-  .gallery__grid {
-    grid-template-columns: 1fr;
+  .insta-feed {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
   }
 
-  .gallery__col--offset {
-    margin-top: 0;
-  }
-
-  /* On mobile, only show first 2 images per col to keep it digestible */
-  .gallery__col:last-child .gallery__item:last-child {
+  /* Hide the 6th tile on small screens for cleaner 2-col grid */
+  .insta-tile:nth-child(6) {
     display: none;
   }
 }

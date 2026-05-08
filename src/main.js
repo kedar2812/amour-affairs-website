@@ -28,7 +28,7 @@ import { initCursor } from './js/cursor.js';
 import { initNav } from './js/nav.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
-import { initGalleryHovers } from './js/gallery.js';
+import { initGalleryHovers, initInstagramFeed } from './js/gallery.js';
 
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
@@ -92,7 +92,8 @@ async function init() {
   // 4. Initialize all scroll-triggered animations
   initAllAnimations();
 
-  // 5. Initialize gallery hovers
+  // 5. Initialize Instagram feed + gallery hovers
+  initInstagramFeed();
   initGalleryHovers();
 
   // 7. Initialize custom cursor (last, after all elements are in DOM)
