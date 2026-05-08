@@ -49,16 +49,6 @@
   }
   </script>
 
-  <!-- Behold Instagram Widget -->
-  <script>
-    (() => {
-      const d = document, s = d.createElement('script');
-      s.type = 'module';
-      s.src = 'https://w.behold.so/widget.js';
-      d.head.append(s);
-    })();
-  </script>
-
   <!-- Entry Point -->
   <script type="module" src="/src/main.js"></script>
 </head>
@@ -349,9 +339,9 @@
         </div>
       </div>
 
-      <!-- ── Behold.so Live Instagram Feed Widget ── -->
-      <div class="behold-wrap fade-up">
-        <behold-widget feed-id="bKq3OCYixjyjLXM4DIQ5"></behold-widget>
+      <!-- ── Instagram Image Feed (rendered by gallery.js) ── -->
+      <div class="insta-feed fade-up" id="instaFeed">
+        <!-- JS populates tiles here -->
       </div>
 
       <div class="gallery__cta fade-up">
