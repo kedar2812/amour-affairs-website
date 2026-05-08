@@ -1,5 +1,5 @@
 /* ============================================================
-   GALLERY.CSS — Instagram Feed + Gallery Section
+   GALLERY.CSS — Gallery Section + Behold Widget
    Amour Affairs · Premium Wedding Photography
    ============================================================ */
 
@@ -12,7 +12,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: clamp(48px, 6vw, 80px);
+  margin-bottom: clamp(40px, 5vw, 64px);
 }
 
 .gallery__label {
@@ -35,6 +35,18 @@
   color: var(--color-text);
 }
 
+/* ── Behold Widget Wrapper ── */
+.behold-wrap {
+  width: 100%;
+}
+
+/* Allow the widget to breathe and fill the container */
+.behold-wrap behold-widget {
+  display: block;
+  width: 100%;
+}
+
+/* ── Follow CTA ── */
 .gallery__cta {
   text-align: center;
   margin-top: clamp(48px, 6vw, 80px);
@@ -55,189 +67,11 @@
   gap: 4px;
 }
 
-
-/* ══════════════════════════════════════════════════
-   INSTAGRAM FEED GRID
-   ══════════════════════════════════════════════════ */
-
-.insta-feed {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-/* ── Skeleton placeholders ── */
-.insta-feed__skeleton {
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(
-    110deg,
-    rgba(158, 122, 78, 0.06) 30%,
-    rgba(158, 122, 78, 0.14) 50%,
-    rgba(158, 122, 78, 0.06) 70%
-  );
-  background-size: 200% 100%;
-  animation: skeletonShimmer 1.6s linear infinite;
-  border-radius: 2px;
-}
-
-@keyframes skeletonShimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ── Individual tile ── */
-.insta-tile {
-  display: block;
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-  background: var(--color-bg-alt);
-  border-radius: 2px;
-
-  /* Staggered entrance */
-  opacity: 0;
-  transform: translateY(16px) scale(0.98);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.insta-tile--entering {
-  /* initial state — JS sets delay per tile */
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.insta-tile--visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* ── Thumbnail image ── */
-.insta-tile__thumb {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-.insta-tile__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.insta-tile:hover .insta-tile__img {
-  transform: scale(1.07);
-}
-
-/* ── Post-type badge (Reel / Gallery) ── */
-.insta-tile__badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(12, 8, 4, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  color: #FAF7F4;
-  font-family: var(--font-body);
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-  z-index: 2;
-  line-height: 1;
-}
-
-/* ── Hover overlay ── */
-.insta-tile__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(12, 8, 4, 0.88) 0%,
-    rgba(12, 8, 4, 0.55) 40%,
-    rgba(12, 8, 4, 0.20) 70%,
-    transparent 100%
-  );
-  display: flex;
-  align-items: flex-end;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  z-index: 1;
-}
-
-.insta-tile:hover .insta-tile__overlay {
-  opacity: 1;
-}
-
-.insta-tile__overlay-inner {
-  padding: 20px 18px;
-  width: 100%;
-  transform: translateY(6px);
-  transition: transform 0.4s ease;
-}
-
-.insta-tile:hover .insta-tile__overlay-inner {
-  transform: translateY(0);
-}
-
-.insta-tile__overlay-icon {
-  color: var(--color-accent-light, #d4b896);
-  margin-bottom: 10px;
-}
-
-.insta-tile__caption {
-  font-family: var(--font-body);
-  font-size: 0.74rem;
-  line-height: 1.55;
-  color: rgba(250, 247, 244, 0.82);
-  margin: 0 0 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.insta-tile__view {
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-accent, #9e7a4e);
-}
-
-
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .gallery__header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-  }
-
-  .insta-feed {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-}
-
-@media (max-width: 600px) {
-  .insta-feed {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-  }
-
-  /* Hide the 6th tile on small screens for cleaner 2-col grid */
-  .insta-tile:nth-child(6) {
-    display: none;
   }
 }
