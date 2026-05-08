@@ -53,157 +53,17 @@
 
 
 /* ══════════════════════════════════════════════════
-   INSTAGRAM GRID
-   3-column editorial layout — rows auto-sized
+   BEHOLD WIDGET WRAPPER
+   Full-width, constrained to match section gutters
    ══════════════════════════════════════════════════ */
 
-.insta-feed {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: 340px;
-  gap: 10px;
-}
-
-/* ── Individual tile ── */
-.insta-tile {
-  display: block;
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  background: var(--color-surface);
-  border-radius: 3px;
-
-  /* Entrance animation — starts invisible */
-  opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    box-shadow 0.5s ease;
-}
-
-.insta-tile--visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Subtle lift on hover */
-.insta-tile:hover {
-  box-shadow: 0 20px 60px rgba(44, 36, 32, 0.18);
-  z-index: 2;
-}
-
-/* Square posts span one row; portrait span two */
-.insta-tile--portrait {
-  grid-row: span 2;
-}
-
-/* ── Inner wrapper (clips both img and overlay) ── */
-.insta-tile__inner {
-  position: relative;
+.behold-feed-wrap {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
 }
 
-/* ── Thumbnail ── */
-.insta-tile__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.behold-feed-wrap behold-widget {
   display: block;
-  transition: transform 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.insta-tile:hover .insta-tile__img {
-  transform: scale(1.07);
-}
-
-/* ── Hover overlay ── */
-.insta-tile__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(20, 14, 10, 0.82) 0%,
-    rgba(20, 14, 10, 0.48) 38%,
-    rgba(20, 14, 10, 0.10) 70%,
-    transparent 100%
-  );
-  display: flex;
-  align-items: flex-end;
-  opacity: 0;
-  transition: opacity 0.45s ease;
-}
-
-.insta-tile:hover .insta-tile__overlay {
-  opacity: 1;
-}
-
-/* ── Overlay content ── */
-.insta-tile__overlay-body {
-  padding: 24px 22px;
   width: 100%;
-  transform: translateY(8px);
-  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.insta-tile:hover .insta-tile__overlay-body {
-  transform: translateY(0);
-}
-
-/* Instagram icon */
-.insta-tile__ig-icon {
-  color: var(--color-accent-light);
-  margin-bottom: 10px;
-  display: block;
-}
-
-/* Caption (couple name) */
-.insta-tile__caption {
-  font-family: var(--font-display);
-  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
-  font-weight: 500;
-  font-style: italic;
-  color: #FAF7F4;
-  margin: 0 0 10px;
-  letter-spacing: 0.04em;
-  line-height: 1.4;
-}
-
-/* "View Post ↗" link */
-.insta-tile__cta {
-  display: inline-block;
-  font-family: var(--font-body);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--color-accent-light);
-  border-bottom: 1px solid rgba(201, 169, 124, 0.35);
-  padding-bottom: 2px;
-  transition: color 0.3s ease, border-color 0.3s ease;
-}
-
-.insta-tile:hover .insta-tile__cta {
-  color: #FAF7F4;
-  border-color: rgba(250, 247, 244, 0.5);
-}
-
-/* ── Thin gold border accent on hover ── */
-.insta-tile::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(158, 122, 78, 0);
-  border-radius: 3px;
-  pointer-events: none;
-  transition: border-color 0.4s ease;
-  z-index: 3;
-}
-
-.insta-tile:hover::after {
-  border-color: rgba(158, 122, 78, 0.4);
 }
 
 
@@ -213,29 +73,5 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-  }
-
-  .insta-feed {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 280px;
-    gap: 8px;
-  }
-
-  /* Collapse portrait spans on tablet */
-  .insta-tile--portrait {
-    grid-row: span 1;
-  }
-}
-
-@media (max-width: 540px) {
-  .insta-feed {
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 200px;
-    gap: 6px;
-  }
-
-  /* Hide last tile for even 2-col layout */
-  .insta-tile:last-child {
-    display: none;
   }
 }

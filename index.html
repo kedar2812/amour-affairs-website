@@ -23,6 +23,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
 
+  <!-- Behold Instagram Widget -->
+  <script>
+    (() => {
+      const d=document,s=d.createElement("script");s.type="module";
+      s.src="https://w.behold.so/widget.js";d.head.append(s);
+    })();
+  </script>
+
   <!-- Schema.org LocalBusiness -->
   <script type="application/ld+json">
   {
@@ -339,9 +347,9 @@
         </div>
       </div>
 
-      <!-- ── Instagram Image Feed (rendered by gallery.js) ── -->
-      <div class="insta-feed fade-up" id="instaFeed">
-        <!-- JS populates tiles here -->
+      <!-- ── Behold Instagram Widget ── -->
+      <div class="behold-feed-wrap fade-up">
+        <behold-widget feed-id="bKq3OCYixjyjLXM4DIQ5"></behold-widget>
       </div>
 
       <div class="gallery__cta fade-up">
