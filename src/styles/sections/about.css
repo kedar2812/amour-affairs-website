@@ -3,8 +3,26 @@
    Amour Affairs · Premium Wedding Photography
    ============================================================ */
 
+/* ── Globe canvas background ── */
 .about {
   background: var(--color-bg-alt);
+  position: relative;
+  overflow: hidden;
+}
+
+.about__globe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ensure content sits above the globe */
+.about .container {
+  position: relative;
+  z-index: 1;
 }
 
 .about__inner {

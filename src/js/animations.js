@@ -112,19 +112,27 @@ export function initParallax() {
 /* ── Service Cards Stagger ── */
 export function initServiceCards() {
   const cards = gsap.utils.toArray('.service-card');
+
+  // Prime GPU layers before animation
+  gsap.set(cards, { willChange: 'opacity, transform' });
+
   cards.forEach((card, i) => {
-    const direction = i % 2 === 0 ? -60 : 60;
-    gsap.from(card, {
-      x: direction,
-      opacity: 0,
-      duration: 1.0,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: card,
-        start: 'top 88%',
-        toggleActions: 'play none none none',
-      },
-    });
+    const xDir = i % 2 === 0 ? -40 : 40;
+    gsap.fromTo(card,
+      { x: xDir, opacity: 0 },
+      {
+        x: 0,
+        opacity: 1,
+        duration: 0.9,
+        ease: 'power3.out',
+        clearProps: 'willChange,x',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top 90%',
+          toggleActions: 'play none none none',
+        },
+      }
+    );
   });
 }
 

@@ -10,92 +10,55 @@
   min-height: 100vh;
 }
 
-/* ── Nav light mode over dark hero ── */
+/* ── Nav — always dark since hero is removed ── */
 .about-page .nav {
   background: transparent;
 }
 
 .about-page .nav .nav__logo {
-  color: #FAF7F4 !important;
+  color: #000000 !important;
 }
 
 .about-page .nav .nav__logo .logo-amour,
 .about-page .nav .nav__logo .logo-affairs {
-  color: #FAF7F4;
+  color: #000000;
 }
 
 .about-page .nav .nav__logo sup {
-  color: #FAF7F4;
+  color: #000000;
 }
 
 .about-page .nav .nav__logo-img {
-  filter: brightness(0) invert(1);
-  opacity: 1;
-}
-
-.about-page .nav .nav__link {
-  color: rgba(250, 247, 244, 0.7);
-}
-
-.about-page .nav .nav__link--active {
-  color: #FAF7F4;
-}
-
-.about-page .nav .nav__link:hover {
-  color: #FAF7F4;
-}
-
-.about-page .nav .nav__link::after {
-  background: #C9A97C;
-}
-
-.about-page .nav .nav__hamburger span {
-  background: #FAF7F4;
-}
-
-/* ── Scrolled state — revert to normal dark nav ── */
-.about-page .nav.scrolled {
-  background: rgba(250, 247, 244, 0.92);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-}
-
-.about-page .nav.scrolled .nav__logo {
-  color: #000000 !important;
-}
-
-.about-page .nav.scrolled .nav__logo .logo-amour,
-.about-page .nav.scrolled .nav__logo .logo-affairs {
-  color: #000000;
-}
-
-.about-page .nav.scrolled .nav__logo sup {
-  color: #000000;
-}
-
-.about-page .nav.scrolled .nav__logo-img {
   filter: none;
   opacity: 0.85;
 }
 
-.about-page .nav.scrolled .nav__link {
+.about-page .nav .nav__link {
   color: #6F6F6F;
 }
 
-.about-page .nav.scrolled .nav__link--active {
+.about-page .nav .nav__link--active {
   color: #1A1410;
 }
 
-.about-page .nav.scrolled .nav__link:hover {
+.about-page .nav .nav__link:hover {
   color: #1A1410;
 }
 
-.about-page .nav.scrolled .nav__link::after {
+.about-page .nav .nav__link::after {
   background: var(--color-accent);
 }
 
-.about-page .nav.scrolled .nav__hamburger span {
+.about-page .nav .nav__hamburger span {
   background: #1A1410;
+}
+
+/* ── Scrolled state — frosted glass ── */
+.about-page .nav.scrolled {
+  background: rgba(250, 247, 244, 0.92);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 1px 0 rgba(158, 122, 78, 0.1);
 }
 
 
@@ -179,7 +142,7 @@
 
 .founder {
   background: #FAF7F4;
-  padding: 120px var(--container-gutter);
+  padding: 60px var(--container-gutter) 120px;
 }
 
 .founder__inner {
@@ -226,8 +189,9 @@
 
 .founder__img {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
+  object-position: center top;
   display: block;
   position: relative;
   z-index: 1;
@@ -322,7 +286,174 @@
 
 
 /* ══════════════════════════════════════════════════
-   3. PHILOSOPHY STRIP
+   3. TEAM MARQUEE SECTION
+   ══════════════════════════════════════════════════ */
+
+.team-section {
+  background: #FAF7F4;
+  padding: 100px 0;
+  overflow: hidden;
+}
+
+.team-section__header {
+  text-align: center;
+  padding: 0 var(--container-gutter);
+  margin-bottom: 64px;
+}
+
+.team-section__label {
+  display: inline-block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #9E7A4E;
+  margin-bottom: 20px;
+}
+
+.team-section__title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 600;
+  color: #2C2420;
+  line-height: 1.2;
+  margin: 0 0 20px;
+}
+
+.team-section__title em {
+  font-style: italic;
+  font-weight: 300;
+  color: #9E7A4E;
+}
+
+.team-section__sub {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: #7A6A5A;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Marquee wrapper ── */
+.team-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.team-marquee__fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 160px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.team-marquee__fade--left {
+  left: 0;
+  background: linear-gradient(to right, #FAF7F4 0%, transparent 100%);
+}
+
+.team-marquee__fade--right {
+  right: 0;
+  background: linear-gradient(to left, #FAF7F4 0%, transparent 100%);
+}
+
+/* ── Scrolling track ── */
+@keyframes team-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.team-marquee__track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: team-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.team-marquee:hover .team-marquee__track {
+  animation-play-state: paused;
+}
+
+/* ── Individual card ── */
+.team-card {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  cursor: default;
+}
+
+.team-card__img-wrap {
+  position: relative;
+  width: 220px;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #EDE8E1;
+}
+
+.team-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: grayscale(100%);
+  transition: filter 0.5s ease, transform 0.5s ease;
+}
+
+.team-card:hover .team-card__img {
+  filter: grayscale(0%);
+  transform: scale(1.04);
+}
+
+.team-card__info {
+  padding: 14px 4px 0;
+}
+
+.team-card__name {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #2C2420;
+  letter-spacing: 0.02em;
+}
+
+.team-card__role {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #9E7A4E;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .team-card {
+    flex: 0 0 180px;
+  }
+  .team-card__img-wrap {
+    width: 180px;
+    height: 240px;
+  }
+  .team-marquee__fade {
+    width: 60px;
+  }
+}
+
+
+/* ══════════════════════════════════════════════════
+   4. PHILOSOPHY STRIP
    ══════════════════════════════════════════════════ */
 
 .philosophy {

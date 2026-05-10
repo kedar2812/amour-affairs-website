@@ -46,6 +46,9 @@
   min-height: 420px;
   overflow: hidden;
   cursor: pointer;
+  will-change: transform, opacity;
+  contain: layout paint;
+  transform: translateZ(0); /* force GPU layer */
 }
 
 .service-card__bg {
@@ -55,6 +58,7 @@
   background-position: center;
   transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
+  transform: translateZ(0); /* own GPU layer */
 }
 
 .service-card::after {

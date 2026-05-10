@@ -296,14 +296,6 @@
   padding-left: var(--container-gutter);
   padding-right: var(--container-gutter);
   pointer-events: none;
-  /* Deeper vignette so white text always reads cleanly on any frame */
-  background: linear-gradient(
-    to top,
-    rgba(10, 20, 10, 0.72) 0%,
-    rgba(10, 20, 10, 0.30) 28%,
-    transparent 58%
-  );
-  padding-top: 80px;
   opacity: 0;
 }
 
@@ -321,11 +313,9 @@
   font-weight: 400;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  /* Gold on landscape — matches the warm accent and pops vs. green */
-  color: #e8c97a;
+  color: var(--color-accent);
   margin-bottom: 24px;
   position: relative;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 
 .hero__eyebrow::before,
@@ -335,7 +325,7 @@
   top: 50%;
   width: 40px;
   height: 1px;
-  background: #e8c97a;
+  background: var(--color-accent);
   opacity: 0.7;
 }
 
@@ -349,11 +339,7 @@
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.02em;
-  /* White on landscape — crisp and cinematic */
-  color: #ffffff;
-  text-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.55),
-    0 4px 32px rgba(0, 0, 0, 0.30);
+  color: var(--color-text);
   max-width: 1400px;
   margin: 0 auto 0;
 }
@@ -361,9 +347,7 @@
 .hero__headline em {
   font-style: italic;
   font-weight: 700;
-  /* Brighter, more luminous champagne */
-  color: #f5dbb0;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  color: var(--color-accent);
 }
 
 @keyframes shimmer {
@@ -377,11 +361,9 @@
   font-size: clamp(0.85rem, 1.2vw, 1rem);
   font-weight: 400;
   line-height: 1.6;
-  /* Off-white — readable and soft against the dark vignette */
-  color: rgba(255, 252, 240, 0.90);
+  color: var(--color-text-dim);
   max-width: 650px;
   margin: 24px auto 0;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* ── CTA Button ── */
@@ -432,15 +414,13 @@
   font-size: 0.85rem;
   font-weight: 400;
   letter-spacing: 0.05em;
-  /* Light gold — visible against dark vignette */
-  color: #e8c97a;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+  color: var(--color-text);
 }
 
 .hero__proof-stat sup { font-size: 0.8em; }
 
 .hero__proof-dot {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(44, 36, 32, 0.2);
   font-size: 1.2rem;
   line-height: 1;
 }

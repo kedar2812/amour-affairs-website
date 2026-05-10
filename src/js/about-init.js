@@ -256,13 +256,13 @@ function initAboutNav() {
   const nav = document.querySelector('.nav');
   if (!nav) return;
 
+  // No hero pin spacer on this page — use a simple 60px threshold
   function updateNav() {
-    const scrolled = window.scrollY > 100;
-    nav.classList.toggle('scrolled', scrolled);
+    nav.classList.toggle('scrolled', window.scrollY > 60);
   }
 
   window.addEventListener('scroll', updateNav, { passive: true });
-  updateNav();
+  updateNav(); // run once on load
 }
 
 
@@ -274,7 +274,6 @@ async function init() {
   await initPreloader();
   initNav(lenis);
   initAboutNav();
-  initHeroReveal();
   initFounderReveals();
   initPhilosophyReveals();
   initParallax();

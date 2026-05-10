@@ -53,19 +53,116 @@
 
 
 /* ══════════════════════════════════════════════════
-   BEHOLD WIDGET WRAPPER
-   Full-width, constrained to match section gutters
+   CUSTOM INSTA GRID
    ══════════════════════════════════════════════════ */
 
-.behold-feed-wrap {
+.insta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-sm);
   width: 100%;
 }
 
-.behold-feed-wrap behold-widget {
+.insta-tile {
+  position: relative;
   display: block;
   width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--color-bg);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+.insta-tile--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.insta-tile__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.insta-tile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transform-origin: center;
+}
+
+/* Hover overlay */
+.insta-tile__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--color-photo-overlay-heavy);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: var(--transition-fast);
+  padding: 24px;
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.insta-tile:hover .insta-tile__overlay {
+  opacity: 1;
+  border-color: rgba(205, 165, 119, 0.3); /* subtle champagne glow */
+}
+
+.insta-tile:hover .insta-tile__img {
+  transform: scale(1.05);
+}
+
+.insta-tile__overlay-body {
+  transform: translateY(10px);
+  transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.insta-tile:hover .insta-tile__overlay-body {
+  transform: translateY(0);
+}
+
+.insta-tile__ig-icon {
+  color: var(--color-accent-light);
+  margin-bottom: 4px;
+}
+
+.insta-tile__caption {
+  font-family: var(--font-body);
+  font-size: var(--text-small);
+  color: var(--color-bg);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 85%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.insta-tile__cta {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-accent);
+  margin-top: 8px;
+  font-weight: 500;
+}
 
 /* ── Responsive ── */
 @media (max-width: 900px) {
@@ -73,5 +170,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+  
+  .insta-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .insta-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }

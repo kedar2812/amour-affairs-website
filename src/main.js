@@ -28,8 +28,8 @@ import { initCursor } from './js/cursor.js';
 import { initNav } from './js/nav.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
-// gallery.js retired — feed now served by Behold widget
-
+import { initInstagramFeed } from './js/gallery.js';
+import { initGlobe } from './js/globe.js';
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
 
@@ -92,8 +92,8 @@ async function init() {
   // 4. Initialize all scroll-triggered animations
   initAllAnimations();
 
-  // 5. Behold widget self-renders — no JS init needed
-
+  // 5. Initialize custom Instagram feed
+  initInstagramFeed();
   // 7. Initialize custom cursor (last, after all elements are in DOM)
   initCursor();
 
@@ -107,3 +107,9 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// ── Globe — initialise independently after layout settles ──
+// Uses its own setTimeout so it's never blocked by the preloader
+window.addEventListener('load', () => {
+  setTimeout(() => initGlobe(), 200);
+});
