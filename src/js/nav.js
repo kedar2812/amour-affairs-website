@@ -26,7 +26,9 @@ export function initNav(lenisInstance) {
 
   function updateNav() {
     const currentScroll = window.scrollY || document.documentElement.scrollTop;
-    nav.classList.toggle('scrolled', currentScroll > getNavThreshold());
+    const pastHero = currentScroll > getNavThreshold();
+    nav.classList.toggle('scrolled', pastHero);
+    nav.classList.toggle('nav--hero-glass', !pastHero);
     lastScroll = currentScroll;
   }
 

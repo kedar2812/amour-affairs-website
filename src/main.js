@@ -1,7 +1,7 @@
 /* ============================================================
    MAIN.JS — Entry Point
    Amour Affairs · Premium Wedding Photography
-   Initializes: Lenis, GSAP, ScrollTrigger, all modules
+   Initializes: Lenis, GSAP, ScrollTrigger, ShaderGradient, all modules
    ============================================================ */
 
 // ── Styles ──
@@ -14,22 +14,27 @@ import './styles/sections/about.css';
 import './styles/sections/services.css';
 import './styles/sections/process.css';
 import './styles/sections/gallery.css';
-import './styles/sections/testimonials.css';
 import './styles/sections/press.css';
 import './styles/sections/contact.css';
+import './styles/sections/shader-gradient.css';
 
 // ── Libraries ──
 import Lenis from '@studio-freight/lenis';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// ── Modules ──
+// ── React (for ShaderGradient) ──
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import HeroGradient from './components/HeroGradient.jsx';
 
+// ── Modules ──
 import { initNav } from './js/nav.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
 import { initInstagramFeed } from './js/gallery.js';
 import { initGlobe } from './js/globe.js';
+
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
 
@@ -78,6 +83,15 @@ ScrollTrigger.scrollerProxy(document.body, {
 ScrollTrigger.addEventListener('refresh', () => lenis.resize());
 ScrollTrigger.defaults({ scroller: document.body });
 
+// ── Mount ShaderGradient React Component ──
+function mountShaderGradient() {
+  const container = document.getElementById('shader-gradient-root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(React.createElement(HeroGradient));
+  }
+}
+
 // ── Boot Sequence ──
 async function init() {
   // 1. Run preloader animation
@@ -86,16 +100,19 @@ async function init() {
   // 2. Initialize navigation
   initNav(lenis);
 
-  // 3. Initialize 3D canvas scroll sequence (async — preloads frames)
+  // 3. Mount the ShaderGradient background
+  mountShaderGradient();
+
+  // 4. Initialize 3D canvas scroll sequence (model frames only)
   await initHeroCanvas();
 
-  // 4. Initialize all scroll-triggered animations
+  // 5. Initialize all scroll-triggered animations
   initAllAnimations();
 
-  // 5. Initialize custom Instagram feed
+  // 6. Initialize custom Instagram feed
   initInstagramFeed();
 
-  // 8. Refresh ScrollTrigger after everything is set up
+  // 7. Refresh ScrollTrigger after everything is set up
   ScrollTrigger.refresh();
 }
 

@@ -1,23 +1,15 @@
 /* ============================================================
-   HERO-CANVAS.JS — Dual-canvas scroll scrubbing
+   HERO-CANVAS.JS — Couple model canvas scroll scrubbing
    Amour Affairs · Premium Wedding Photography
 
    Architecture:
    ┌─────────────────────────────────────────────────────────┐
-   │  #bgCanvas     z:0  — landscape background (WebP seq)  │
-   │  #coupleCanvas z:1  — 3D model (transparent WebP seq)  │
+   │  ShaderGradient   z:0  — interactive React gradient bg  │
+   │  #coupleCanvas    z:1  — 3D model (transparent WebP seq)│
    └─────────────────────────────────────────────────────────┘
 
-   Why image sequences, not <video>.currentTime?
-   → Each video seek triggers a full decode cycle → choppy.
-   → Pre-decoded Image[] drawn to canvas is GPU-composited
-     in the same microtask as the ScrollTrigger tick → silky.
-
-   Both canvases advance to the SAME frame index from a single
-   GSAP ScrollTrigger onUpdate.
-
-   Background: COVER fill (full-bleed, any aspect ratio)
-   Model:      height-scale 1.20→0.72 as scroll progresses
+   The background landscape canvas has been removed in favor
+   of the ShaderGradient React component.
    ============================================================ */
 
 import { gsap } from 'gsap';
@@ -30,11 +22,6 @@ const TOTAL_FRAMES = 120;
 
 /* ─── Shared scroll state ────────────────────────────────── */
 const scrollObj = { frame: 0, scale: 1.20 };
-
-/* ─── Background canvas ──────────────────────────────────── */
-const bgFrames = new Array(TOTAL_FRAMES);
-let bgCtx      = null;
-let bgEl       = null;
 
 /* ─── Model canvas ───────────────────────────────────────── */
 const modelFrames = new Array(TOTAL_FRAMES);
@@ -53,29 +40,6 @@ function sizeCanvas(el, ctx) {
   el.height  = rect.height * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return { w: rect.width, h: rect.height };
-}
-
-/* ─── Draw background frame — COVER fill ────────────────── */
-function drawBgFrame(idx) {
-  const img = bgFrames[Math.max(0, Math.min(TOTAL_FRAMES - 1, Math.round(idx)))];
-  if (!img || !bgCtx) return;
-
-  const dpr = getDpr();
-  const cw  = bgEl.width  / dpr;
-  const ch  = bgEl.height / dpr;
-  const ia  = img.naturalWidth / img.naturalHeight;
-  const ca  = cw / ch;
-
-  // COVER: scale so the image fills all of the canvas, crop the overflow
-  let dw, dh;
-  if (ia > ca) { dh = ch; dw = ch * ia; }   // image wider → fit height
-  else         { dw = cw; dh = cw / ia; }   // image taller → fit width
-
-  const dx = (cw - dw) / 2;
-  const dy = (ch - dh) / 2;
-
-  bgCtx.clearRect(0, 0, cw, ch);
-  bgCtx.drawImage(img, dx, dy, dw, dh);
 }
 
 /* ─── Draw model frame — height-based scale ─────────────── */
@@ -129,14 +93,12 @@ function drawModelFrame(idx, scale) {
   modelCtx.restore();
 }
 
-
-/* ─── Composite draw ─────────────────────────────────────── */
+/* ─── Draw call ──────────────────────────────────────────── */
 function drawAll() {
-  drawBgFrame(scrollObj.frame);
   drawModelFrame(scrollObj.frame, scrollObj.scale);
 }
 
-/* ─── Preload a frame set ────────────────────────────────── */
+/* ─── Preload frame set ──────────────────────────────────── */
 function preloadFrameSet({ frames, urlFn, earlyCount, onProgress }) {
   return new Promise((resolve) => {
     let loaded = 0, resolved = false;
@@ -181,15 +143,11 @@ function createLoadingBar(heroEl) {
 export async function initHeroCanvas() {
   const heroEl = document.querySelector('.hero');
   const bodyEl = document.querySelector('.hero__body');
-  bgEl         = document.getElementById('bgCanvas');
   modelEl      = document.getElementById('coupleCanvas');
 
   if (!heroEl || !modelEl) return;
 
-  bgCtx    = bgEl ? bgEl.getContext('2d') : null;
   modelCtx = modelEl.getContext('2d');
-
-  if (bgCtx) sizeCanvas(bgEl, bgCtx);
   sizeCanvas(modelEl, modelCtx);
 
   gsap.set(bodyEl, { opacity: 0 });
@@ -221,7 +179,6 @@ export async function initHeroCanvas() {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (bgCtx) sizeCanvas(bgEl, bgCtx);
       sizeCanvas(modelEl, modelCtx);
       drawAll();
     }, 100);
@@ -229,35 +186,22 @@ export async function initHeroCanvas() {
 
   // ── Loading bar ──
   const loader = createLoadingBar(heroEl);
-  let bgDone = 0, mdDone = 0;
+  let mdDone = 0;
 
   function updateLoader() {
-    const pct = (bgDone + mdDone) / (TOTAL_FRAMES * 2);
+    const pct = mdDone / TOTAL_FRAMES;
     loader.fill.style.width  = `${pct * 100}%`;
     loader.label.textContent = pct < 1 ? `${Math.round(pct * 100)}%` : 'Ready';
-    // Render whatever we have so far
-    if (bgFrames[0]) drawBgFrame(0);
     if (modelFrames[0]) drawModelFrame(0, 1.20);
   }
 
-  // ── Preload BOTH frame sets in parallel, resolve early at 35 frames each ──
-  await Promise.all([
-    bgEl
-      ? preloadFrameSet({
-          frames:     bgFrames,
-          urlFn:      (n) => `/bg-frames/bg-frame-${pad(n)}.webp`,
-          earlyCount: 35,
-          onProgress: (n) => { bgDone = n; updateLoader(); },
-        })
-      : Promise.resolve(),
-
-    preloadFrameSet({
-      frames:     modelFrames,
-      urlFn:      (n) => `/frames/frame-${pad(n)}.webp`,
-      earlyCount: 35,
-      onProgress: (n) => { mdDone = n; updateLoader(); },
-    }),
-  ]);
+  // ── Preload model frames, resolve early at 35 frames ──
+  await preloadFrameSet({
+    frames:     modelFrames,
+    urlFn:      (n) => `/frames/frame-${pad(n)}.webp`,
+    earlyCount: 35,
+    onProgress: (n) => { mdDone = n; updateLoader(); },
+  });
 
   // ── Hide loader ──
   gsap.to(loader.bar, {
@@ -265,9 +209,9 @@ export async function initHeroCanvas() {
     onComplete: () => loader.bar.remove(),
   });
 
-  // ── Fade in both canvases ──
+  // ── Fade in model canvas ──
   gsap.fromTo(
-    [bgEl, modelEl].filter(Boolean),
+    modelEl,
     { opacity: 0 },
     { opacity: 1, duration: 1.0, ease: 'power2.out' }
   );
