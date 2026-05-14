@@ -41,10 +41,18 @@
   }
 }
 
+.page-hero__bg--still {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll;
+}
+
 .page-hero__overlay {
   position: absolute;
   inset: 0;
-  background: rgba(250, 247, 244, 0.72);
+  background: rgba(250, 247, 244, 0.55);
   z-index: 1;
 }
 

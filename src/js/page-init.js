@@ -19,7 +19,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // ── Modules ──
-import { initCursor } from './cursor.js';
+
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
 
@@ -256,7 +256,7 @@ async function init() {
   initLineDraws();
   initGalleryHovers();
   initMarquee();
-  initCursor();
+
   ScrollTrigger.refresh();
 }
 

@@ -193,7 +193,8 @@ footer.footer {
 
 .footer__bar-links {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 32px;
 }
 
 .footer__bar-link {
@@ -203,6 +204,7 @@ footer.footer {
   color: var(--color-text-dim);
   transition: color 0.3s ease;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .footer__bar-link:hover {
