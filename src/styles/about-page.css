@@ -83,7 +83,7 @@
   right: 5%;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: 40vw;
   font-weight: 300;
   color: #9E7A4E;
@@ -102,7 +102,7 @@
 }
 
 .about-hero__title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(3rem, 8vw, 9rem);
   font-weight: 300;
   font-style: italic;
@@ -115,7 +115,7 @@
 }
 
 .about-hero__sub {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(0.9rem, 1.5vw, 1.1rem);
   font-weight: 400;
   letter-spacing: 0.35em;
@@ -222,7 +222,7 @@
 }
 
 .founder__name {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 600;
   color: #2C2420;
@@ -232,7 +232,7 @@
 
 .founder__role {
   display: block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.3em;
@@ -242,7 +242,7 @@
 }
 
 .founder__pullquote {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.1rem, 2vw, 1.4rem);
   font-weight: 300;
   font-style: italic;
@@ -254,7 +254,7 @@
 }
 
 .founder__body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.9;
@@ -268,7 +268,7 @@
 }
 
 .founder__philosophy-quote {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.15rem, 2vw, 1.5rem);
   font-weight: 400;
   font-style: italic;
@@ -303,7 +303,7 @@
 
 .team-section__label {
   display: inline-block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.35em;
@@ -313,7 +313,7 @@
 }
 
 .team-section__title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 600;
   color: #2C2420;
@@ -328,7 +328,7 @@
 }
 
 .team-section__sub {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 400;
   line-height: 1.8;
@@ -419,7 +419,7 @@
 
 .team-card__name {
   display: block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   color: #2C2420;
@@ -428,7 +428,7 @@
 
 .team-card__role {
   display: block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 400;
   color: #9E7A4E;
@@ -477,7 +477,7 @@
 
 .philosophy__numeral {
   display: block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.7rem;
   font-weight: 400;
   letter-spacing: 0.4em;
@@ -486,7 +486,7 @@
 }
 
 .philosophy__word {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 600;
   color: #FFFFFF;
@@ -494,7 +494,7 @@
 }
 
 .philosophy__desc {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 400;
   color: #7A6A5A;
@@ -548,7 +548,7 @@
 .about-parallax__quote {
   position: relative;
   z-index: 2;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.2rem, 3vw, 2rem);
   font-weight: 300;
   font-style: italic;
@@ -574,7 +574,7 @@
 
 .about-cta__label {
   display: block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.3em;
@@ -584,7 +584,7 @@
 }
 
 .about-cta__heading {
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.8rem, 4vw, 3rem);
   font-weight: 600;
   color: #2C2420;
@@ -604,7 +604,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Montserrat', sans-serif;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.15em;

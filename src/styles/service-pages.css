@@ -87,6 +87,7 @@
 .page-hero__headline em {
   font-style: italic;
   font-weight: 700;
+  color: var(--color-accent-light);
 }
 
 .page-hero__sub {
@@ -128,6 +129,7 @@
 .sp-heading em {
   font-style: italic;
   font-weight: 700;
+  color: var(--color-accent-light);
 }
 
 /* ── Approach / 3-col grid ── */
@@ -162,7 +164,7 @@
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 14px;
 }
 
@@ -252,7 +254,7 @@
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 24px;
 }
 
@@ -289,7 +291,7 @@
 }
 
 .sp-quote__mark {
-  font-family: Georgia, serif;
+  font-family: var(--font-display);
   font-size: 8rem;
   line-height: 0.6;
   color: #C9A96E;
@@ -337,6 +339,7 @@
 .sp-cta-strip__title em {
   font-style: italic;
   font-weight: 700;
+  color: var(--color-accent-light);
 }
 
 /* ── CTA Button (champagne filled) ── */
@@ -405,7 +408,7 @@
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 10px;
 }
 
@@ -448,7 +451,7 @@
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 8px;
 }
 
@@ -556,7 +559,7 @@
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 12px;
 }
 
@@ -658,7 +661,7 @@
   font-family: var(--font-display);
   font-size: 1.4rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 32px;
 }
 
@@ -747,7 +750,7 @@
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 6px;
 }
 
@@ -796,7 +799,7 @@
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-accent-light);
   margin-bottom: 10px;
 }
 
