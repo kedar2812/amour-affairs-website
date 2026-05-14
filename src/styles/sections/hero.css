@@ -24,9 +24,7 @@
   align-items: center;
   justify-content: space-between;
   z-index: var(--z-nav);
-  transition: background 0.6s ease, padding 0.5s ease, box-shadow 0.5s ease,
-              backdrop-filter 0.5s ease, border-radius 0.6s ease,
-              margin 0.6s ease, border 0.5s ease, width 0.6s ease;
+  transition: background 0.5s ease, padding 0.4s ease, box-shadow 0.5s ease, backdrop-filter 0.5s ease;
 }
 
 .nav.scrolled {
@@ -235,22 +233,27 @@
   height: 100vh;
   height: 100svh; /* avoids mobile browser chrome overlap */
   overflow: hidden;
-  background: transparent;
+  background: var(--color-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-/* ── ShaderGradient mount point ── */
-#shader-gradient-root {
+
+/* ── Background canvas — full-bleed landscape image sequence ── */
+.hero__bg-canvas {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   z-index: 0;
+  will-change: contents;
+  transform: translateZ(0); /* GPU compositing layer */
 }
 
-
-/* ── 3D Model canvas — transparent frames stack cleanly above gradient ── */
+/* ── 3D Model canvas — transparent frames stack cleanly above bg ── */
 .hero__canvas {
   position: absolute;
   inset: 0;
