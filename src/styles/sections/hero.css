@@ -233,7 +233,7 @@
   height: 100vh;
   height: 100svh; /* avoids mobile browser chrome overlap */
   overflow: hidden;
-  background: var(--color-bg);
+  background: #F8F4EC; /* elegant cream */
   display: flex;
   flex-direction: column;
   align-items: center;
