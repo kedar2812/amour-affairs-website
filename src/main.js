@@ -28,6 +28,7 @@ import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
 import { initInstagramFeed } from './js/gallery.js';
 import { initGlobe } from './js/globe.js';
+import { initFooterTyping } from './js/footer-typing.js';
 
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
@@ -92,7 +93,10 @@ async function init() {
   // 5. Initialize custom Instagram feed
   initInstagramFeed();
 
-  // 6. Refresh ScrollTrigger after everything is set up
+  // 6. Init footer typing effect
+  initFooterTyping();
+
+  // 7. Refresh ScrollTrigger after everything is set up
   ScrollTrigger.refresh();
 }
 

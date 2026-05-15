@@ -33,6 +33,19 @@ export function initNav(lenisInstance) {
   window.addEventListener('scroll', updateNav, { passive: true });
   updateNav(); // Initial check
 
+  // ── Dark nav when footer is in view ──────────────────────────────────
+  const footer = document.querySelector('.footer');
+  if (footer) {
+    const footerObserver = new IntersectionObserver(
+      (entries) => {
+        nav.classList.toggle('nav--dark', entries[0].isIntersecting);
+      },
+      // Trigger when footer's top edge hits the bottom 5px of the viewport
+      { rootMargin: '0px 0px -5px 0px', threshold: 0 }
+    );
+    footerObserver.observe(footer);
+  }
+
   // ── Smooth scroll for internal nav links ──
   navLinks.forEach((link) => {
     link.addEventListener('click', (e) => {

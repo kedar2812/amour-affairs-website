@@ -22,6 +22,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { initFooterTyping } from './footer-typing.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -256,6 +257,7 @@ async function init() {
   initLineDraws();
   initGalleryHovers();
   initMarquee();
+  initFooterTyping();
 
   ScrollTrigger.refresh();
 }
