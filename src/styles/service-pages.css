@@ -67,7 +67,7 @@
 .page-hero__eyebrow {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -92,7 +92,7 @@
 
 .page-hero__sub {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1.3vw, 1.05rem);
+  font-size: clamp(1.15rem, 1.5vw, 1.3rem);
   color: var(--color-text-dim);
   line-height: 1.7;
   max-width: 600px;
@@ -109,7 +109,7 @@
 .sp-eyebrow {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.95rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -146,7 +146,7 @@
 
 .sp-col__num {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.95rem;
   letter-spacing: 0.3em;
   color: #C9A96E;
   margin-bottom: 16px;
@@ -170,7 +170,7 @@
 
 .sp-col__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.75;
   color: var(--color-text-dim);
 }
@@ -218,7 +218,7 @@
 
 .pg-gallery__overlay span {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #fff;
@@ -266,7 +266,7 @@
 
 .sp-package__list li {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 1.1rem;
   color: var(--color-text-dim);
   line-height: 1.7;
   padding: 10px 0;
@@ -313,7 +313,7 @@
 
 .sp-quote__attr {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -348,7 +348,7 @@
   align-items: center;
   gap: 10px;
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -414,7 +414,7 @@
 
 .sp-timeline__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.7;
   color: var(--color-text-dim);
 }
@@ -457,7 +457,7 @@
 
 .sp-film-card__duration {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #C9A96E;
@@ -466,7 +466,7 @@
 
 .sp-film-card__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.75;
   color: var(--color-text-dim);
 }
@@ -498,7 +498,7 @@
 .sp-still__caption {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 0.92rem;
+  font-size: 1.1rem;
   color: var(--color-text-dim);
   margin-top: 12px;
   display: block;
@@ -514,7 +514,7 @@
 
 .sp-vimeo__label {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -565,7 +565,7 @@
 
 .sp-benefit-tile__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.75;
   color: var(--color-text-dim);
 }
@@ -613,7 +613,7 @@
 
 .sp-location__name {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: #fff;
@@ -679,7 +679,7 @@
 
 .sp-session-card__label {
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-dim);
@@ -687,7 +687,7 @@
 
 .sp-session-card__value {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 1.15rem;
   color: #1a1a1a;
   font-weight: 400;
 }
@@ -723,7 +723,7 @@
 
 .sp-split__body {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 1.2rem;
   line-height: 1.85;
   color: var(--color-text-dim);
 }
@@ -756,7 +756,7 @@
 
 .sp-album-card__spec {
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.95rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #C9A96E;
@@ -765,7 +765,7 @@
 
 .sp-album-card__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.75;
   color: var(--color-text-dim);
   margin-bottom: 32px;
@@ -805,7 +805,7 @@
 
 .sp-step__text {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   line-height: 1.75;
   color: var(--color-text-dim);
 }
@@ -878,7 +878,7 @@
 
 .sp-footer__tagline {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 1.05rem;
   color: var(--color-text-dim);
   line-height: 1.7;
   max-width: 300px;
@@ -887,7 +887,7 @@
 .sp-footer__col-label {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.9rem;
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: #C9A96E;
@@ -897,7 +897,7 @@
 .sp-footer__link {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   color: var(--color-text-dim);
   text-decoration: none;
   line-height: 2.1;
@@ -920,7 +920,7 @@
 
 .sp-footer__copyright {
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   color: var(--color-text-dim);
 }
 
