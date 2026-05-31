@@ -7,8 +7,29 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useClients } from '@/lib/useData';
 import { Client } from '@/data/mockData';
 import { Drawer } from '@/components/ui/Drawer';
+import { motion } from 'framer-motion';
 
 type TabView = "Overview" | "Booking History" | "Payments" | "Gallery Deliveries" | "Notes";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 16, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 280, damping: 24 }
+  }
+};
 
 export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,9 +86,21 @@ export default function ClientsPage() {
       </div>
 
       {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 content-start pb-12">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 content-start pb-12"
+      >
         {filteredClients.map(client => (
-          <div key={client.id} onClick={() => handleClientClick(client)} className="dash-card p-6 cursor-pointer hover:-translate-y-1 transition-transform group">
+          <motion.div 
+            key={client.id} 
+            variants={cardVariants}
+            whileHover={{ y: -4, scale: 1.01, boxShadow: "0 12px 24px -10px rgba(0,0,0,0.08)" }}
+            whileTap={{ scale: 0.995 }}
+            onClick={() => handleClientClick(client)} 
+            className="dash-card p-6 cursor-pointer group"
+          >
             <div className="flex items-start justify-between mb-4">
               <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
                 <AvatarFallback className={`font-bold text-sm ${getAvatarColor(client.type)}`}>
@@ -101,9 +134,9 @@ export default function ClientsPage() {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       <Drawer isOpen={!!selectedClient} onClose={() => setSelectedClient(null)} width="560px" title={selectedClient?.name}>
         {selectedClient && (
@@ -129,16 +162,26 @@ export default function ClientsPage() {
             </div>
 
             {/* Inner Tabs */}
-            <div className="px-6 py-3 border-b border-border/50 flex gap-6 overflow-x-auto shrink-0 hide-scrollbar">
-              {(["Overview", "Booking History", "Payments", "Gallery Deliveries", "Notes"] as TabView[]).map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`text-[13px] font-bold pb-2 border-b-2 transition-colors whitespace-nowrap ${activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className="px-6 py-3 border-b border-border/50 flex gap-6 overflow-x-auto shrink-0 hide-scrollbar relative">
+              {(["Overview", "Booking History", "Payments", "Gallery Deliveries", "Notes"] as TabView[]).map(tab => {
+                const isActive = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`relative text-[13px] font-bold pb-2 transition-colors whitespace-nowrap ${isActive ? "text-primary font-extrabold" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    {tab}
+                    {isActive && (
+                      <motion.div 
+                        layoutId="client-drawer-tab"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
+                        transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Content Switcher */}

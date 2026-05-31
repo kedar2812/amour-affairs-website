@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, CalendarCheck, IndianRupee, BookOpen, Eye, ArrowUpRight } from "lucide-react";
+import { TrendingUp, CalendarCheck, IndianRupee, BookOpen, Eye, ArrowUpRight } from "lucide-react";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
 /*
  * Sparklink-style KPI cards: colored icon box on the left, 
@@ -53,21 +54,50 @@ const metrics = [
   },
 ];
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      delay: i * 0.06,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  }),
+  hover: {
+    y: -4,
+    scale: 1.015,
+    boxShadow: "0 12px 24px -10px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.03)",
+  },
+};
+
+const iconVariants = {
+  hover: { rotate: 12, scale: 1.08, transition: { type: "spring" as const, stiffness: 300, damping: 15 } },
+};
+
 export function KPICards() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
       {metrics.map((metric, index) => (
         <motion.div
           key={metric.title}
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: index * 0.06, ease: [0.25, 0.46, 0.45, 0.94] }}
+          custom={index}
+          variants={cardVariants}
+          initial="hidden"
+          animate="visible"
+          whileHover="hover"
+          whileTap={{ scale: 0.995 }}
+          className="cursor-pointer"
         >
-          <div className={`dash-card p-5 flex items-start gap-4 border-l-4 ${metric.borderColor}`}>
+          <div className={`dash-card p-5 flex items-start gap-4 border-l-4 ${metric.borderColor} h-full`}>
             {/* Colored icon box — Sparklink-style */}
-            <div className={`h-12 w-12 rounded-xl ${metric.iconBg} flex items-center justify-center shrink-0`}>
+            <motion.div 
+              variants={iconVariants}
+              className={`h-12 w-12 rounded-xl ${metric.iconBg} flex items-center justify-center shrink-0`}
+            >
               <metric.icon className={`h-6 w-6 ${metric.iconColor}`} strokeWidth={1.7} />
-            </div>
+            </motion.div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
@@ -77,7 +107,9 @@ export function KPICards() {
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               </div>
-              <h3 className="text-2xl font-bold text-foreground mt-1 tracking-tight">{metric.value}</h3>
+              <h3 className="text-2xl font-bold text-foreground mt-1 tracking-tight">
+                <AnimatedCounter value={metric.value} />
+              </h3>
               <div className="flex items-center gap-1.5 mt-2">
                 {metric.changeType === "positive" ? (
                   <TrendingUp className="h-3 w-3 text-emerald-600" />

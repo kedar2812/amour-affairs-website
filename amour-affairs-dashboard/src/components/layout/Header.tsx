@@ -16,10 +16,33 @@ import {
   flattenPackages,
 } from "@/lib/exportUtils";
 import { useState, useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
+const ROUTE_CONTENT: Record<string, { title: string; subtitle: string }> = {
+  "/": { title: "Dashboard", subtitle: "Plan, prioritize, and manage your studio bookings." },
+  "/bookings": { title: "Bookings", subtitle: "Coordinate and monitor upcoming photographer schedules." },
+  "/leads": { title: "Leads", subtitle: "Track, qualify, and convert incoming client inquiries." },
+  "/clients": { title: "Clients", subtitle: "Manage your client relationships, histories, and VIP tags." },
+  "/team": { title: "Team", subtitle: "Manage photography crew, roles, and current schedules." },
+  "/packages": { title: "Packages", subtitle: "Design and optimize shoot bundles and service offerings." },
+  "/gallery": { title: "Gallery", subtitle: "Manage client media deliveries and download activities." },
+  "/testimonials": { title: "Testimonials", subtitle: "Review client stories, ratings, and publish quotes." },
+  "/payments": { title: "Payments", subtitle: "Track invoices, payments status, and gross revenues." },
+  "/analytics": { title: "Analytics", subtitle: "Analyze funnel rates, performance, and key metrics." },
+  "/settings": { title: "Settings", subtitle: "Configure CRM details, permissions, and app preferences." },
+};
 
 export function Header() {
+  const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null);
+
+  // Get active route content, default to fallback
+  const content = ROUTE_CONTENT[pathname] || {
+    title: "Amour Affairs",
+    subtitle: "Wedding Photography & Studio management CRM."
+  };
 
   useEffect(() => {
     const handleOpen = (e: any) => {
@@ -45,10 +68,20 @@ export function Header() {
   return (
     <>
       <header className="h-[72px] bg-card/60 dark:bg-card/40 backdrop-blur-[120px] rounded-2xl flex items-center justify-between px-8 shrink-0 shadow-sm border-none">
-      {/* Left: Title + subtitle (Donezo-style) */}
-      <div>
-        <h2 className="text-xl font-bold text-foreground">Dashboard</h2>
-        <p className="text-[13px] text-muted-foreground">Plan, prioritize, and manage your studio bookings.</p>
+      {/* Left: Dynamic Title + subtitle (Donezo-style animated) */}
+      <div className="h-10 flex flex-col justify-center overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+          >
+            <h2 className="text-xl font-bold text-foreground leading-tight">{content.title}</h2>
+            <p className="text-[13px] text-muted-foreground leading-normal mt-0.5">{content.subtitle}</p>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Right: Actions (Sparklink-style) */}

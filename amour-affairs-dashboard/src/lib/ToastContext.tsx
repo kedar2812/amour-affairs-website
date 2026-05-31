@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { Toast } from '@/components/ui/Toast';
+import { AnimatePresence } from 'framer-motion';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -34,9 +35,11 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       {children}
       {/* Container for Toasts */}
       <div className="fixed bottom-6 right-6 z-[60] flex flex-col gap-2 pointer-events-none">
-        {toasts.map((toast) => (
-          <Toast key={toast.id} message={toast.message} type={toast.type} />
-        ))}
+        <AnimatePresence>
+          {toasts.map((toast) => (
+            <Toast key={toast.id} message={toast.message} type={toast.type} />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

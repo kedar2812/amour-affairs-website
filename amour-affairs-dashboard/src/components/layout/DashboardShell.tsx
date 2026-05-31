@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { ProtectedRoute } from "@/components/providers/ProtectedRoute";
+import { PageWrapper } from "@/components/layout/PageWrapper";
+import { AnimatePresence } from "framer-motion";
 
 /**
  * DashboardShell conditionally renders the sidebar + header chrome.
@@ -35,7 +37,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         {/* Scrollable Content */}
         <main className="flex-1 h-full overflow-y-auto pt-[116px] px-8 pb-12">
-          {children}
+          <AnimatePresence mode="wait">
+            <PageWrapper key={pathname}>{children}</PageWrapper>
+          </AnimatePresence>
         </main>
       </div>
     </ProtectedRoute>

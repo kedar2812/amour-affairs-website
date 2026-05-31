@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CheckCircle2, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -28,16 +28,14 @@ export const Toast = ({ message, type }: ToastProps) => {
   const { borderClass, icon } = getStyles(type);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: 50, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-        className={`flex items-center gap-3 bg-card/95 backdrop-blur-md text-card-foreground shadow-xl border border-border rounded-lg px-4 py-3 min-w-[320px] max-w-[420px] border-l-[3.5px] ${borderClass} pointer-events-auto`}
-      >
-        <div className="shrink-0">{icon}</div>
-        <p className="text-sm font-medium">{message}</p>
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      className={`flex items-center gap-3 bg-card/95 backdrop-blur-md text-card-foreground shadow-xl border border-border rounded-lg px-4 py-3 min-w-[320px] max-w-[420px] border-l-[3.5px] ${borderClass} pointer-events-auto`}
+    >
+      <div className="shrink-0">{icon}</div>
+      <p className="text-sm font-medium">{message}</p>
+    </motion.div>
   );
 };
