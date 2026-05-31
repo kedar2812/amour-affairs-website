@@ -15,7 +15,7 @@
 .process__label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -26,7 +26,7 @@
 .process__title {
   font-family: var(--font-display);
   font-size: var(--text-h2);
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.1;
   text-transform: uppercase;
   color: var(--color-text);
@@ -139,7 +139,7 @@
 .process__step-number {
   font-family: var(--font-display);
   font-size: clamp(3rem, 5vw, 5rem);
-  font-weight: 300;
+  font-weight: 600;
   line-height: 1;
   color: var(--color-accent);
   opacity: 0.12;
@@ -155,7 +155,7 @@
 .process__step-title {
   font-family: var(--font-body);
   font-size: clamp(0.75rem, 1.1vw, 0.9rem);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(44, 36, 32, 0.3);

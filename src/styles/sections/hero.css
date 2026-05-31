@@ -37,7 +37,7 @@
 .nav__logo {
   font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif !important;
   font-size: clamp(1rem, 1.5vw, 1.25rem);
-  font-weight: 800;
+  font-weight: 700;
   font-style: normal;
   letter-spacing: 0.01em;
   color: #000000 !important;
@@ -57,7 +57,7 @@
 }
 
 .nav__logo .logo-affairs {
-  font-weight: 800;
+  font-weight: 700;
   font-style: italic;
 }
 
@@ -126,7 +126,7 @@
   gap: 8px;
   font-family: var(--font-body);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.02em;
   text-transform: none;
   white-space: nowrap;
@@ -190,7 +190,7 @@
 .nav__mobile-link {
   font-family: var(--font-display);
   font-size: clamp(2rem, 6vw, 3.5rem);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: -0.02em;
   text-transform: none;
   color: var(--color-text);
@@ -337,9 +337,9 @@
 .hero__headline {
   font-family: var(--font-display);
   font-size: clamp(2.6rem, 6vw, 6.5rem);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   color: var(--color-text);
   max-width: 1400px;
   margin: 0 auto 0;
@@ -347,7 +347,7 @@
 
 .hero__headline em {
   font-style: italic;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-accent);
 }
 
@@ -374,7 +374,7 @@
   gap: 10px;
   font-family: var(--font-display);
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.03em;
   padding: 14px 44px;
   border-radius: 50px;
@@ -663,7 +663,7 @@
   gap: 0.05em;
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 8vw, 6rem);
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: -0.03em;
   color: #1A1410;
   overflow: hidden;

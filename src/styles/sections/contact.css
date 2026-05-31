@@ -34,7 +34,7 @@
 .cta-banner__label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -47,8 +47,8 @@
 .cta-banner__title {
   font-family: var(--font-display);
   font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 300;
-  font-style: italic;
+  font-weight: 500;
+  font-style: normal;
   color: var(--color-text);
   line-height: 1.2;
   margin-bottom: 32px;
@@ -145,7 +145,7 @@ footer.footer {
 .footer__tagline {
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 5vw, 5rem);
-  font-weight: 300;
+  font-weight: 500;
   color: #FAF7F4;
   line-height: 1.2;
   margin-bottom: clamp(28px, 4vw, 48px);
@@ -162,7 +162,7 @@ footer.footer {
   gap: 12px;
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--color-accent-light);
@@ -262,7 +262,7 @@ footer.footer {
 .footer__col-label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--color-accent-light);

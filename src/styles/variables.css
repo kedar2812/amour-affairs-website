@@ -24,8 +24,8 @@
   --color-photo-overlay-light: rgba(20, 14, 10, 0.28);
 
   /* ── Typography ── */
-  --font-display:  'Instrument Serif', Georgia, serif;
-  --font-body:     'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-display:  'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --font-body:     'Instrument Serif', Georgia, serif;
 
   /* Fluid Type Scale */
   --text-hero:     clamp(4rem, 10vw, 10rem);
