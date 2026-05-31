@@ -1,0 +1,33 @@
+# ============================================================
+# AMOUR AFFAIRS — API Security Rules
+# ============================================================
+# Prevents direct access to sensitive files.
+# Place in the /api/ directory.
+# ============================================================
+
+# Deny access to config and internal files
+<FilesMatch "\.(sql|md|txt|log)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Block access to seed.php in production (uncomment after seeding)
+# <Files "seed.php">
+#     Order Allow,Deny
+#     Deny from all
+# </Files>
+
+# Block directory listing
+Options -Indexes
+
+# Force UTF-8
+AddDefaultCharset UTF-8
+
+# Set PHP settings for security
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_value upload_max_filesize 16M
+    php_value post_max_size 20M
+    php_value max_execution_time 60
+</IfModule>

@@ -1,0 +1,139 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import { useAuth } from "@/lib/AuthContext";
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Contact,
+  Users,
+  Camera,
+  Package,
+  CircleDollarSign,
+  BarChart3,
+  Settings,
+  Image,
+  MessageSquareQuote,
+  LogOut,
+} from "lucide-react";
+
+const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = [
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Bookings", href: "/bookings", icon: CalendarDays },
+  { name: "Leads", href: "/leads", icon: Contact },
+  { name: "Clients", href: "/clients", icon: Users },
+  { name: "Team", href: "/team", icon: Camera },
+  { name: "Packages", href: "/packages", icon: Package },
+  { name: "Gallery", href: "/gallery", icon: Image },
+  { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
+  { name: "Payments", href: "/payments", icon: CircleDollarSign },
+  { name: "Analytics", href: "/analytics", icon: BarChart3 },
+];
+
+const GENERAL_ITEMS = [
+  { name: "Settings", href: "/settings", icon: Settings },
+];
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const { user, logout } = useAuth();
+
+  return (
+    <aside className="w-[230px] shrink-0 bg-sidebar h-full flex flex-col border border-border/50 rounded-2xl shadow-sm">
+      {/* Brand */}
+      <div className="px-5 pt-6 pb-6 flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
+          <Camera className="h-5 w-5 text-primary-foreground" />
+        </div>
+        <div>
+          <h1 className="text-[16px] font-bold text-foreground leading-tight tracking-tight">Amour Affairs</h1>
+          <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Photography Studio</p>
+        </div>
+      </div>
+
+      {/* Menu Section */}
+      <nav className="flex-1 px-3 overflow-y-auto">
+        <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-[0.12em] px-3 mb-2">Menu</p>
+        <div className="space-y-0.5">
+          {MENU_ITEMS.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-[15px] font-medium transition-all duration-200 group ${
+                  isActive
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
+                }`}
+              >
+                {/* Active indicator bar — Donezo-style */}
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active-bar"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full"
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                  />
+                )}
+                <div className="flex items-center gap-3">
+                  <item.icon
+                    className={`h-[18px] w-[18px] ${isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                    strokeWidth={isActive ? 2 : 1.7}
+                  />
+                  <span>{item.name}</span>
+                </div>
+                {item.badge && (
+                  <span className={`text-[11px] min-w-[22px] text-center px-1.5 py-0.5 rounded-full font-bold ${
+                    isActive
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* General Section */}
+        <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-[0.12em] px-3 mt-6 mb-2">General</p>
+        <div className="space-y-0.5">
+          {GENERAL_ITEMS.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground transition-colors"
+            >
+              <item.icon className="h-[18px] w-[18px] text-muted-foreground" strokeWidth={1.7} />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
+
+
+      {/* User Profile */}
+      <div className="p-5 border-t border-border/50">
+        <div className="p-3 bg-sidebar-accent/50 rounded-xl flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <span className="text-[13px] font-bold text-primary">{user?.name?.substring(0, 2).toUpperCase() || 'AA'}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold text-foreground truncate">{user?.name || 'Amour Affairs'}</p>
+            <p className="text-[11px] text-muted-foreground truncate">{user?.email || ''}</p>
+          </div>
+          <button
+            onClick={() => logout()}
+            className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+            title="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+}

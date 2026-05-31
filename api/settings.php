@@ -1,0 +1,80 @@
+<?php
+/**
+ * ============================================================
+ * AMOUR AFFAIRS — Settings API
+ * ============================================================
+ * GET  /api/settings.php                — Get all settings (public for profile/social)
+ * GET  /api/settings.php?group=X        — Get settings by group
+ * PUT  /api/settings.php                — Update settings (auth)
+ * ============================================================
+ */
+
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/middleware.php';
+
+handleCORS();
+setJSONHeaders();
+
+$method = getMethod();
+
+switch ($method) {
+
+    case 'GET':
+        $db = getDB();
+        $group = $_GET['group'] ?? '';
+
+        if ($group) {
+            $stmt = $db->prepare('SELECT setting_key, setting_value FROM settings WHERE setting_group = ?');
+            $stmt->execute([$group]);
+        } else {
+            $stmt = $db->prepare('SELECT setting_key, setting_value, setting_group FROM settings ORDER BY setting_group, setting_key');
+            $stmt->execute();
+        }
+
+        $rows = $stmt->fetchAll();
+        $settings = [];
+        foreach ($rows as $row) {
+            $settings[$row['setting_key']] = $row['setting_value'];
+        }
+
+        sendJSON(['settings' => $settings]);
+        break;
+
+
+    case 'PUT':
+        $auth = requireAuth();
+        $body = getJSONBody();
+
+        if (empty($body) || !isset($body['settings'])) {
+            sendError('settings object is required', 400);
+        }
+
+        $db = getDB();
+        $stmt = $db->prepare(
+            'INSERT INTO settings (setting_key, setting_value, setting_group)
+             VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+        );
+
+        $updated = 0;
+        foreach ($body['settings'] as $key => $value) {
+            $key = sanitize($key);
+            $value = sanitize($value);
+            // Determine group from key prefix
+            $group = 'general';
+            if (str_starts_with($key, 'studio_')) $group = 'profile';
+            elseif (str_starts_with($key, 'social_')) $group = 'social';
+            elseif (str_starts_with($key, 'hero_')) $group = 'hero';
+            elseif (str_starts_with($key, 'seo_')) $group = 'seo';
+
+            $stmt->execute([$key, $value, $group]);
+            $updated++;
+        }
+
+        auditLog('update', 'settings', null, ['count' => $updated], $auth['sub']);
+        sendJSON(['message' => 'Settings updated', 'updated' => $updated]);
+        break;
+
+    default:
+        sendError('Method not allowed', 405);
+}
