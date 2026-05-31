@@ -36,7 +36,7 @@
 
 .nav__logo {
   font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif !important;
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
   font-weight: 700;
   font-style: normal;
   letter-spacing: 0.01em;
@@ -72,11 +72,11 @@
 }
 
 .nav__logo-img {
-  height: clamp(22px, 2.8vw, 32px);
+  height: clamp(28px, 3.6vw, 42px);
   width: auto;
   object-fit: contain;
   opacity: 0.85;
-  margin-right: 6px;
+  margin-right: 8px;
   transition: opacity 0.3s ease;
 }
 
@@ -92,7 +92,7 @@
 
 .nav__link {
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.35rem;
   font-weight: 400;
   letter-spacing: 0.02em;
   text-transform: none;
@@ -125,12 +125,12 @@
   align-items: center;
   gap: 8px;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.25rem;
   font-weight: 400;
   letter-spacing: 0.02em;
   text-transform: none;
   white-space: nowrap;
-  padding: 9px 22px;
+  padding: 10px 24px;
   border-radius: 50px;
   background: var(--color-accent);
   color: #FAF7F4;
