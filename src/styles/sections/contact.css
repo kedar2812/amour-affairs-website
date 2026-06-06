@@ -75,9 +75,12 @@
   color: rgba(250, 247, 244, 0.65);
 }
 
-.nav--dark .nav__link:hover,
-.nav--dark .nav__link--active {
+.nav--dark .nav__link:hover {
   color: #FAF7F4;
+}
+
+.nav--dark .nav__link--active {
+  color: var(--color-accent);
 }
 
 .nav--dark .nav__link::after {

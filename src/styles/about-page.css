@@ -38,7 +38,7 @@
 }
 
 .about-page .nav .nav__link--active {
-  color: #1A1410;
+  color: var(--color-accent);
 }
 
 .about-page .nav .nav__link:hover {
