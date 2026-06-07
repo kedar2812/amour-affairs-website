@@ -154,7 +154,7 @@ export function initGalleryReveals() {
   });
 }
 
-/* ── Process Steps — scroll-driven highlight ── */
+/* ── Process Steps — scroll-driven highlight with illustration reveals ── */
 export function initProcessAnimation() {
   const steps = gsap.utils.toArray('.process__step');
   const lineFill = document.querySelector('.process__line-fill');
@@ -165,7 +165,44 @@ export function initProcessAnimation() {
   // Remove any pre-existing step-active classes
   steps.forEach((s) => s.classList.remove('step-active'));
 
-  // Animate the connecting line width with scroll scrub
+  // Staggered entrance animation for each step's illustration + info
+  steps.forEach((step, i) => {
+    const illustration = step.querySelector('.process__step-illustration');
+    const info = step.querySelector('.process__step-info');
+
+    if (illustration) {
+      gsap.from(illustration, {
+        y: 40,
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.9,
+        ease: 'power3.out',
+        delay: i * 0.1,
+        scrollTrigger: {
+          trigger: stepsContainer,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }
+
+    if (info) {
+      gsap.from(info, {
+        y: 25,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power2.out',
+        delay: i * 0.1 + 0.2,
+        scrollTrigger: {
+          trigger: stepsContainer,
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      });
+    }
+  });
+
+  // Animate the connecting line fill with scroll scrub
   if (lineFill) {
     gsap.to(lineFill, {
       width: '100%',
@@ -180,7 +217,6 @@ export function initProcessAnimation() {
   }
 
   // For each step, activate it when the scroll line passes its midpoint
-  // We split the scroll progress into N equal segments
   const total = steps.length;
 
   ScrollTrigger.create({
@@ -189,17 +225,14 @@ export function initProcessAnimation() {
     end: 'bottom 55%',
     scrub: 1,
     onUpdate: (self) => {
-      // progress goes 0 → 1 across the container
       const progress = self.progress;
       steps.forEach((step, i) => {
-        // step i activates when progress passes i/(total-1) threshold (with a small lead)
         const threshold = i / (total - 1 + 0.5);
         const shouldBeActive = progress >= threshold;
         step.classList.toggle('step-active', shouldBeActive);
       });
     },
     onLeaveBack: () => {
-      // All steps return to dim when scrolling back above section
       steps.forEach((s) => s.classList.remove('step-active'));
     },
   });
@@ -242,10 +275,10 @@ export function initPreloader() {
 
     const fill = preloader.querySelector('.preloader__progress-fill');
     
-    // Simulate loading progress from 0 to 100 over 2 seconds
+    // Simulate loading progress from 0 to 100 over 1.2 seconds
     let progress = 0;
-    const duration = 2000; // ms
-    const intervalTime = 20;
+    const duration = 1200; // ms
+    const intervalTime = 16;
     const step = 100 / (duration / intervalTime);
 
     const interval = setInterval(() => {
@@ -258,20 +291,28 @@ export function initPreloader() {
       if (progress >= 100) {
         clearInterval(interval);
         
-        // Wait briefly at 100% before fading out
+        // Brief pause at 100% before fading out
         setTimeout(() => {
+          // Hide page content for the reveal transition
+          document.body.style.opacity = '0';
+
           gsap.to(preloader, {
             opacity: 0,
-            duration: 0.6,
+            duration: 0.5,
             ease: 'power2.inOut',
             onComplete: () => {
               preloader.classList.add('loaded');
               preloader.remove(); // Clean up from DOM
               document.body.classList.remove('is-loading');
+
+              // Smooth fade-in reveal of page content
+              document.body.style.opacity = '';
+              document.body.classList.add('page-revealed');
+              
               resolve();
             },
           });
-        }, 300);
+        }, 150);
       }
     }, intervalTime);
   });

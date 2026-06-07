@@ -4,3 +4,6 @@ dist/
 .env
 .vite/
 3d model/
+*.mp4
+*.txt
+*.ps1

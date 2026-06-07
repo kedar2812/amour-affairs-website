@@ -1,15 +1,17 @@
 /* ============================================================
-   PROCESS.CSS — 5-Step Process Section (Scroll-Highlight Version)
+   PROCESS.CSS — "Memories of a Lifetime in Five Simple Steps"
    Amour Affairs · Premium Wedding Photography
+   Illustration cards + original round-dot scroll-driven timeline
    ============================================================ */
 
 .process {
   background: var(--color-bg-alt);
 }
 
+/* ── Header ── */
 .process__header {
   text-align: center;
-  margin-bottom: clamp(60px, 8vw, 120px);
+  margin-bottom: clamp(50px, 7vw, 90px);
 }
 
 .process__label {
@@ -19,7 +21,7 @@
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-accent);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   display: block;
 }
 
@@ -30,9 +32,58 @@
   line-height: 1.1;
   text-transform: uppercase;
   color: var(--color-text);
+  margin-bottom: 0;
 }
 
-/* ── Steps Layout ── */
+.process__title em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+/* ── Ornamental divider below title ── */
+.process__header-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px auto 28px;
+  max-width: 280px;
+}
+
+.process__header-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-accent),
+    transparent
+  );
+  opacity: 0.4;
+}
+
+.process__header-diamond {
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  opacity: 0.6;
+  line-height: 1;
+}
+
+/* ── Subtitle ── */
+.process__subtitle {
+  font-family: var(--font-body);
+  font-size: var(--text-subhead);
+  font-style: italic;
+  color: var(--color-text-dim);
+  line-height: 1.7;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+
+/* ══════════════════════════════════════════
+   STEPS LAYOUT — Desktop: 5-column flex
+   ══════════════════════════════════════════ */
 .process__steps {
   display: flex;
   align-items: flex-start;
@@ -41,10 +92,14 @@
   gap: var(--gap-md);
 }
 
-/* Connecting line */
+
+/* ══════════════════════════════════════════
+   CONNECTING LINE — Original solid line
+   ══════════════════════════════════════════ */
 .process__line {
   position: absolute;
-  top: 10px;
+  /* Vertically center on the dots below illustrations */
+  top: calc(clamp(140px, 15vw, 210px) + 16px + 10px);
   left: 10%;
   right: 10%;
   height: 1px;
@@ -67,35 +122,67 @@
   box-shadow: 0 0 8px rgba(158, 122, 78, 0.3);
 }
 
-/* Step Item — starts invisible/dim */
+
+/* ══════════════════════════════════════════
+   STEP CARD
+   ══════════════════════════════════════════ */
 .process__step {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
   position: relative;
   z-index: 1;
-  padding: 0 12px;
+  padding: 0 8px;
   opacity: 0.22;
   transition: opacity 0.6s ease;
   will-change: opacity;
 }
 
-/* Active/revealed step comes fully to life */
 .process__step.step-active {
   opacity: 1;
 }
 
-/* ── Dot ── */
+
+/* ── Illustration ── */
+.process__step-illustration {
+  width: clamp(120px, 13vw, 180px);
+  height: clamp(140px, 15vw, 210px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.process__step-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.process__step:hover .process__step-img {
+  transform: translateY(-6px) scale(1.04);
+}
+
+
+/* ══════════════════════════════════════════
+   DOT — Original round dot with pulse + glow
+   ══════════════════════════════════════════ */
 .process__step-dot {
   width: 20px;
   height: 20px;
   border: 1.5px solid rgba(158, 122, 78, 0.25);
   border-radius: 50%;
   background: var(--color-bg-alt);
-  margin: 0 auto 28px;
+  margin: 0 auto 24px;
   position: relative;
   transition: border-color 0.5s ease, box-shadow 0.5s ease;
 }
 
+/* Outer pulse ring */
 .process__step-dot::before {
   content: '';
   position: absolute;
@@ -105,6 +192,7 @@
   transition: border-color 0.5s ease;
 }
 
+/* Inner fill circle */
 .process__step-dot::after {
   content: '';
   position: absolute;
@@ -115,16 +203,19 @@
   transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.4s ease;
 }
 
+/* Active dot — border glows gold */
 .process__step.step-active .process__step-dot {
   border-color: var(--color-accent);
   box-shadow: 0 0 10px rgba(158, 122, 78, 0.25), 0 0 20px rgba(158, 122, 78, 0.1);
 }
 
+/* Active dot — pulse ring animates */
 .process__step.step-active .process__step-dot::before {
   border-color: rgba(158, 122, 78, 0.18);
   animation: dotPulse 2s ease-in-out infinite;
 }
 
+/* Active dot — inner fill scales in */
 .process__step.step-active .process__step-dot::after {
   transform: scale(1);
   background: var(--color-accent);
@@ -135,55 +226,68 @@
   50%       { transform: scale(1.6); opacity: 0; }
 }
 
-/* ── Step Number — dim by default, glows when active ── */
+
+/* ══════════════════════════════════════════
+   STEP INFO — Number, Title, Description
+   ══════════════════════════════════════════ */
+.process__step-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .process__step-number {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 5vw, 5rem);
+  font-size: clamp(0.72rem, 0.95vw, 0.85rem);
   font-weight: 600;
-  line-height: 1;
-  color: var(--color-accent);
-  opacity: 0.12;
-  margin-bottom: 16px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  opacity: 0.55;
+  margin-bottom: 6px;
   transition: opacity 0.5s ease;
 }
 
 .process__step.step-active .process__step-number {
-  opacity: 0.22;
+  opacity: 1;
 }
 
-/* ── Step Title ── */
 .process__step-title {
-  font-family: var(--font-body);
-  font-size: clamp(0.75rem, 1.1vw, 0.9rem);
-  font-weight: 400;
-  letter-spacing: 0.12em;
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(44, 36, 32, 0.3);
-  margin-bottom: 12px;
+  color: var(--color-text);
+  margin-bottom: 10px;
+  line-height: 1.4;
   transition: color 0.5s ease;
 }
 
 .process__step.step-active .process__step-title {
-  color: var(--color-text);
+  color: var(--color-accent);
 }
 
-/* ── Step Description ── */
 .process__step-desc {
   font-family: var(--font-body);
   font-size: var(--text-small);
   font-weight: 400;
-  color: rgba(122, 106, 90, 0.4);
-  line-height: 1.7;
-  max-width: 180px;
+  color: var(--color-text-dim);
+  line-height: 1.65;
+  max-width: 200px;
   margin: 0 auto;
-  transition: color 0.5s ease;
+  opacity: 0.7;
+  transition: opacity 0.5s ease;
 }
 
 .process__step.step-active .process__step-desc {
-  color: var(--color-text-dim);
+  opacity: 1;
 }
 
-/* ── Responsive ── */
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — Mobile Stack
+   ══════════════════════════════════════════ */
 @media (max-width: 900px) {
   .process__steps {
     flex-direction: column;
@@ -198,41 +302,67 @@
   .process__step {
     text-align: left;
     display: grid;
-    grid-template-columns: 60px 1fr;
+    grid-template-columns: 90px 1fr;
     grid-template-rows: auto auto;
-    gap: 4px 16px;
+    gap: 0 16px;
     padding: 28px 0;
     border-bottom: var(--border-dim);
-    opacity: 1; /* mobile always visible */
+    opacity: 1; /* always visible on mobile */
   }
 
   .process__step:last-child {
     border-bottom: none;
   }
 
+  .process__step-illustration {
+    width: 80px;
+    height: 100px;
+    grid-row: 1 / 3;
+    margin-bottom: 0;
+  }
+
   .process__step-dot {
     display: none;
   }
 
+  .process__step-info {
+    align-items: flex-start;
+  }
+
   .process__step-number {
-    grid-row: 1 / 3;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    opacity: 0.2;
-    margin-bottom: 0;
+    opacity: 0.75;
   }
 
   .process__step-title {
-    align-self: end;
-    margin-bottom: 0;
-    color: var(--color-text);
+    font-size: 0.82rem;
+    margin-bottom: 6px;
   }
 
   .process__step-desc {
     max-width: none;
-    align-self: start;
-    color: var(--color-text-dim);
+    opacity: 0.85;
+    font-size: 0.92rem;
+  }
+
+  .process__subtitle br {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .process__step {
+    grid-template-columns: 72px 1fr;
+    gap: 0 14px;
+    padding: 22px 0;
+  }
+
+  .process__step-illustration {
+    width: 65px;
+    height: 80px;
+  }
+
+  .process__header-ornament {
+    max-width: 200px;
+    margin: 18px auto 22px;
   }
 }

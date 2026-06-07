@@ -79,7 +79,6 @@ export function Header() {
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
             <h2 className="text-xl font-bold text-foreground leading-tight">{content.title}</h2>
-            <p className="text-[13px] text-muted-foreground leading-normal mt-0.5">{content.subtitle}</p>
           </motion.div>
         </AnimatePresence>
       </div>

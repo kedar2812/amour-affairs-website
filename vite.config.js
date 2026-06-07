@@ -33,6 +33,7 @@ export default defineConfig({
         careers:            resolve(__dirname, 'careers/index.html'),
         termsAndConditions: resolve(__dirname, 'terms-and-conditions/index.html'),
         faqs:               resolve(__dirname, 'faqs/index.html'),
+        testimonials:       resolve(__dirname, 'testimonials/index.html'),
       }
     }
   },
