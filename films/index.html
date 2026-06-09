@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cinematic Wedding Films | Amour Affairs — Love Stories in Motion</title>
-  <meta name="description" content="Cinematic wedding films crafted for couples who feel deeply. Highlight reels, documentary films, same-day edits — in 4K, color graded to a warm cinematic look.">
+  <title>Cinematic Wedding Films | Amour Affairs â€” Love Stories in Motion</title>
+  <meta name="description" content="Cinematic wedding films crafted for couples who feel deeply. Highlight reels, documentary films, same-day edits â€” in 4K, color graded to a warm cinematic look.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
 
-  <script type="module" src="/src/js/page-init.js"></script>
+  <script type="module" src="/src/js/films-page-init.js"></script>
 </head>
-<body class="is-loading service-page">
+<body class="is-loading fpage">
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
@@ -26,11 +26,11 @@
   <div class="cursor-dot" style="opacity:0"></div>
   <div class="cursor-ring" style="opacity:0"></div>
 
-  <!-- ═══════════ NAVIGATION ═══════════ -->
+  <!-- â•â•â•â•â•â•â•â•â•â•â• NAVIGATION â•â•â•â•â•â•â•â•â•â•â• -->
   <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
     </a>
     <div class="nav__links hide-mobile">
       <a href="/" class="nav__link">Home</a>
@@ -63,120 +63,120 @@
     </div>
   </div>
 
-  <!-- ═══════════ HERO ═══════════ -->
-  <section class="page-hero">
-    <div class="page-hero__bg--still" style="background-image: url('/services/films.jpg')"></div>
-    <div class="page-hero__overlay"></div>
-    <div class="page-hero__body">
-      <span class="page-hero__eyebrow">Wedding Cinema · 4K · Colour Graded</span>
-      <h1 class="page-hero__headline">
-        Love Stories,<br>
-        <em>In Motion.</em>
-      </h1>
-      <p class="page-hero__sub">Cinematic wedding films crafted for couples who feel deeply.</p>
-    </div>
+  <!-- â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â• -->
+  <section class="fpage-hero">
+    <span class="fpage-hero__eyebrow">Wedding Cinema &middot; 4K &middot; Colour Graded</span>
+    <h1 class="fpage-hero__title">Love Stories, <em>In Motion.</em></h1>
+    <p class="fpage-hero__sub">Every frame a feeling. Every cut a heartbeat. Our films don't just document your day &mdash; they let you relive it.</p>
   </section>
 
-  <!-- ═══════════ THE FILM EXPERIENCE ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up">
-        <span class="sp-eyebrow">What We Offer</span>
-        <h2 class="sp-heading">The Film <em>Experience</em></h2>
+  <!-- â•â•â•â•â•â•â•â•â•â•â• FEATURED FILM â•â•â•â•â•â•â•â•â•â•â• -->
+  <section class="fpage-featured">
+    <div class="fpage-featured__inner">
+      <div class="fpage-featured__label">
+        <span class="fpage-featured__label-dot"></span>
+        Now Showing
       </div>
-      <div class="sp-film-cards">
-        <div class="sp-film-card fade-up">
-          <div class="sp-film-card__top"></div>
-          <div class="sp-film-card__name">Highlight Film</div>
-          <div class="sp-film-card__duration">4–6 Minutes · 4K</div>
-          <p class="sp-film-card__text">The emotion, the music, the moments that defined your day — distilled into a cinematic short film. Set to custom licensed music, colour-graded to a warm romantic tone. The one you'll watch on every anniversary.</p>
-        </div>
-        <div class="sp-film-card fade-up">
-          <div class="sp-film-card__top"></div>
-          <div class="sp-film-card__name">Documentary Film</div>
-          <div class="sp-film-card__duration">60–90 Minutes · 4K</div>
-          <p class="sp-film-card__text">The full uncut story — vows in their entirety, every speech, candid tears, every laugh, and every slow dance. Shot on a 2-camera setup with lapel mics for pristine audio. The complete record of your day.</p>
-        </div>
-        <div class="sp-film-card fade-up">
-          <div class="sp-film-card__top"></div>
-          <div class="sp-film-card__name">Same-Day Edit</div>
-          <div class="sp-film-card__duration">3–5 Minutes · Played at Reception</div>
-          <p class="sp-film-card__text">Played at your reception the very same evening — a surprise film of your morning, your ceremony, your tears and your joy. The ultimate wedding surprise that makes the whole room stop and feel.</p>
-        </div>
+      <div class="fpage-featured__embed">
+        <iframe id="featuredIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="fpage-featured__meta">
+        <span class="fpage-featured__film-title" id="featuredTitle"></span>
+        <span class="fpage-featured__film-type" id="featuredType"></span>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ OUR PROCESS ═══════════ -->
-  <section style="background:#fff; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width: 680px; margin: 0 auto;">
-      <div class="fade-up">
-        <span class="sp-eyebrow">How We Work</span>
-        <h2 class="sp-heading">Our <em>Process</em></h2>
+  <!-- â• â• â• â• â• â• â• â• â• â• â•  GALLERY â• â• â• â• â• â• â• â• â• â• â•  -->
+  <section class="fpage-gallery">
+    <div class="fpage-gallery__inner">
+      <div class="fpage-gallery__header">
+        <span class="fpage-gallery__eyebrow">From Our Collection</span>
+        <h2 class="fpage-gallery__heading">More <em>Love Stories</em></h2>
       </div>
-      <div class="sp-timeline">
-        <div class="sp-timeline__item fade-up">
-          <div class="sp-timeline__dot"></div>
-          <div class="sp-timeline__title">Pre-Shoot Call</div>
-          <p class="sp-timeline__text">We sit down to understand your soundtrack, your visual style, and your vision. What feeling should your film evoke? We build the entire edit around that answer.</p>
+      <div class="fpage-gallery__grid">
+
+        <div class="fpage-card" data-video-id="53z3LB8dXo0" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/53z3LB8dXo0/maxresdefault.jpg" alt="Neha and Gaurav" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Neha &amp; Gaurav</span>
+            <span class="fpage-card__caption">Wedding Teaser</span>
+          </div>
         </div>
-        <div class="sp-timeline__item fade-up">
-          <div class="sp-timeline__dot"></div>
-          <div class="sp-timeline__title">Wedding Day</div>
-          <p class="sp-timeline__text">2-camera setup, lapel microphones on the couple and officiant, and drone b-roll of your venue and landscapes — all captured unobtrusively while you simply live your day.</p>
+        <div class="fpage-card" data-video-id="WN0VRFZKPTA" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/WN0VRFZKPTA/maxresdefault.jpg" alt="Bhairavi and Apurv" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Bhairavi &amp; Apurv</span>
+            <span class="fpage-card__caption">Wedding Trailer 2019</span>
+          </div>
         </div>
-        <div class="sp-timeline__item fade-up">
-          <div class="sp-timeline__dot"></div>
-          <div class="sp-timeline__title">Edit &amp; Colour Grade</div>
-          <p class="sp-timeline__text">Every frame is colour graded to a warm cinematic look. Custom licensed music — chosen specifically for your story. The edit goes through multiple rounds of review before it reaches you.</p>
+        <div class="fpage-card" data-video-id="I2lyZU1mL7U" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/I2lyZU1mL7U/maxresdefault.jpg" alt="Suraksha and Harsh" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Suraksha &amp; Harsh</span>
+            <span class="fpage-card__caption">Oxford Golf Resort, Pune</span>
+          </div>
         </div>
-        <div class="sp-timeline__item fade-up">
-          <div class="sp-timeline__dot"></div>
-          <div class="sp-timeline__title">Delivery</div>
-          <p class="sp-timeline__text">A private Vimeo link + 4K download within 8 weeks of your wedding date. Share it with the world, or keep it just for the two of you. It's yours, forever.</p>
+        <div class="fpage-card" data-video-id="llT0dTpTGQU" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/llT0dTpTGQU/maxresdefault.jpg" alt="Medini and Abishal" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Medini &amp; Abishal</span>
+            <span class="fpage-card__caption">Final Trailer</span>
+          </div>
+        </div>
+        <div class="fpage-card" data-video-id="xPad7IwJumE" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/xPad7IwJumE/maxresdefault.jpg" alt="Medini and Abishal" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Medini &amp; Abishal</span>
+            <span class="fpage-card__caption">A Tale of Two Hearts</span>
+          </div>
+        </div>
+        <div class="fpage-card" data-video-id="gxecVMBOajM" role="button" tabindex="0">
+          <div class="fpage-card__thumb">
+            <img src="https://img.youtube.com/vi/gxecVMBOajM/maxresdefault.jpg" alt="Bansri and Chintan" loading="lazy" />
+            <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+          </div>
+          <div class="fpage-card__body">
+            <span class="fpage-card__title">Bansri &amp; Chintan</span>
+            <span class="fpage-card__caption">Dream Wedding, Rishikesh</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ FEATURED STILLS ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:48px;">
-        <span class="sp-eyebrow">From Our Films</span>
-        <h2 class="sp-heading">Featured <em>Stills</em></h2>
-      </div>
-      <div class="sp-stills">
-        <div class="fade-up">
-          <img src="https://images.unsplash.com/photo-1519741347686-c1e0aadf4611?w=900&q=80&auto=format&fit=crop" alt="A Mumbai Love Story" loading="lazy">
-          <span class="sp-still__caption">A Mumbai Love Story</span>
-        </div>
-        <div class="fade-up">
-          <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=900&q=80&auto=format&fit=crop" alt="Beneath the Marigolds" loading="lazy">
-          <span class="sp-still__caption">Beneath the Marigolds</span>
-        </div>
-        <div class="fade-up">
-          <img src="https://images.unsplash.com/photo-1521543298264-785fba9f6a01?w=900&q=80&auto=format&fit=crop" alt="When the Rain Came" loading="lazy">
-          <span class="sp-still__caption">When the Rain Came</span>
-        </div>
+  <!-- VIDEO MODAL -->
+  <div class="fpage-modal" id="videoModal">
+    <div class="fpage-modal__backdrop"></div>
+    <div class="fpage-modal__content">
+      <button class="fpage-modal__close" aria-label="Close video">&times;</button>
+      <div class="fpage-modal__embed">
+        <iframe id="modalIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </div>
-  </section>
-
-  <!-- ═══════════ VIMEO CTA ═══════════ -->
-  <div class="sp-vimeo fade-up">
-    <span class="sp-vimeo__label">Watch Our Work</span>
-    <a href="https://vimeo.com/amouraffairs" target="_blank" rel="noopener" class="sp-vimeo__link">
-      Watch our films on Vimeo →
-    </a>
   </div>
 
-
-  <!-- ═══════════ CTA STRIP ═══════════ -->
-  <div class="sp-cta-strip fade-up">
-    <p class="sp-cta-strip__title">Some stories deserve to be<br><em>seen, not just remembered.</em></p>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Talk to Us on WhatsApp →</a>
-  </div>
+  <!-- â• â• â• â• â• â• â• â• â• â• â•  YOUTUBE CTA â• â• â• â• â• â• â• â• â• â• â•  -->
+  <section class="fpage-cta">
+    <span class="fpage-cta__label">Our Film Library</span>
+    <h2 class="fpage-cta__heading">Every Story Deserves to Be <em>Seen</em></h2>
+    <a href="https://www.youtube.com/@amouraffairs" target="_blank" rel="noopener" class="fpage-cta__btn">Watch More on YouTube <span class="fpage-cta__btn-arrow" aria-hidden="true">&#8594;</span></a>
+  </section>
 
   <!-- FOOTER -->
     <!-- === FOOTER === -->
