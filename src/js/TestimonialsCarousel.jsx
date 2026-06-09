@@ -194,6 +194,10 @@ export default function TestimonialsCarousel() {
               />
             ))}
           </div>
+          <a href="/testimonials/" className="testi__read-more" aria-label="Read all testimonials">
+            Read All Love Stories
+            <span className="testi__read-more-arrow" aria-hidden="true">&#8594;</span>
+          </a>
         </div>
       </div>
     </div>

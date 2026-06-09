@@ -15,7 +15,7 @@
 .services__label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -26,11 +26,11 @@
 .services__title {
   font-family: var(--font-display);
   font-size: var(--text-h2);
-  font-weight: 500;
-  line-height: 1.1;
+  font-weight: 400;
+  line-height: 1.15;
   text-transform: uppercase;
   color: var(--color-text);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
 }
 
 /* ── Grid ── */
@@ -102,10 +102,10 @@
 
 .service-card__name {
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 2.5vw, 2.5rem);
-  font-weight: 500;
+  font-size: clamp(1.5rem, 2.35vw, 2.35rem);
+  font-weight: 400;
   color: #FAF7F4;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .service-card__desc {
@@ -170,12 +170,12 @@
   z-index: 2;
   text-align: center;
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 8vw, 8rem);
-  font-weight: 500;
+  font-size: clamp(2.35rem, 7.5vw, 7.5rem);
+  font-weight: 400;
   font-style: normal;
   color: #FAF7F4;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
   max-width: 90vw;
 }
 
@@ -210,7 +210,7 @@
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .services__title {
-    font-size: clamp(1.8rem, 6vw, 3.5rem);
+    font-size: clamp(1.7rem, 5.6vw, 3.3rem);
   }
 
   .services__grid {
@@ -227,7 +227,7 @@
   }
 
   .parallax-break__text {
-    font-size: clamp(2rem, 8vw, 5rem);
+    font-size: clamp(1.88rem, 7.5vw, 4.7rem);
     padding: 0 20px;
   }
 }

@@ -20,7 +20,7 @@
 .gallery__label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--color-accent);
@@ -31,8 +31,8 @@
 .gallery__title {
   font-family: var(--font-display);
   font-size: var(--text-h2);
-  font-weight: 500;
-  line-height: 1.1;
+  font-weight: 400;
+  line-height: 1.15;
   text-transform: uppercase;
   color: var(--color-text);
 }
@@ -145,7 +145,7 @@
   font-family: var(--font-body);
   font-size: var(--text-small);
   color: var(--color-bg);
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
   max-width: 85%;
   display: -webkit-box;
@@ -162,7 +162,7 @@
   letter-spacing: 0.15em;
   color: var(--color-accent);
   margin-top: 8px;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 /* ── Responsive ── */

@@ -9,50 +9,86 @@ export function initNav(lenisInstance) {
   const mobileMenu = document.querySelector('.nav__mobile-menu');
   const mobileLinks = document.querySelectorAll('.nav__mobile-link');
   const mobileFooter = document.querySelector('.nav__mobile-footer');
-  const navLinks = document.querySelectorAll('.nav__link[href^="#"]');
 
   if (!nav) return;
 
   // ── Scroll-based background transition ──
-  // The hero is pinned by GSAP for 350vh (end: '+=350%').
-  // We only activate the frosted-glass nav AFTER the hero pin spacer is fully scrolled.
-  let lastScroll = 0;
+  // Home page has a 350vh hero pin spacer — detect it and use the correct threshold.
+  // All other pages use a simple 60px threshold for the frosted glass effect.
+  const isHomePage = !!document.querySelector('.hero--canvas');
 
   function getNavThreshold() {
-    // 3.5 × viewport height = the scroll distance of the hero pin spacer
-    // Add a small buffer (0.05) so it doesn't flicker right at the edge
-    return window.innerHeight * 3.55;
+    if (isHomePage) {
+      // 3.55× viewport height covers the hero pin spacer (end: '+=350%') + small buffer
+      return window.innerHeight * 3.55;
+    }
+    return 60;
   }
+
+  let isDarkMode = false; // tracks footer intersection state
 
   function updateNav() {
     const currentScroll = window.scrollY || document.documentElement.scrollTop;
-    nav.classList.toggle('scrolled', currentScroll > getNavThreshold());
-    lastScroll = currentScroll;
+    const shouldScroll = currentScroll > getNavThreshold();
+
+    // Apply scrolled class (frosted glass) — but never remove nav--dark, it takes precedence
+    nav.classList.toggle('scrolled', shouldScroll);
   }
 
   window.addEventListener('scroll', updateNav, { passive: true });
   updateNav(); // Initial check
 
   // ── Dark nav when footer is in view ──────────────────────────────────
+  // When the footer enters the viewport, nav goes dark brown.
+  // This overrides the normal 'scrolled' frosted-glass state visually via CSS specificity.
   const footer = document.querySelector('.footer');
   if (footer) {
     const footerObserver = new IntersectionObserver(
       (entries) => {
-        nav.classList.toggle('nav--dark', entries[0].isIntersecting);
+        isDarkMode = entries[0].isIntersecting;
+        nav.classList.toggle('nav--dark', isDarkMode);
       },
-      // Trigger when footer's top edge hits the bottom 5px of the viewport
-      { rootMargin: '0px 0px -5px 0px', threshold: 0 }
+      // Trigger as soon as even 1px of the footer enters the viewport
+      { rootMargin: '0px 0px 0px 0px', threshold: 0 }
     );
     footerObserver.observe(footer);
   }
 
-  // ── Smooth scroll for internal nav links ──
-  navLinks.forEach((link) => {
+  // ── Smooth scroll for ALL internal anchor links (including #contact) ──
+  // Selects any nav link whose href starts with "#" OR contains "/#"
+  // so that clicking Contact scrolls to the footer on the current page.
+  const allNavLinks = document.querySelectorAll('.nav__link, .nav__mobile-link');
+
+  allNavLinks.forEach((link) => {
     link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
-      if (target && lenisInstance) {
-        lenisInstance.scrollTo(target, { offset: -80 });
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      // Pure anchor link (e.g. "#contact", "#hero")
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target && lenisInstance) {
+          lenisInstance.scrollTo(target, { offset: -80 });
+        }
+        return;
+      }
+
+      // Cross-page anchor that matches current page root (e.g. "/#contact" when on "/")
+      // Resolve against current origin
+      try {
+        const url = new URL(href, window.location.href);
+        if (url.origin === window.location.origin &&
+            url.pathname === window.location.pathname &&
+            url.hash) {
+          e.preventDefault();
+          const target = document.querySelector(url.hash);
+          if (target && lenisInstance) {
+            lenisInstance.scrollTo(target, { offset: -80 });
+          }
+        }
+      } catch (_) {
+        // Not a valid URL — let the browser handle it
       }
     });
   });
@@ -65,32 +101,6 @@ export function initNav(lenisInstance) {
   hamburger.addEventListener('click', () => {
     isOpen = !isOpen;
     toggleMobileMenu(isOpen);
-  });
-
-  // Close on mobile link click
-  mobileLinks.forEach((link) => {
-    link.addEventListener('click', (e) => {
-      const href = link.getAttribute('href');
-      
-      // Only prevent default and smooth scroll if it's an anchor link
-      if (href && href.startsWith('#')) {
-        e.preventDefault();
-        const target = document.querySelector(href);
-        toggleMobileMenu(false);
-        isOpen = false;
-
-        // Small delay for menu close animation
-        setTimeout(() => {
-          if (target && lenisInstance) {
-            lenisInstance.scrollTo(target, { offset: -80 });
-          }
-        }, 600);
-      } else {
-        // Normal link - let the browser navigate
-        toggleMobileMenu(false);
-        isOpen = false;
-      }
-    });
   });
 
   function toggleMobileMenu(open) {

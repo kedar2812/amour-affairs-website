@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Photography | Amour Affairs — Pune's Most Celebrated Wedding Photographers</title>
+  <title>Wedding Photography | Amour Affairs — Timeless Wedding Storytellers</title>
   <meta name="description" content="Candid, cinematic, timeless wedding photography in Pune. Amour Affairs captures every stolen glance and immortalizes your love story.">
 
+  <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <script type="module" src="/src/js/page-init.js"></script>
+  <!-- Core Page Bundled Initialization Script (Vite module entrypoint) -->
+  <script type="module" src="/src/js/weddings-init.js"></script>
 </head>
-<body class="is-loading service-page">
+<body class="is-loading weddings-fresh-page">
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
@@ -21,9 +23,6 @@
       <div class="preloader__progress-fill"></div>
     </div>
   </div>
-
-  <!-- CURSOR -->
-
 
   <!-- ═══════════ NAVIGATION ═══════════ -->
   <nav class="nav" id="nav">
@@ -38,7 +37,8 @@
       <a href="/films/" class="nav__link">Films</a>
       <a href="/about/" class="nav__link">About</a>
       <a href="/testimonials/" class="nav__link">Testimonials</a>
-      <a href="/#contact" class="nav__link">Contact</a>
+      <a href="/shop/" class="nav__link">Shop</a>
+      <a href="#contact" class="nav__link">Contact</a>
       <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
     </div>
     <div class="nav__hamburger hide-desktop" id="hamburger">
@@ -46,6 +46,7 @@
     </div>
   </nav>
 
+  <!-- MOBILE MENU -->
   <div class="nav__mobile-menu" id="mobileMenu">
     <a href="/" class="nav__mobile-link">Home</a>
     <a href="/weddings/" class="nav__mobile-link">Weddings</a>
@@ -53,7 +54,8 @@
     <a href="/films/" class="nav__mobile-link">Films</a>
     <a href="/about/" class="nav__mobile-link">About</a>
     <a href="/testimonials/" class="nav__mobile-link">Testimonials</a>
-    <a href="/#contact" class="nav__mobile-link">Contact</a>
+    <a href="/shop/" class="nav__mobile-link">Shop</a>
+    <a href="#contact" class="nav__mobile-link">Contact</a>
     <div class="nav__mobile-footer">
       <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://vimeo.com/amouraffairs" target="_blank" rel="noopener">Vimeo</a>
@@ -61,134 +63,165 @@
   </div>
 
   <!-- ═══════════ HERO ═══════════ -->
-  <section class="page-hero">
-    <div class="page-hero__bg" style="background-image: url('https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1920&q=80&auto=format&fit=crop')"></div>
-    <div class="page-hero__overlay"></div>
-    <div class="page-hero__body">
-      <span class="page-hero__eyebrow">Wedding Photography &amp; Films · Pune, India</span>
-      <h1 class="page-hero__headline">
-        Every Stolen Glance,<br>
-        <em>Immortalized.</em>
-      </h1>
-      <p class="page-hero__sub">Candid. Cinematic. Timeless. — Pune's most celebrated wedding photographers.</p>
+  <section class="w-hero">
+    <div class="w-hero__bg" style="background-image: url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80&auto=format&fit=crop')"></div>
+    <div class="w-hero__overlay"></div>
+    <div class="w-hero__content">
+      <span class="w-hero__tag">Portfolio · Weddings</span>
+      <h1 class="w-hero__title">Every Stolen Glance,<br><em>Immortalized.</em></h1>
+      <p class="w-hero__sub">Emotionally rich, candid storytelling for your wedding day from getting ready to the last dance.</p>
+    </div>
+    <a href="#explore" class="w-hero__scroll">
+      <span>Explore Portfolio</span>
+      <div class="w-hero__scroll-line"></div>
+    </a>
+  </section>
+
+  <!-- ═══════════ EDITORIAL INTRO ═══════════ -->
+  <section class="w-intro" id="explore">
+    <div class="w-intro__container">
+      <span class="w-intro__label">Our Philosophy</span>
+      <h2 class="w-intro__heading">We don't pose love,<br><em>we chase it.</em></h2>
+      <p class="w-intro__text">
+        Every real laugh, every quiet tear, every chaotic moment on the dance floor — that's what we are after. 
+        We document your day with an editorial eye and a candid heart, crafting a timeless visual legacy that reads like a romance novel.
+      </p>
     </div>
   </section>
 
-  <!-- ═══════════ THE AMOUR APPROACH ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up">
-        <span class="sp-eyebrow">Our Philosophy</span>
-        <h2 class="sp-heading">The Amour <em>Approach</em></h2>
+  <!-- ═══════════ STAGGERED GRID ═══════════ -->
+  <section class="w-gallery">
+    <div class="w-gallery__grid">
+      <!-- Column 1 -->
+      <div class="w-gallery__col">
+        <div class="w-gallery__item" style="--aspect: 3/4.5;">
+          <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80&auto=format&fit=crop" alt="Timeless Walk" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">The First Walk</h4>
+            <span class="w-gallery__item-meta">Pune, India</span>
+          </div>
+        </div>
+        <div class="w-gallery__item" style="--aspect: 1/1;">
+          <img src="https://images.unsplash.com/photo-1621616875450-79f22448040e?w=800&q=80&auto=format&fit=crop" alt="Emotional Ceremony" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">Quiet Tears</h4>
+            <span class="w-gallery__item-meta">Mumbai, India</span>
+          </div>
+        </div>
       </div>
-      <div class="sp-columns">
-        <div class="fade-up">
-          <div class="sp-col__num">01</div>
-          <div class="sp-col__rule"></div>
-          <div class="sp-col__title">Candid First</div>
-          <p class="sp-col__text">We don't pose love, we chase it. Every real laugh, every quiet moment between you two — that's what we're after. The camera follows your story, not the other way around.</p>
+
+      <!-- Column 2 -->
+      <div class="w-gallery__col">
+        <div class="w-gallery__item" style="--aspect: 3/4.2;">
+          <img src="https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&q=80&auto=format&fit=crop" alt="Traditional Magic" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">Traditional Magic</h4>
+            <span class="w-gallery__item-meta">Pune, India</span>
+          </div>
         </div>
-        <div class="fade-up">
-          <div class="sp-col__num">02</div>
-          <div class="sp-col__rule"></div>
-          <div class="sp-col__title">Light Obsessed</div>
-          <p class="sp-col__text">Every frame is painted with available light. We scout your venue for the golden windows, the soft bounce, the magic that only natural light can deliver — and we wait for it.</p>
+        <div class="w-gallery__item" style="--aspect: 3/4.8;">
+          <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80&auto=format&fit=crop" alt="Pure Joy" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">Laughs in Nature</h4>
+            <span class="w-gallery__item-meta">Mahabaleshwar</span>
+          </div>
         </div>
-        <div class="fade-up">
-          <div class="sp-col__num">03</div>
-          <div class="sp-col__rule"></div>
-          <div class="sp-col__title">Story-Driven</div>
-          <p class="sp-col__text">Your wedding has a narrative arc — the anticipation, the ceremony, the celebration. We document every chapter so your album reads like the love story it truly is.</p>
+      </div>
+
+      <!-- Column 3 -->
+      <div class="w-gallery__col">
+        <div class="w-gallery__item" style="--aspect: 3/4.6;">
+          <img src="https://images.unsplash.com/photo-1607190074257-dd4b7af0309f?w=800&q=80&auto=format&fit=crop" alt="Bespoke Details" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">Bespoke Details</h4>
+            <span class="w-gallery__item-meta">Jaipur, India</span>
+          </div>
+        </div>
+        <div class="w-gallery__item" style="--aspect: 4/3;">
+          <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80&auto=format&fit=crop" alt="The Reception" class="w-gallery__img" loading="lazy">
+          <div class="w-gallery__overlay">
+            <h4 class="w-gallery__item-title">The First Dance</h4>
+            <span class="w-gallery__item-meta">Goa, India</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ GALLERY GRID ═══════════ -->
-  <section style="background:#fff; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:48px;">
-        <span class="sp-eyebrow">The Work</span>
-        <h2 class="sp-heading">Frames That <em>Last Forever</em></h2>
+  <!-- ═══════════ FULL-WIDTH INTERSTITIAL ═══════════ -->
+  <section class="w-interstitial">
+    <div class="w-interstitial__bg" style="background-image: url('https://images.unsplash.com/photo-1520854221256-17451cc35953?w=1920&q=80&auto=format&fit=crop')"></div>
+    <div class="w-interstitial__content">
+      <blockquote class="w-interstitial__quote">
+        “In the middle of the beautiful chaos, we find your quiet, honest moments.”
+      </blockquote>
+      <span class="w-interstitial__author">— Amour Affairs Philosophy</span>
+    </div>
+  </section>
+
+  <!-- ═══════════ CURATED STORY SECTION ═══════════ -->
+  <section class="w-story">
+    <div class="w-story__header">
+      <span class="w-intro__label">Featured Series</span>
+    </div>
+    <div class="w-story__grid">
+      <div class="w-story__image-wrapper">
+        <img src="https://images.unsplash.com/photo-1532712938310-34cb3982ef74?w=1200&q=80&auto=format&fit=crop" alt="Featured Wedding Story" class="w-story__img" loading="lazy">
       </div>
-      <div class="pg-gallery" style="grid-template-rows: auto;">
-        <div class="pg-gallery__item pg-gallery__item--tall fade-up" style="height:580px;">
-          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80&auto=format&fit=crop" alt="Bridal portrait" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
-        <div class="pg-gallery__item fade-up" style="height:280px;">
-          <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80&auto=format&fit=crop" alt="Wedding ceremony" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
-        <div class="pg-gallery__item fade-up" style="height:280px;">
-          <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800&q=80&auto=format&fit=crop" alt="Wedding couple" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
-        <div class="pg-gallery__item fade-up" style="height:280px;">
-          <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=800&q=80&auto=format&fit=crop" alt="Wedding detail" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
-        <div class="pg-gallery__item pg-gallery__item--tall fade-up" style="height:580px;">
-          <img src="https://images.unsplash.com/photo-1550005809-91ad75fb315f?w=800&q=80&auto=format&fit=crop" alt="Bride getting ready" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
-        <div class="pg-gallery__item fade-up" style="height:280px;">
-          <img src="https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=800&q=80&auto=format&fit=crop" alt="Wedding emotions" loading="lazy">
-          <div class="pg-gallery__overlay"><span>View</span></div>
-        </div>
+      <div class="w-story__info">
+        <span class="w-story__meta">Featured Wedding Series</span>
+        <h3 class="w-story__title">Nisha &amp; Kabir<br><em>in Udaipur</em></h3>
+        <p class="w-story__desc">
+          An intimate, sun-drenched celebration inside a historic palace. 
+          We captured Nisha & Kabir's wedding story through raw emotional candids and striking editorial portraiture.
+        </p>
+        <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="w-package__btn" style="display:inline-block; padding: 16px 40px;">View Full Story</a>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ PACKAGES ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:8px;">
-        <span class="sp-eyebrow">What's Included</span>
-        <h2 class="sp-heading">Choose Your <em>Experience</em></h2>
+  <!-- ═══════════ PACKAGES / EXPERIENCE ═══════════ -->
+  <section class="w-pricing">
+    <div class="w-pricing__container">
+      <div class="w-pricing__header">
+        <span class="w-intro__label">Pricing &amp; Details</span>
+        <h2 class="w-intro__heading" style="margin-bottom:12px;">Choose Your <em>Experience</em></h2>
       </div>
-      <div class="sp-packages">
-        <div class="sp-package fade-up">
-          <div class="sp-package__accent"></div>
-          <div class="sp-package__name">The Classic</div>
-          <ul class="sp-package__list">
+      <div class="w-pricing__grid">
+        <!-- Package 1 -->
+        <div class="w-package">
+          <span class="w-package__badge">Popular</span>
+          <h3 class="w-package__name">The Classic</h3>
+          <p class="w-package__desc">Exceptional coverage for couples who want every key moment documented with an editorial focus.</p>
+          <ul class="w-package__list">
             <li>Full day coverage (up to 12 hours)</li>
-            <li>2 professional photographers</li>
-            <li>500+ fully edited high-resolution images</li>
-            <li>Private online gallery with download</li>
-            <li>Full print release — print anywhere, forever</li>
-            <li>Delivered within 6–8 weeks</li>
+            <li>2 senior lead photographers</li>
+            <li>500+ fully-graded high-resolution photos</li>
+            <li>Curated online proofing gallery</li>
+            <li>Sneak peek delivered within 72 hours</li>
           </ul>
-          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Enquire →</a>
+          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="w-package__btn">Enquire Experience</a>
         </div>
-        <div class="sp-package fade-up">
-          <div class="sp-package__accent"></div>
-          <div class="sp-package__name">The Cinematic</div>
-          <ul class="sp-package__list">
-            <li>Everything in The Classic, plus —</li>
-            <li>Drone aerial coverage of venue &amp; ceremony</li>
-            <li>Same-day highlight reel for your reception</li>
-            <li>Luxury USB drive in bespoke gift packaging</li>
-            <li>3 photographers for maximum coverage</li>
-            <li>Dedicated second shooter for the groom</li>
+
+        <!-- Package 2 -->
+        <div class="w-package">
+          <h3 class="w-package__name">The Cinematic</h3>
+          <p class="w-package__desc">The ultimate package including drone visuals, an extra photographer, and cinematic video highlights.</p>
+          <ul class="w-package__list">
+            <li>Extended multi-day coverage option</li>
+            <li>3 senior photographers &amp; 2 filmmakers</li>
+            <li>Bespoke luxury leather album delivery</li>
+            <li>4K cinematic highlight reel (3-5 mins)</li>
+            <li>Full raw footage &amp; images archive</li>
           </ul>
-          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Enquire →</a>
+          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="w-package__btn">Enquire Experience</a>
         </div>
       </div>
     </div>
   </section>
-
-
-  <!-- ═══════════ CTA STRIP ═══════════ -->
-  <div class="sp-cta-strip fade-up">
-    <p class="sp-cta-strip__title">Your wedding deserves more<br><em>than photographs.</em></p>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Begin Your Story →</a>
-  </div>
 
   <!-- ═══════════ FOOTER ═══════════ -->
-    <!-- === FOOTER === -->
   <footer class="footer" id="contact">
-
     <!-- Top Band: Tagline + CTA -->
     <div class="footer__top">
       <div class="container">
@@ -206,12 +239,11 @@
     <!-- Main Grid -->
     <div class="container">
       <div class="footer__grid">
-
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
             <img src="/logo.png" alt="" class="nav__logo-img" />
-            <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
+            <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
           </a>
           <span class="footer__col-label">Get In Touch</span>
           <address class="footer__address">
@@ -219,7 +251,7 @@
             5, Finance Road,<br>
             Opp. Ministry of Defence,<br>
             Agarkar Nagar,<br>
-            Pune, Maharashtra &mdash; 411001,<br>
+            Pune, Maharashtra — 411001,<br>
             India
           </address>
           <div class="footer__contact-links">
@@ -276,12 +308,11 @@
             title="Amour Affairs office location in Pune"
           ></iframe>
         </div>
-
       </div>
 
       <!-- Footer Bar -->
       <div class="footer__bar">
-        <span class="footer__copyright">&copy; 2011&ndash;<span class="dynamic-year">2025</span> Amour Affairs. All rights reserved.</span>
+        <span class="footer__copyright">&copy; 2011–<span class="dynamic-year">2026</span> Amour Affairs. All rights reserved.</span>
         <div class="footer__bar-links">
           <a href="/privacy-policy/" class="footer__bar-link">Privacy Policy</a>
           <a href="/disclaimer/" class="footer__bar-link">Disclaimer</a>

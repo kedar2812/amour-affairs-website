@@ -38,7 +38,11 @@
 }
 
 .about-page .nav .nav__link--active {
-  color: var(--color-accent);
+  color: var(--color-accent) !important;
+}
+
+.about-page .nav .nav__link--active::after {
+  width: 100%;
 }
 
 .about-page .nav .nav__link:hover {
@@ -59,6 +63,41 @@
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   box-shadow: 0 1px 0 rgba(158, 122, 78, 0.1);
+}
+
+/* ── Dark state (footer visible) — override about-page nav colors ── */
+.about-page .nav.nav--dark .nav__link {
+  color: rgba(250, 247, 244, 0.65) !important;
+}
+
+.about-page .nav.nav--dark .nav__link:hover {
+  color: #FAF7F4 !important;
+}
+
+/* Active link must stay gold in BOTH normal and dark nav states */
+.about-page .nav .nav__link--active,
+.about-page .nav.nav--dark .nav__link--active,
+.about-page .nav.scrolled .nav__link--active {
+  color: var(--color-accent) !important;
+}
+
+.about-page .nav .nav__link--active::after,
+.about-page .nav.nav--dark .nav__link--active::after {
+  width: 100% !important;
+}
+
+.about-page .nav.nav--dark .logo-amour,
+.about-page .nav.nav--dark .logo-affairs {
+  color: #FAF7F4 !important;
+}
+
+.about-page .nav.nav--dark .nav__logo-img {
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.85 !important;
+}
+
+.about-page .nav.nav--dark .nav__hamburger span {
+  background: #FAF7F4 !important;
 }
 
 
@@ -84,8 +123,8 @@
   top: 50%;
   transform: translateY(-50%);
   font-family: var(--font-display);
-  font-size: 40vw;
-  font-weight: 300;
+  font-size: 37.5vw;
+  font-weight: 400;
   color: #9E7A4E;
   opacity: 0;
   line-height: 0.8;
@@ -103,10 +142,10 @@
 
 .about-hero__title {
   font-family: var(--font-display);
-  font-size: clamp(3rem, 8vw, 9rem);
-  font-weight: 300;
+  font-size: clamp(2.8rem, 7.5vw, 8.5rem);
+  font-weight: 400;
   font-style: italic;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: #C9A97C;
   line-height: 1.05;
   margin: 0;
@@ -116,7 +155,7 @@
 
 .about-hero__sub {
   font-family: var(--font-body);
-  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+  font-size: clamp(0.93rem, 1.55vw, 1.15rem);
   font-weight: 400;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -223,17 +262,18 @@
 
 .founder__name {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  font-weight: 600;
+  font-size: clamp(1.88rem, 3.75vw, 3.3rem);
+  font-weight: 400;
+  font-style: italic;
   color: #2C2420;
   margin: 0 0 0.25em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .founder__role {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -242,22 +282,22 @@
 }
 
 .founder__pullquote {
-  font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
-  font-weight: 300;
+  font-family: var(--font-body);
+  font-size: clamp(1.15rem, 2.05vw, 1.45rem);
+  font-weight: 400;
   font-style: italic;
   color: #7A6A5A;
   border-left: 2px solid #9E7A4E;
   padding-left: 1.5rem;
   margin: 2rem 0;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .founder__body {
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 400;
-  line-height: 1.9;
+  line-height: 1.7;
   color: #7A6A5A;
   margin: 0 0 1.5rem;
 }
@@ -268,12 +308,12 @@
 }
 
 .founder__philosophy-quote {
-  font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.05vw, 1.55rem);
   font-weight: 400;
   font-style: italic;
   color: #9E7A4E;
-  line-height: 1.7;
+  line-height: 1.65;
   margin: 0 0 1.5rem;
 }
 
@@ -304,7 +344,7 @@
 .team-section__label {
   display: inline-block;
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.35em;
   text-transform: uppercase;
@@ -314,10 +354,10 @@
 
 .team-section__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  font-weight: 600;
+  font-size: clamp(1.88rem, 3.75vw, 3rem);
+  font-weight: 400;
   color: #2C2420;
-  line-height: 1.2;
+  line-height: 1.15;
   margin: 0 0 20px;
 }
 
@@ -329,9 +369,9 @@
 
 .team-section__sub {
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 400;
-  line-height: 1.8;
+  line-height: 1.7;
   color: #7A6A5A;
   max-width: 600px;
   margin: 0 auto;
@@ -420,7 +460,7 @@
 .team-card__name {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.93rem;
   font-weight: 600;
   color: #2C2420;
   letter-spacing: 0.02em;
@@ -429,7 +469,7 @@
 .team-card__role {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 400;
   color: #9E7A4E;
   letter-spacing: 0.12em;
@@ -478,7 +518,7 @@
 .philosophy__numeral {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.73rem;
   font-weight: 400;
   letter-spacing: 0.4em;
   color: #9E7A4E;
@@ -487,21 +527,21 @@
 
 .philosophy__word {
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 600;
+  font-size: clamp(1.32rem, 2.8vw, 1.88rem);
+  font-weight: 400;
   color: #FFFFFF;
   margin: 0 0 12px;
 }
 
 .philosophy__desc {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 400;
   color: #7A6A5A;
   max-width: 180px;
   margin: 0 auto;
   text-align: center;
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 .philosophy__divider {
@@ -549,15 +589,15 @@
   position: relative;
   z-index: 2;
   font-family: var(--font-display);
-  font-size: clamp(1.2rem, 3vw, 2rem);
-  font-weight: 300;
+  font-size: clamp(1.13rem, 2.8vw, 1.88rem);
+  font-weight: 400;
   font-style: italic;
   color: #FAF7F4;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.03em;
   text-align: center;
   max-width: 800px;
   padding: 0 var(--container-gutter);
-  line-height: 1.6;
+  line-height: 1.5;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
 }
 
@@ -575,7 +615,7 @@
 .about-cta__label {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -585,11 +625,11 @@
 
 .about-cta__heading {
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  font-weight: 600;
+  font-size: clamp(1.7rem, 3.75vw, 2.8rem);
+  font-weight: 400;
   color: #2C2420;
   margin: 0 0 2rem;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .about-cta__buttons {
@@ -605,8 +645,8 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-body);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.83rem;
+  font-weight: 700;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   padding: 14px 36px;
@@ -644,7 +684,7 @@
 
 @media (max-width: 900px) {
   .about-hero__title {
-    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-size: clamp(2.35rem, 6.5vw, 5.6rem);
   }
 
   .founder__inner {
@@ -675,7 +715,7 @@
   }
 
   .about-cta__heading {
-    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-size: clamp(1.5rem, 3.75vw, 2.25rem);
   }
 }
 
@@ -686,8 +726,8 @@
 
 @media (max-width: 600px) {
   .about-hero__title {
-    font-size: clamp(2rem, 10vw, 4rem);
-    letter-spacing: 0.08em;
+    font-size: clamp(1.88rem, 9.4vw, 3.75rem);
+    letter-spacing: 0.06em;
   }
 
   .about-hero__sub {
@@ -700,7 +740,7 @@
   }
 
   .founder__name {
-    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    font-size: clamp(1.7rem, 6.5vw, 2.35rem);
   }
 
   .founder__pullquote {
@@ -708,7 +748,7 @@
   }
 
   .founder__body {
-    font-size: 0.92rem;
+    font-size: 0.95rem;
   }
 
   .philosophy {
@@ -720,7 +760,7 @@
   }
 
   .about-parallax__quote {
-    font-size: clamp(1rem, 4vw, 1.4rem);
+    font-size: clamp(0.94rem, 3.75vw, 1.32rem);
   }
 
   .about-cta {

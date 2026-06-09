@@ -160,7 +160,7 @@
 
 .scroll-indicator__text {
   font-family: var(--font-body);
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: rgba(250, 247, 244, 0.75);

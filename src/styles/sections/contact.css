@@ -46,11 +46,11 @@
 
 .cta-banner__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 500;
+  font-size: clamp(1.88rem, 4.7vw, 4.2rem);
+  font-weight: 400;
   font-style: normal;
   color: var(--color-text);
-  line-height: 1.2;
+  line-height: 1.15;
   margin-bottom: 32px;
   position: relative;
   z-index: 1;
@@ -69,10 +69,12 @@
   background: rgba(28, 23, 20, 0.96) !important;
   backdrop-filter: blur(22px) !important;
   box-shadow: 0 1px 0 rgba(201, 169, 124, 0.12) !important;
+  transition: background 0.5s ease, box-shadow 0.5s ease, backdrop-filter 0.5s ease !important;
 }
 
 .nav--dark .nav__link {
   color: rgba(250, 247, 244, 0.65);
+  transition: color 0.4s ease;
 }
 
 .nav--dark .nav__link:hover {
@@ -90,6 +92,7 @@
 .nav--dark .logo-amour,
 .nav--dark .logo-affairs {
   color: #FAF7F4 !important;
+  transition: color 0.5s ease;
 }
 
 .nav--dark .nav__logo sup {
@@ -97,8 +100,9 @@
 }
 
 .nav--dark .nav__logo-img {
-  filter: brightness(0) invert(1);
-  opacity: 0.85;
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.85 !important;
+  transition: filter 0.5s ease, opacity 0.5s ease !important;
 }
 
 .nav--dark .nav__hamburger span {
@@ -147,10 +151,10 @@ footer.footer {
 
 .footer__tagline {
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 5vw, 5rem);
-  font-weight: 500;
+  font-size: clamp(2.25rem, 4.7vw, 4.7rem);
+  font-weight: 400;
   color: #FAF7F4;
-  line-height: 1.2;
+  line-height: 1.15;
   margin-bottom: clamp(28px, 4vw, 48px);
 }
 
@@ -265,7 +269,7 @@ footer.footer {
 .footer__col-label {
   font-family: var(--font-body);
   font-size: var(--text-small);
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--color-accent-light);
@@ -276,10 +280,10 @@ footer.footer {
 /* ── Contact Info ── */
 .footer__address {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 400;
   color: rgba(250, 247, 244, 0.55);
-  line-height: 1.85;
+  line-height: 1.7;
   font-style: normal;
 }
 
@@ -290,7 +294,7 @@ footer.footer {
 .footer__link {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 400;
   color: rgba(250, 247, 244, 0.55);
   padding: 5px 0;
@@ -310,7 +314,7 @@ footer.footer {
 
 .footer__nav-link {
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 400;
   color: rgba(250, 247, 244, 0.55);
   padding: 6px 0;
@@ -335,7 +339,7 @@ footer.footer {
   align-items: center;
   gap: 12px;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 400;
   color: rgba(250, 247, 244, 0.55);
   padding: 7px 0;
@@ -435,7 +439,7 @@ footer.footer {
   }
 
   .footer__tagline {
-    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-size: clamp(1.7rem, 5.6vw, 2.8rem);
   }
 
   .footer__bar {
@@ -445,7 +449,7 @@ footer.footer {
   }
 
   .cta-banner__title {
-    font-size: clamp(1.6rem, 5vw, 3rem);
+    font-size: clamp(1.5rem, 4.7vw, 2.8rem);
   }
 }
 
