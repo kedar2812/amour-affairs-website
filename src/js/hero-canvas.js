@@ -65,16 +65,16 @@ function drawModelFrame(idx, scale) {
 
   modelCtx.clearRect(0, 0, cw, ch);
 
-  // ── 1. Ground shadow ellipse — anchors the model to the landscape ──
+  // ── 1. Ground shadow ellipse — warm brown, anchors model to landscape ──
   const shadowRadX = dw * 0.26;
   const shadowRadY = dh * 0.028;
   const shadowGrad = modelCtx.createRadialGradient(
     cx, feetY, 0,
     cx, feetY, shadowRadX
   );
-  shadowGrad.addColorStop(0,   'rgba(20, 40, 10, 0.50)');
-  shadowGrad.addColorStop(0.5, 'rgba(20, 40, 10, 0.22)');
-  shadowGrad.addColorStop(1,   'rgba(20, 40, 10, 0)');
+  shadowGrad.addColorStop(0,   'rgba(90, 55, 20, 0.48)');
+  shadowGrad.addColorStop(0.5, 'rgba(90, 55, 20, 0.20)');
+  shadowGrad.addColorStop(1,   'rgba(90, 55, 20, 0)');
   modelCtx.save();
   modelCtx.scale(1, shadowRadY / shadowRadX);   // squash into an ellipse
   modelCtx.fillStyle = shadowGrad;
@@ -83,13 +83,24 @@ function drawModelFrame(idx, scale) {
   modelCtx.fill();
   modelCtx.restore();
 
-  // ── 2. Drop shadow on the model — directional light from top-right ──
+  // ── 2. Drop shadow — warm amber-brown, directional from top-right ──
   modelCtx.save();
-  modelCtx.shadowColor    = 'rgba(15, 35, 10, 0.55)';
-  modelCtx.shadowBlur     = 28;
-  modelCtx.shadowOffsetX  = 6;
-  modelCtx.shadowOffsetY  = 14;
+  modelCtx.shadowColor    = 'rgba(100, 65, 25, 0.52)';
+  modelCtx.shadowBlur     = 30;
+  modelCtx.shadowOffsetX  = 8;
+  modelCtx.shadowOffsetY  = 16;
   modelCtx.drawImage(img, dx, dy, dw, dh);
+  modelCtx.restore();
+
+  // ── 3. Warm amber tint — source-atop only tints existing canvas pixels ──
+  // 'source-atop' paints only where the model was drawn (opaque pixels),
+  // leaving the transparent background untouched — no orange bg bleed.
+  // Muted warm-beige tint matches the hero bg (#EDE0CC) so the model
+  // feels carved from the same stone — shadows provide the 3D pop.
+  modelCtx.save();
+  modelCtx.globalCompositeOperation = 'source-atop';
+  modelCtx.fillStyle = 'rgba(215, 190, 148, 0.32)';
+  modelCtx.fillRect(0, 0, cw, ch);
   modelCtx.restore();
 }
 

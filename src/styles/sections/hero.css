@@ -263,6 +263,12 @@
   z-index: 1;
   will-change: contents;
   /* No mix-blend-mode needed — model frames have alpha transparency */
+
+  /* ── Sculpted-stone finish — warm amber tone handled in canvas JS via
+        multiply blend. This CSS filter adds the final contrast polish:
+        contrast()   → deepens shadows, brightens highlights for 3D depth
+        brightness() → compensates contrast's slight darkening            ── */
+  filter: contrast(1.2) brightness(1.04);
 }
 
 /* ── Warm vignette glow underneath the model ── */
