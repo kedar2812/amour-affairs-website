@@ -25,6 +25,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // ── Modules ──
 import { initNav } from './js/nav.js';
+import { initHero } from './js/hero.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations } from './js/animations.js';
 import { initInstagramFeed } from './js/gallery.js';
@@ -88,6 +89,9 @@ async function init() {
 
   // 3. Initialize 3D canvas scroll sequence (couple model)
   await initHeroCanvas();
+
+  // 3.5. Initialize hero video loop + leaf bloom animation
+  initHero();
 
   // 4. Initialize all scroll-triggered animations
   initAllAnimations();

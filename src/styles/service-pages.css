@@ -5,7 +5,7 @@
 
 /* ── Page Base ── */
 .service-page {
-  background: #FAFAF8;
+  background: #EDE0CC;
   color: var(--color-text);
   min-height: 100vh;
 }
@@ -20,7 +20,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #FAFAF8;
+  background: #EDE0CC;
 }
 
 .page-hero__bg {
@@ -285,7 +285,7 @@
 
 /* ── Testimonial Pull Quote ── */
 .sp-quote-strip {
-  background: #FDF6EC;
+  background: #EDE0CC;
   padding: clamp(60px, 8vw, 100px) var(--container-gutter);
   text-align: center;
 }
@@ -321,7 +321,7 @@
 
 /* ── CTA Strip ── */
 .sp-cta-strip {
-  background: #FDF6EC;
+  background: #EDE0CC;
   padding: clamp(60px, 8vw, 100px) var(--container-gutter);
   text-align: center;
 }

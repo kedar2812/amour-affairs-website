@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,20 +7,20 @@
   <meta name="description" content="Learn how Amour Affairs collects, uses and protects your personal information.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & Base ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Reset & Base Ã¢”â‚¬Ã¢”â‚¬ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --color-bg:           #FAF7F4;
-      --color-bg-alt:       #F5F0EA;
-      --color-surface:      #EDE7DF;
+      --color-bg: #EDE0CC;
+      --color-bg-alt: #EDE0CC;
+      --color-surface: #E4D5B8;
       --color-text:         #2C2420;
       --color-text-dim:     #7A6A5A;
       --color-accent:       #9E7A4E;
       --color-accent-light: #C9A97C;
-      --font-display:       'Instrument Serif', Georgia, serif;
-      --font-body:          'Inter', 'Helvetica Neue', Arial, sans-serif;
+      --font-display:       'Cormorant Garamond', Georgia, serif;
+      --font-body:          'Montserrat', 'Helvetica Neue', Arial, sans-serif;
       --container-max:      860px;
       --container-gutter:   clamp(24px, 6vw, 80px);
     }
@@ -41,12 +41,12 @@
     a { color: var(--color-accent); text-decoration: none; transition: opacity 0.3s ease; }
     a:hover { opacity: 0.7; }
 
-    /* ── Navigation ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Navigation Ã¢”â‚¬Ã¢”â‚¬ */
     .nav {
       position: fixed; top: 0; left: 0; width: 100%;
       padding: 10px var(--container-gutter);
       display: flex; align-items: center; justify-content: space-between;
-      z-index: 1000; background: rgba(250,247,244,0.92);
+      z-index: 1000; background: rgba(237,224,204,0.92);
       backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
       border-bottom: 1px solid rgba(158,122,78,0.1);
     }
@@ -70,9 +70,9 @@
       display: flex; align-items: center; gap: 8px; transition: color 0.3s ease;
     }
     .nav__back:hover { color: var(--color-accent); }
-    .nav__back::before { content: '←'; font-size: 1em; }
+    .nav__back::before { content: 'Ã¢” Â'; font-size: 1em; }
 
-    /* ── Page Hero ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Page Hero Ã¢”â‚¬Ã¢”â‚¬ */
     .page-hero {
       padding-top: 140px; padding-bottom: 60px;
       padding-left: var(--container-gutter); padding-right: var(--container-gutter);
@@ -95,7 +95,7 @@
       color: var(--color-text-dim); letter-spacing: 0.05em;
     }
 
-    /* ── Content ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Content Ã¢”â‚¬Ã¢”â‚¬ */
     .page-content {
       padding: 80px var(--container-gutter) 120px;
     }
@@ -116,7 +116,7 @@
     }
     .section-block p:last-child { margin-bottom: 0; }
 
-    /* ── Decorative intro ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Decorative intro Ã¢”â‚¬Ã¢”â‚¬ */
     .intro-quote {
       font-family: var(--font-display); font-size: clamp(1.1rem, 2vw, 1.35rem);
       font-style: italic; line-height: 1.75; color: var(--color-text);
@@ -124,7 +124,7 @@
       border-bottom: 1px solid rgba(158,122,78,0.15); margin-bottom: 56px;
     }
 
-    /* ── Footer ── */
+    /* Ã¢”â‚¬Ã¢”â‚¬ Footer Ã¢”â‚¬Ã¢”â‚¬ */
     .page-footer {
       border-top: 1px solid rgba(158,122,78,0.15);
       padding: 48px var(--container-gutter);
@@ -164,7 +164,7 @@
   <nav class="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>Ã‚®</sup>
     </a>
     <a href="/" class="nav__back">Back to Home</a>
   </nav>
@@ -174,7 +174,7 @@
     <div class="page-hero__inner">
       <span class="page-hero__eyebrow">Legal</span>
       <h1 class="page-hero__title">Privacy<br><em>Policy</em></h1>
-      <p class="page-hero__meta">Effective as of <span class="dynamic-year">2024</span> &nbsp;·&nbsp; Amour Affairs, Pune</p>
+      <p class="page-hero__meta">Effective as of <span class="dynamic-year">2024</span> &nbsp;Ã‚Â·&nbsp; Amour Affairs, Pune</p>
     </div>
   </header>
 
@@ -195,7 +195,7 @@
 
       <div class="section-block">
         <div class="section-block__heading">Cookies</div>
-        <p>Our website makes use of Cookies in a purely harmless way and solely in order to make your browsing experience seamless. We make use of two types of Cookies — 'session' Cookies that remove themselves from your device when you close your browser, and 'persistent' Cookies that remain on your device until deleted manually or they reach their expiration date.</p>
+        <p>Our website makes use of Cookies in a purely harmless way and solely in order to make your browsing experience seamless. We make use of two types of Cookies — 'session' Cookies that remove themselves from your device when you close your browser, and 'persistent' Cookies that remain on your device until deleted manually or they reach their expiration date.</p>
         <p>We use Cookies harmlessly for purposes such as recognising that you are re-visiting our site and hence to load static elements quicker, to improve the usability and security of the site, as part of our analytics platform, and to serve you content that is more specific to you. No personal information is stored in the process.</p>
       </div>
 
@@ -210,7 +210,7 @@
 
   <!-- Footer -->
   <footer class="page-footer">
-    <div class="page-footer__logo"><span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup style="font-size:0.5em; vertical-align:super;">®</sup></div>
+    <div class="page-footer__logo"><span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup style="font-size:0.5em; vertical-align:super;">Ã‚®</sup></div>
     <nav class="page-footer__links">
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/disclaimer/">Disclaimer</a>

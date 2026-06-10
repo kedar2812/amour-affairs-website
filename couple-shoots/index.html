@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pre-Wedding &amp; Couple Shoots | Amour Affairs — Pune &amp; Beyond</title>
-  <meta name="description" content="Pre-wedding and couple shoots in Pune and beyond. Blushing, honest, and beautifully lit photography sessions for couples before their big day.">
+  <meta name="description" content="Browse the Amour Affairs couples archive — folders of pre-wedding and couple photoshoots in Pune and beyond. Blushing, honest, and beautifully lit.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
-  <script type="module" src="/src/js/page-init.js"></script>
+  <script type="module" src="/src/js/couple-shoots-init.js"></script>
 </head>
-<body class="is-loading service-page">
+<body class="is-loading cpage">
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
@@ -22,15 +22,11 @@
     </div>
   </div>
 
-  <!-- CURSOR -->
-  <div class="cursor-dot" style="opacity:0"></div>
-  <div class="cursor-ring" style="opacity:0"></div>
-
   <!-- ═══════════ NAVIGATION ═══════════ -->
   <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
     </a>
     <div class="nav__links hide-mobile">
       <a href="/" class="nav__link">Home</a>
@@ -48,6 +44,7 @@
     </div>
   </nav>
 
+  <!-- MOBILE MENU -->
   <div class="nav__mobile-menu" id="mobileMenu">
     <a href="/" class="nav__mobile-link">Home</a>
     <a href="/weddings/" class="nav__mobile-link">Weddings</a>
@@ -64,144 +61,95 @@
   </div>
 
   <!-- ═══════════ HERO ═══════════ -->
-  <section class="page-hero">
-    <div class="page-hero__bg" style="background-image: url('https://images.unsplash.com/photo-1529636798458-92182e662485?w=1920&q=80&auto=format&fit=crop')"></div>
-    <div class="page-hero__overlay"></div>
-    <div class="page-hero__body">
-      <span class="page-hero__eyebrow">Pre-Wedding &amp; Couple Photography · Pune &amp; Beyond</span>
-      <h1 class="page-hero__headline">
-        Before The Wedding,<br>
-        <em>There Was You Two.</em>
-      </h1>
-      <p class="page-hero__sub">Pre-wedding &amp; couple shoots in Pune and beyond — blushing, honest, and beautifully lit.</p>
-    </div>
+  <section class="cpage-hero">
+    <span class="cpage-hero__eyebrow">The Couples Archive &middot; Pune &amp; Beyond</span>
+    <h1 class="cpage-hero__title">Before The Wedding,<br><em>There Was You Two.</em></h1>
+    <p class="cpage-hero__sub">Pre-wedding and couple sessions, blushing, honest, and beautifully lit &mdash; each one filed in a folder named after the two people in it.</p>
   </section>
 
-  <!-- ═══════════ WHY A COUPLE SHOOT ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up">
-        <span class="sp-eyebrow">Why Do This</span>
-        <h2 class="sp-heading">Why a Couple <em>Shoot?</em></h2>
+  <!-- ═══════════ THE ARCHIVE — FOLDER GRID ═══════════ -->
+  <section class="cpage-archive" id="archive">
+    <div class="cpage-archive__inner">
+      <div class="cpage-archive__header">
+        <span class="cpage-archive__eyebrow">From Our Sessions</span>
+        <h2 class="cpage-archive__heading">Browse by <em>Couple</em></h2>
       </div>
-      <div class="sp-benefit-tiles" style="margin-top:60px;">
-        <div class="sp-benefit-tile fade-up">
-          <div class="sp-benefit-tile__title">Get Comfortable on Camera</div>
-          <p class="sp-benefit-tile__text">Most couples have never been professionally photographed together. This session is your practice run — and the results are absolutely stunning. By your wedding day, you'll be naturals.</p>
-        </div>
-        <div class="sp-benefit-tile fade-up">
-          <div class="sp-benefit-tile__title">Use It Everywhere</div>
-          <p class="sp-benefit-tile__text">Invitations, save-the-dates, social media announcements, your wedding slideshow, your home walls — beautiful couple portraits have a thousand uses, and they start here.</p>
-        </div>
-        <div class="sp-benefit-tile fade-up">
-          <div class="sp-benefit-tile__title">Just the Two of You</div>
-          <p class="sp-benefit-tile__text">No guests, no schedule pressure, no relatives. Pure connection, captured. A couple session is one of the most intimate things we get to witness — and we treat it as such.</p>
-        </div>
+      <div class="cpage-archive__grid" id="archiveGrid">
+        <!-- Folder cards rendered by couple-shoots-init.js from couple-shoots-albums-data.js -->
       </div>
     </div>
   </section>
-
-  <!-- ═══════════ LOCATION IDEAS ═══════════ -->
-  <section style="background:#fff; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:8px;">
-        <span class="sp-eyebrow">Where We Shoot</span>
-        <h2 class="sp-heading">Location <em>Ideas</em></h2>
-      </div>
-      <div class="sp-locations">
-        <div class="sp-location fade-up">
-          <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=80&auto=format&fit=crop" alt="Urban Pune" loading="lazy">
-          <div class="sp-location__overlay">
-            <span class="sp-location__name">Urban / Industrial</span>
-          </div>
-        </div>
-        <div class="sp-location fade-up">
-          <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80&auto=format&fit=crop" alt="Nature Golden Hour" loading="lazy">
-          <div class="sp-location__overlay">
-            <span class="sp-location__name">Nature / Golden Hour</span>
-          </div>
-        </div>
-        <div class="sp-location fade-up">
-          <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=900&q=80&auto=format&fit=crop" alt="Studio" loading="lazy">
-          <div class="sp-location__overlay">
-            <span class="sp-location__name">Studio — Dramatic Light</span>
-          </div>
-        </div>
-        <div class="sp-location fade-up">
-          <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=900&q=80&auto=format&fit=crop" alt="Destination" loading="lazy">
-          <div class="sp-location__overlay">
-            <span class="sp-location__name">Destination — We Travel</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ MARQUEE GALLERY ═══════════ -->
-  <div class="sp-marquee">
-    <div class="marquee__track">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1543804816-8e17b0e34c1a?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <!-- Duplicated for seamless loop -->
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1543804816-8e17b0e34c1a?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-      <img class="marquee__img" src="https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?w=500&q=80&auto=format&fit=crop" alt="" loading="lazy">
-    </div>
-  </div>
 
   <!-- ═══════════ SESSION DETAILS ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="text-align:center; margin-bottom:0;">
-        <span class="sp-eyebrow">What to Expect</span>
-        <h2 class="sp-heading">Session <em>Details</em></h2>
-      </div>
-      <div class="sp-session-card fade-up">
-        <div class="sp-session-card__title">Everything You Need to Know</div>
-        <div class="sp-session-card__rows">
-          <div class="sp-session-card__row">
-            <span class="sp-session-card__label">Duration</span>
-            <span class="sp-session-card__value">2–3 hours</span>
-          </div>
-          <div class="sp-session-card__row">
-            <span class="sp-session-card__label">Deliverables</span>
-            <span class="sp-session-card__value">80–120 fully edited images</span>
-          </div>
-          <div class="sp-session-card__row">
-            <span class="sp-session-card__label">Turnaround</span>
-            <span class="sp-session-card__value">2–3 weeks</span>
-          </div>
-          <div class="sp-session-card__row">
-            <span class="sp-session-card__label">Locations</span>
-            <span class="sp-session-card__value">Pune + outstation on request</span>
-          </div>
-          <div class="sp-session-card__row">
-            <span class="sp-session-card__label">Outfit Changes</span>
-            <span class="sp-session-card__value">Up to 2 included</span>
-          </div>
+  <section class="cpage-session">
+    <div class="cpage-session__inner">
+      <span class="cpage-session__eyebrow">What to Expect</span>
+      <h2 class="cpage-session__heading">Session <em>Details</em></h2>
+      <div class="cpage-session__card">
+        <div class="cpage-session__row">
+          <span class="cpage-session__label">Duration</span>
+          <span class="cpage-session__value">2&ndash;3 hours</span>
         </div>
-        <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Book Your Session →</a>
+        <div class="cpage-session__row">
+          <span class="cpage-session__label">Deliverables</span>
+          <span class="cpage-session__value">80&ndash;120 fully edited images</span>
+        </div>
+        <div class="cpage-session__row">
+          <span class="cpage-session__label">Turnaround</span>
+          <span class="cpage-session__value">2&ndash;3 weeks</span>
+        </div>
+        <div class="cpage-session__row">
+          <span class="cpage-session__label">Locations</span>
+          <span class="cpage-session__value">Pune + outstation on request</span>
+        </div>
+        <div class="cpage-session__row">
+          <span class="cpage-session__label">Outfit Changes</span>
+          <span class="cpage-session__value">Up to 2 included</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ CTA STRIP ═══════════ -->
-  <div class="sp-cta-strip fade-up">
-    <p class="sp-cta-strip__title">Every great wedding album<br><em>starts with this.</em></p>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Talk to Us →</a>
+  <!-- ═══════════ CTA ═══════════ -->
+  <section class="cpage-cta">
+    <span class="cpage-cta__label">Your Folder Awaits</span>
+    <h2 class="cpage-cta__heading">Every Great Wedding Album Starts With <em>This</em></h2>
+    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="cpage-cta__btn">Book Your Session <span class="cpage-cta__btn-arrow" aria-hidden="true">&#8594;</span></a>
+  </section>
+
+  <!-- ═══════════ ALBUM OVERLAY (opened folder) ═══════════ -->
+  <div class="cpage-album" id="albumOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Couple shoot album">
+    <div class="cpage-album__scroll" id="albumOverlayScroll" data-lenis-prevent>
+      <div class="cpage-album__bar">
+        <span class="cpage-album__chip" id="overlayFolderLabel">Folder 01</span>
+        <button class="cpage-album__close" id="overlayClose" aria-label="Close album">Close &#10005;</button>
+      </div>
+      <header class="cpage-album__head">
+        <span class="cpage-album__eyebrow">From The Archive</span>
+        <h2 class="cpage-album__title" id="overlayTitle"></h2>
+        <p class="cpage-album__meta" id="overlayMeta"></p>
+        <p class="cpage-album__desc" id="overlayDesc"></p>
+      </header>
+      <div class="cpage-album__masonry" id="albumMasonry"></div>
+      <footer class="cpage-album__footer">
+        <span class="cpage-album__footer-label">Continue Browsing</span>
+        <button class="cpage-album__next" id="overlayNext"></button>
+      </footer>
+    </div>
   </div>
 
-  <!-- FOOTER -->
-    <!-- === FOOTER === -->
-  <footer class="footer" id="contact">
+  <!-- ═══════════ PHOTO LIGHTBOX ═══════════ -->
+  <div class="cpage-lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photograph viewer">
+    <div class="cpage-lightbox__backdrop"></div>
+    <button class="cpage-lightbox__close" id="lightboxClose" aria-label="Close photograph">&times;</button>
+    <button class="cpage-lightbox__arrow cpage-lightbox__arrow--prev" id="lightboxPrev" aria-label="Previous photograph">&#8592;</button>
+    <img class="cpage-lightbox__img" id="lightboxImg" src="" alt="">
+    <button class="cpage-lightbox__arrow cpage-lightbox__arrow--next" id="lightboxNext" aria-label="Next photograph">&#8594;</button>
+    <span class="cpage-lightbox__counter" id="lightboxCounter"></span>
+  </div>
 
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="footer" id="contact">
     <!-- Top Band: Tagline + CTA -->
     <div class="footer__top">
       <div class="container">
@@ -219,7 +167,6 @@
     <!-- Main Grid -->
     <div class="container">
       <div class="footer__grid">
-
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
@@ -289,12 +236,11 @@
             title="Amour Affairs office location in Pune"
           ></iframe>
         </div>
-
       </div>
 
       <!-- Footer Bar -->
       <div class="footer__bar">
-        <span class="footer__copyright">&copy; 2011&ndash;<span class="dynamic-year">2025</span> Amour Affairs. All rights reserved.</span>
+        <span class="footer__copyright">&copy; 2011&ndash;<span class="dynamic-year">2026</span> Amour Affairs. All rights reserved.</span>
         <div class="footer__bar-links">
           <a href="/privacy-policy/" class="footer__bar-link">Privacy Policy</a>
           <a href="/disclaimer/" class="footer__bar-link">Disclaimer</a>

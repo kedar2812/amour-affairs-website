@@ -59,7 +59,7 @@
   font-weight: 400;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  color: var(--color-text);
+  color: #3D2010;
   margin-bottom: 16px;
 }
 
@@ -187,7 +187,7 @@
   font-weight: 400;
   font-style: italic;
   line-height: 1.65;
-  color: var(--color-text);
+  color: #3D2010;
   margin-bottom: 32px;
   max-width: 560px;
 }
@@ -216,7 +216,7 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: #3D2010;
   letter-spacing: 0.01em;
 }
 

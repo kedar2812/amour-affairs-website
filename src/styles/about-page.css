@@ -5,7 +5,7 @@
 
 /* ── Page Base ── */
 .about-page {
-  background: #FAF7F4;
+  background: #EDE0CC;
   color: #2C2420;
   min-height: 100vh;
 }
@@ -21,7 +21,7 @@
 
 .about-page .nav .nav__logo .logo-amour,
 .about-page .nav .nav__logo .logo-affairs {
-  color: #000000;
+  color: #3D2010;
 }
 
 .about-page .nav .nav__logo sup {
@@ -59,7 +59,7 @@
 
 /* ── Scrolled state — frosted glass ── */
 .about-page .nav.scrolled {
-  background: rgba(250, 247, 244, 0.92);
+  background: rgba(237, 224, 204, 0.92);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   box-shadow: 0 1px 0 rgba(158, 122, 78, 0.1);
@@ -180,7 +180,7 @@
    ══════════════════════════════════════════════════ */
 
 .founder {
-  background: #FAF7F4;
+  background: #EDE0CC;
   padding: 60px var(--container-gutter) 120px;
 }
 
@@ -265,7 +265,7 @@
   font-size: clamp(1.88rem, 3.75vw, 3.3rem);
   font-weight: 400;
   font-style: italic;
-  color: #2C2420;
+  color: #3D2010;
   margin: 0 0 0.25em;
   line-height: 1.15;
 }
@@ -330,7 +330,7 @@
    ══════════════════════════════════════════════════ */
 
 .team-section {
-  background: #FAF7F4;
+  background: #EDE0CC;
   padding: 100px 0;
   overflow: hidden;
 }
@@ -356,7 +356,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.88rem, 3.75vw, 3rem);
   font-weight: 400;
-  color: #2C2420;
+  color: #3D2010;
   line-height: 1.15;
   margin: 0 0 20px;
 }
@@ -395,12 +395,12 @@
 
 .team-marquee__fade--left {
   left: 0;
-  background: linear-gradient(to right, #FAF7F4 0%, transparent 100%);
+  background: linear-gradient(to right, #EDE0CC 0%, transparent 100%);
 }
 
 .team-marquee__fade--right {
   right: 0;
-  background: linear-gradient(to left, #FAF7F4 0%, transparent 100%);
+  background: linear-gradient(to left, #EDE0CC 0%, transparent 100%);
 }
 
 /* ── Scrolling track ── */
@@ -462,7 +462,7 @@
   font-family: var(--font-body);
   font-size: 0.93rem;
   font-weight: 600;
-  color: #2C2420;
+  color: #3D2010;
   letter-spacing: 0.02em;
 }
 
@@ -607,7 +607,7 @@
    ══════════════════════════════════════════════════ */
 
 .about-cta {
-  background: #F5F0EA;
+  background: #EDE0CC;
   padding: 80px var(--container-gutter);
   text-align: center;
 }
@@ -627,7 +627,7 @@
   font-family: var(--font-display);
   font-size: clamp(1.7rem, 3.75vw, 2.8rem);
   font-weight: 400;
-  color: #2C2420;
+  color: #3D2010;
   margin: 0 0 2rem;
   line-height: 1.15;
 }
