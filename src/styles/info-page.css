@@ -1,0 +1,578 @@
+/* ============================================================
+   INFO-PAGE.CSS — Shared styles for the five utility pages
+   (privacy-policy, disclaimer, terms-and-conditions, faqs,
+   careers). Amour Affairs · Premium Wedding Photography
+
+   Design: matches the site language — beige text hero, white
+   cards with soft shadows, gold accents — plus a minimal
+   footer with logo and quick links only.
+   ============================================================ */
+
+
+/* ── Page background ── */
+.ipage {
+  background: var(--color-bg);
+  min-height: 100vh;
+}
+
+
+/* ══════════════════════════════════════
+   HERO HEADER
+   ══════════════════════════════════════ */
+
+.ipage-hero {
+  padding: clamp(140px, 18vh, 200px) var(--container-gutter) clamp(40px, 6vw, 72px);
+  text-align: center;
+  position: relative;
+}
+
+.ipage-hero__eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 24px;
+}
+
+.ipage-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.63rem, 6.1vw, 5.15rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #3D2010;
+  max-width: 750px;
+  margin: 0 auto 20px;
+}
+
+.ipage-hero__title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-accent);
+}
+
+.ipage-hero__sub {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--color-text-dim);
+  line-height: 1.65;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+
+/* ══════════════════════════════════════
+   MAIN CONTENT COLUMN
+   ══════════════════════════════════════ */
+
+.ipage-main {
+  padding: clamp(20px, 3vw, 40px) var(--container-gutter) clamp(80px, 10vw, 130px);
+}
+
+.ipage-main__inner {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Italic serif intro line */
+.ipage-quote {
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  font-style: italic;
+  line-height: 1.7;
+  color: #3D2010;
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto clamp(40px, 5vw, 56px);
+}
+
+/* Content block — white card with small-caps gold label */
+.ipage-block {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  padding: clamp(28px, 4vw, 40px);
+  margin-bottom: 24px;
+}
+
+.ipage-block__label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.ipage-block__label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(158, 122, 78, 0.2);
+}
+
+.ipage-block p {
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--color-text-dim);
+  margin: 0 0 16px;
+}
+
+.ipage-block p:last-child {
+  margin-bottom: 0;
+}
+
+.ipage-block a {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(158, 122, 78, 0.35);
+  transition: opacity 0.3s ease;
+}
+
+.ipage-block a:hover {
+  opacity: 0.7;
+}
+
+/* Two-column card grid (disclaimer) */
+.ipage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.ipage-grid .ipage-block {
+  margin-bottom: 0;
+}
+
+.ipage-block--wide {
+  grid-column: 1 / -1;
+}
+
+
+/* ══════════════════════════════════════
+   NUMBERED TERMS LIST
+   ══════════════════════════════════════ */
+
+.ipage-terms {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ipage-term {
+  display: flex;
+  gap: clamp(20px, 3vw, 32px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  padding: clamp(28px, 4vw, 40px);
+}
+
+.ipage-term__num {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-accent);
+  line-height: 1;
+  flex-shrink: 0;
+  min-width: 56px;
+}
+
+.ipage-term__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: #3D2010;
+  margin-bottom: 8px;
+}
+
+.ipage-term__text {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+
+/* ══════════════════════════════════════
+   FAQ — TABS + ACCORDION
+   ══════════════════════════════════════ */
+
+.ipage-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.ipage-tab {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  background: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 26px;
+  cursor: pointer;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.ipage-tab:hover {
+  transform: translateY(-2px);
+}
+
+.ipage-tab.is-active {
+  background: var(--color-accent);
+  color: #FAF7F4;
+}
+
+.ipage-tabpanel {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ipage-tabpanel.is-active {
+  display: flex;
+}
+
+/* Accordion item */
+.ipage-faq {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: box-shadow 0.4s ease;
+}
+
+.ipage-faq.is-open {
+  box-shadow:
+    0 12px 48px rgba(158, 122, 78, 0.10),
+    0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.ipage-faq__q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: clamp(20px, 3vw, 26px) clamp(22px, 3.5vw, 32px);
+}
+
+.ipage-faq__q-text {
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 1.7vw, 1.3rem);
+  font-weight: 500;
+  color: #3D2010;
+  line-height: 1.4;
+}
+
+.ipage-faq__icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(158, 122, 78, 0.35);
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              background 0.3s ease, color 0.3s ease;
+}
+
+.ipage-faq__icon svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+}
+
+.ipage-faq.is-open .ipage-faq__icon {
+  transform: rotate(45deg);
+  background: var(--color-accent);
+  color: #FAF7F4;
+  border-color: var(--color-accent);
+}
+
+.ipage-faq__a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ipage-faq__a-inner {
+  padding: 0 clamp(22px, 3.5vw, 32px) clamp(22px, 3.5vw, 28px);
+}
+
+.ipage-faq__a-inner p {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+
+/* ══════════════════════════════════════
+   CAREERS — SPLIT INTRO + VALUE CARDS
+   ══════════════════════════════════════ */
+
+.ipage-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  margin-bottom: clamp(40px, 5vw, 56px);
+}
+
+.ipage-split__heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: #3D2010;
+  margin: 0 0 12px;
+}
+
+.ipage-split__heading em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+.ipage-split__tag {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.ipage-split__text {
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  line-height: 1.8;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+.ipage-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: clamp(40px, 5vw, 56px);
+}
+
+.ipage-value {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  padding: clamp(26px, 3vw, 36px);
+}
+
+.ipage-value__num {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-style: italic;
+  color: var(--color-accent);
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.ipage-value__title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #3D2010;
+  margin-bottom: 8px;
+}
+
+.ipage-value__text {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--color-text-dim);
+  margin: 0;
+}
+
+
+/* ══════════════════════════════════════
+   CTA BLOCK (gold pill, site standard)
+   ══════════════════════════════════════ */
+
+.ipage-cta {
+  text-align: center;
+  padding-top: clamp(40px, 6vw, 64px);
+}
+
+.ipage-cta__label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.ipage-cta__heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.88rem, 3.75vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #3D2010;
+  max-width: 600px;
+  margin: 0 auto 18px;
+}
+
+.ipage-cta__heading em {
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+.ipage-cta__sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-text-dim);
+  max-width: 480px;
+  margin: 0 auto 32px;
+}
+
+.ipage-cta__sub a {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(158, 122, 78, 0.35);
+}
+
+.ipage-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  padding: 10px 28px;
+  border-radius: 50px;
+  background: var(--color-accent);
+  color: #FAF7F4;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.ipage-cta__btn:hover {
+  transform: scale(1.03);
+  background: var(--color-accent-light);
+}
+
+
+/* ══════════════════════════════════════
+   MINIMAL FOOTER — logo + quick links only
+   ══════════════════════════════════════ */
+
+.ipage-footer {
+  border-top: 1px solid rgba(158, 122, 78, 0.18);
+  padding: clamp(36px, 5vw, 56px) var(--container-gutter);
+  text-align: center;
+}
+
+.ipage-footer__logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+
+.ipage-footer__links {
+  display: flex;
+  justify-content: center;
+  gap: clamp(18px, 3vw, 32px);
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.ipage-footer__link {
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.ipage-footer__link:hover,
+.ipage-footer__link--active {
+  color: var(--color-accent);
+}
+
+.ipage-footer__copy {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-dim);
+}
+
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .ipage-values {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ipage-split {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .ipage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ipage-term {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ipage-term__num {
+    min-width: 0;
+  }
+}

@@ -1,148 +1,125 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Disclaimer | Amour Affairs</title>
-  <meta name="description" content="Read the disclaimer for Amour Affairs — accuracy, liability, intellectual property and applicable law.">
+  <meta name="description" content="Read the disclaimer for Amour Affairs — accuracy, liability, intellectual property and applicable law.">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --bg:#FAF7F4;--bg-alt:#F5F0EA;--text:#2C2420;--dim:#7A6A5A;
-      --accent:#9E7A4E;--serif:'Cormorant Garamond',Georgia,serif;
-      --sans:'Montserrat','Helvetica Neue',Arial,sans-serif;
-      --max:860px;--gutter:clamp(24px,6vw,80px);
-    }
-    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}
-    ::-webkit-scrollbar-thumb{background:rgba(158,122,78,.3)}
-    ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
-    html{scrollbar-width:thin;scrollbar-color:rgba(158,122,78,.3) var(--bg)}
-    body{font-family:var(--sans);font-size:1.25rem;line-height:1.8;color:var(--text);background:var(--bg)}
-    a{color:var(--accent);text-decoration:none;transition:opacity .3s}
-    a:hover{opacity:.7}
 
-    .nav{position:fixed;top:0;left:0;width:100%;padding:10px var(--gutter);
-      display:flex;align-items:center;justify-content:space-between;z-index:1000;
-      background:rgba(250,247,244,.92);backdrop-filter:blur(22px);
-      border-bottom:1px solid rgba(158,122,78,.1)}
-    .nav__logo{font-family:'Montserrat','Helvetica Neue',Arial,sans-serif;font-size:clamp(1.2rem,1.8vw,1.55rem);font-weight:800;
-      text-decoration:none;white-space:nowrap;text-transform:uppercase;letter-spacing:0.01em;
-      display:inline-flex;align-items:center;gap:0;color:#000000}
-    .nav__logo .logo-amour{font-weight:400;font-style:normal}
-    .nav__logo .logo-affairs{font-weight:800;font-style:italic}
-    .nav__logo span{font-weight:400;margin-right:0.02em}
-    .nav__logo-img{height:clamp(28px, 3.6vw, 42px);width:auto;object-fit:contain;opacity:.85;margin-right:8px;
-      transition:opacity .3s ease}
-    .nav__back{font-family:var(--serif);font-size:1.1rem;font-weight:400;
-      letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
-      display:flex;align-items:center;gap:8px;text-decoration:none;transition:color .3s}
-    .nav__back:hover{color:var(--accent);opacity:1}
-    .nav__back::before{content:'Ã¢” Â'}
-
-    .page-hero{padding:140px var(--gutter) 60px;border-bottom:1px solid rgba(158,122,78,.15)}
-    .page-hero__inner{max-width:var(--max);margin:0 auto}
-    .page-hero__eyebrow{display:inline-block;font-family:var(--sans);font-size:.95rem;
-      font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
-    .page-hero__title{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);
-      font-weight:400;line-height:1.05;letter-spacing:-.02em;color:var(--text)}
-    .page-hero__title em{font-style:italic;color:var(--dim)}
-    .page-hero__meta{margin-top:20px;font-size:1.05rem;color:var(--dim)}
-
-    .page-content{padding:80px var(--gutter) 120px}
-    .page-content__inner{max-width:var(--max);margin:0 auto}
-
-    .intro-note{font-family:var(--serif);font-size:clamp(1.05rem,1.8vw,1.25rem);
-      font-style:italic;line-height:1.75;color:var(--text);
-      padding:32px 0;border-top:1px solid rgba(158,122,78,.15);
-      border-bottom:1px solid rgba(158,122,78,.15);margin-bottom:56px}
-
-    .disclaimer-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;
-      background:rgba(158,122,78,.12);margin-bottom:56px}
-    @media(max-width:640px){.disclaimer-grid{grid-template-columns:1fr}}
-    .disclaimer-card{background:var(--bg);padding:36px 32px;transition:background .3s}
-    .disclaimer-card:hover{background:var(--bg-alt)}
-    .disclaimer-card__label{display:block;font-family:var(--sans);font-size:.85rem;
-      font-weight:600;letter-spacing:.32em;text-transform:uppercase;
-      color:var(--accent);margin-bottom:14px}
-    .disclaimer-card__text{font-size:1.2rem;line-height:1.8;color:var(--dim)}
-
-    .page-footer{border-top:1px solid rgba(158,122,78,.15);padding:48px var(--gutter);
-      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
-    .page-footer__logo{font-family:var(--serif);font-size:1.2rem;color:var(--text)}
-    .page-footer__links{display:flex;gap:28px;flex-wrap:wrap}
-    .page-footer__links a{font-size:.95rem;letter-spacing:.15em;text-transform:uppercase;color:var(--dim)}
-    .page-footer__links a:hover{color:var(--accent);opacity:1}
-    @media(max-width:600px){.page-footer{flex-direction:column;text-align:center}
-      .page-footer__links{justify-content:center}}
-  
-    .floating-whatsapp{position:fixed;bottom:30px;left:30px;width:60px;height:60px;background:linear-gradient(135deg,#C9A97C 0%,#9E7A4E 100%);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(158,122,78,.35),inset 0 2px 4px rgba(255,255,255,.2);z-index:9999;text-decoration:none;transition:transform .4s cubic-bezier(.175,.885,.32,1.275),box-shadow .4s ease}
-    .floating-whatsapp:hover{transform:scale(1.08) translateY(-6px);box-shadow:0 16px 32px rgba(158,122,78,.45),inset 0 2px 6px rgba(255,255,255,.3);color:#fff;opacity:1}
-    .floating-whatsapp:active{transform:scale(.95)}
-    .floating-whatsapp svg{fill:currentColor;filter:drop-shadow(0 2px 4px rgba(0,0,0,.1))}
-    .floating-whatsapp::after{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;border-radius:50%;border:1px solid rgba(255,255,255,.2);pointer-events:none}
-    .floating-whatsapp::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background-color:#C9A97C;z-index:-1;opacity:.5;animation:wa-pulse 2.5s infinite}
-    @keyframes wa-pulse{0%{transform:scale(1);opacity:.5}70%{transform:scale(1.4);opacity:0}100%{transform:scale(1.4);opacity:0}}
-    @media(max-width:768px){.floating-whatsapp{bottom:20px;left:20px;width:54px;height:54px}.floating-whatsapp svg{width:28px;height:28px}}
-  </style>
+  <script type="module" src="/src/js/info-page-init.js"></script>
 </head>
-<body>
-  <nav class="nav">
+<body class="is-loading ipage">
+
+  <!-- PRELOADER -->
+  <div class="preloader" id="preloader">
+    <img src="/logo.svg" alt="Amour Affairs Logo" class="preloader__logo-svg" />
+    <div class="preloader__progress">
+      <div class="preloader__progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ NAVIGATION ═══════════ -->
+  <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>Ã‚®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
     </a>
-    <a href="/" class="nav__back">Back to Home</a>
+    <div class="nav__links hide-mobile">
+      <a href="/" class="nav__link">Home</a>
+      <a href="/weddings/" class="nav__link">Weddings</a>
+      <a href="/couple-shoots/" class="nav__link">Couples</a>
+      <a href="/films/" class="nav__link">Films</a>
+      <a href="/about/" class="nav__link">About</a>
+      <a href="/testimonials/" class="nav__link">Testimonials</a>
+      <a href="/shop/" class="nav__link">Shop</a>
+      <a href="#contact" class="nav__link">Contact</a>
+      <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
+    </div>
+    <div class="nav__hamburger hide-desktop" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
   </nav>
 
-  <header class="page-hero">
-    <div class="page-hero__inner">
-      <span class="page-hero__eyebrow">Legal</span>
-      <h1 class="page-hero__title">Dis<em>claimer</em></h1>
-      <p class="page-hero__meta">By continuing to view this website you agree to the following terms.</p>
+  <!-- MOBILE MENU -->
+  <div class="nav__mobile-menu" id="mobileMenu">
+    <a href="/" class="nav__mobile-link">Home</a>
+    <a href="/weddings/" class="nav__mobile-link">Weddings</a>
+    <a href="/couple-shoots/" class="nav__mobile-link">Couples</a>
+    <a href="/films/" class="nav__mobile-link">Films</a>
+    <a href="/about/" class="nav__mobile-link">About</a>
+    <a href="/testimonials/" class="nav__mobile-link">Testimonials</a>
+    <a href="/shop/" class="nav__mobile-link">Shop</a>
+    <a href="#contact" class="nav__mobile-link">Contact</a>
+    <div class="nav__mobile-footer">
+      <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://vimeo.com/amouraffairs" target="_blank" rel="noopener">Vimeo</a>
     </div>
-  </header>
+  </div>
 
-  <main class="page-content">
-    <div class="page-content__inner">
-      <p class="intro-note">"On continuing to view this website you are agreeing to be bound to the following terms and conditions of use."</p>
-      <div class="disclaimer-grid">
-        <div class="disclaimer-card">
-          <span class="disclaimer-card__label">Accuracy &amp; Liability</span>
-          <p class="disclaimer-card__text">Every effort has been taken to ensure that the most current, correct, and clearly expressed information is provided. Nevertheless, inadvertent errors in information may occur. Amour Affairs disclaims any responsibility for typographical errors and accuracy of the information. Your use of any information or materials on this website is entirely at your own risk.</p>
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="ipage-hero">
+    <span class="ipage-hero__eyebrow">Legal</span>
+    <h1 class="ipage-hero__title">Dis<em>claimer</em></h1>
+    <p class="ipage-hero__sub">By continuing to view this website you agree to the following terms.</p>
+  </section>
+
+  <!-- ═══════════ CONTENT ═══════════ -->
+  <main class="ipage-main">
+    <div class="ipage-main__inner">
+
+      <p class="ipage-quote ipage-reveal">
+        "On continuing to view this website you are agreeing to be bound to the following terms and conditions of use."
+      </p>
+
+      <div class="ipage-grid">
+        <div class="ipage-block ipage-reveal">
+          <div class="ipage-block__label">Accuracy &amp; Liability</div>
+          <p>Every effort has been taken to ensure that the most current, correct, and clearly expressed information is provided. Nevertheless, inadvertent errors in information may occur. Amour Affairs disclaims any responsibility for typographical errors and accuracy of the information. Your use of any information or materials on this website is entirely at your own risk.</p>
         </div>
-        <div class="disclaimer-card">
-          <span class="disclaimer-card__label">Reliability</span>
-          <p class="disclaimer-card__text">Amour Affairs makes no representations or warranties regarding the condition or functionality of this website, its suitability for use, or that this website would be uninterrupted or error-free.</p>
+        <div class="ipage-block ipage-reveal">
+          <div class="ipage-block__label">Reliability</div>
+          <p>Amour Affairs makes no representations or warranties regarding the condition or functionality of this website, its suitability for use, or that this website would be uninterrupted or error-free.</p>
         </div>
-        <div class="disclaimer-card">
-          <span class="disclaimer-card__label">Intellectual Content</span>
-          <p class="disclaimer-card__text">Amour Affairs owns the rights for all content found on this website including but not limited to the text, layout, appearance, look, and the creative content (photographs and films). Reproduction of any content is strictly prohibited, and is subject to the Copyright laws of India.</p>
+        <div class="ipage-block ipage-reveal">
+          <div class="ipage-block__label">Intellectual Content</div>
+          <p>Amour Affairs owns the rights for all content found on this website including but not limited to the text, layout, appearance, look, and the creative content (photographs and films). Reproduction of any content is strictly prohibited, and is subject to the Copyright laws of India.</p>
         </div>
-        <div class="disclaimer-card">
-          <span class="disclaimer-card__label">Electronic Communications</span>
-          <p class="disclaimer-card__text">When contacting Amour Affairs you consent to receive communications from us electronically.</p>
+        <div class="ipage-block ipage-reveal">
+          <div class="ipage-block__label">Electronic Communications</div>
+          <p>When contacting Amour Affairs you consent to receive communications from us electronically.</p>
         </div>
-        <div class="disclaimer-card" style="grid-column:1/-1">
-          <span class="disclaimer-card__label">Applicable Law</span>
-          <p class="disclaimer-card__text">By visiting this website you implicitly agree to be bound by the laws of Pune (India), under the jurisdiction of the District Court of India (Pune, Maharashtra).</p>
+        <div class="ipage-block ipage-block--wide ipage-reveal">
+          <div class="ipage-block__label">Applicable Law</div>
+          <p>By visiting this website you implicitly agree to be bound by the laws of Pune (India), under the jurisdiction of the District Court of India (Pune, Maharashtra).</p>
         </div>
       </div>
+
     </div>
   </main>
 
-  <footer class="page-footer">
-    <div class="page-footer__logo">Amour Affairs<sup style="font-size:.5em;vertical-align:super">Ã‚®</sup></div>
-    <nav class="page-footer__links">
-      <a href="/privacy-policy/">Privacy Policy</a>
-      <a href="/disclaimer/">Disclaimer</a>
-      <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
-      <a href="/faqs/">FAQs</a>
-      <a href="/careers/">Careers</a>
+  <!-- ═══════════ MINIMAL FOOTER ═══════════ -->
+  <footer class="ipage-footer" id="contact">
+    <a href="/" class="nav__logo ipage-footer__logo">
+      <img src="/logo.png" alt="" class="nav__logo-img" />
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
+    </a>
+    <nav class="ipage-footer__links">
+      <a href="/privacy-policy/" class="ipage-footer__link">Privacy Policy</a>
+      <a href="/disclaimer/" class="ipage-footer__link ipage-footer__link--active">Disclaimer</a>
+      <a href="/terms-and-conditions/" class="ipage-footer__link">Terms &amp; Conditions</a>
+      <a href="/faqs/" class="ipage-footer__link">FAQs</a>
+      <a href="/careers/" class="ipage-footer__link">Careers</a>
     </nav>
+    <span class="ipage-footer__copy">&copy; 2011&ndash;<span class="dynamic-year">2026</span> Amour Affairs. All rights reserved.</span>
   </footer>
+
+  <script>
+    document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = new Date().getFullYear());
+  </script>
 
   <!-- Floating WhatsApp Button -->
   <a href="https://wa.me/919921000052" class="floating-whatsapp" target="_blank" rel="noopener" aria-label="Chat with us on WhatsApp">
