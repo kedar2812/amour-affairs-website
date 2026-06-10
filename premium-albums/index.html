@@ -1,18 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Wedding Albums | Amour Affairs ”” Handcrafted Luxury Albums</title>
-  <meta name="description" content="Handcrafted luxury wedding albums ”” printed, bound, and built to outlast generations. Italian leather, lay-flat binding, archival inks. Where digital becomes eternal.">
+  <title>Premium Albums &amp; Canvas Prints | Amour Affairs — Handcrafted Heirlooms</title>
+  <meta name="description" content="Handcrafted 12×12 and 15×15 luxury wedding albums and archival canvas prints by Amour Affairs — browse our collections of finished pieces, printed and bound to outlast generations.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
-  <script type="module" src="/src/js/page-init.js"></script>
+  <script type="module" src="/src/js/premium-albums-init.js"></script>
 </head>
-<body class="is-loading service-page">
+<body class="is-loading ppage">
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
@@ -22,15 +22,11 @@
     </div>
   </div>
 
-  <!-- CURSOR -->
-  <div class="cursor-dot" style="opacity:0"></div>
-  <div class="cursor-ring" style="opacity:0"></div>
-
-  <!-- ═══════════ NAVIGATION ═══════════ -->
+  <!-- ═══════════ NAVIGATION ═══════════ -->
   <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
       <img src="/logo.png" alt="" class="nav__logo-img" />
-      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>®</sup>
+      <span class="logo-amour">Amour</span><span class="logo-affairs">Affairs</span><sup>&reg;</sup>
     </a>
     <div class="nav__links hide-mobile">
       <a href="/" class="nav__link">Home</a>
@@ -48,6 +44,7 @@
     </div>
   </nav>
 
+  <!-- MOBILE MENU -->
   <div class="nav__mobile-menu" id="mobileMenu">
     <a href="/" class="nav__mobile-link">Home</a>
     <a href="/weddings/" class="nav__mobile-link">Weddings</a>
@@ -63,140 +60,100 @@
     </div>
   </div>
 
-  <!-- ═══════════ HERO ═══════════ -->
-  <section class="page-hero">
-    <div class="page-hero__bg" style="background-image: url('https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=1920&q=80&auto=format&fit=crop')"></div>
-    <div class="page-hero__overlay"></div>
-    <div class="page-hero__body">
-      <span class="page-hero__eyebrow">Luxury Heirloom Albums Â· Handcrafted in India</span>
-      <h1 class="page-hero__headline">
-        Where Digital<br>
-        <em>Becomes Eternal.</em>
-      </h1>
-      <p class="page-hero__sub">Handcrafted luxury wedding albums ”” printed, bound, and built to outlast generations.</p>
-    </div>
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="ppage-hero">
+    <span class="ppage-hero__eyebrow">Heirloom Albums &amp; Canvas Prints &middot; Handcrafted</span>
+    <h1 class="ppage-hero__title">Where Digital<br><em>Becomes Eternal.</em></h1>
+    <p class="ppage-hero__sub">Screens fade and drives fail &mdash; albums endure. Browse the pieces we have printed, bound and stretched by hand, then make one yours.</p>
   </section>
 
-  <!-- ═══════════ THE ALBUM DIFFERENCE ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:0;">
-        <span class="sp-eyebrow">Why Physical</span>
-        <h2 class="sp-heading">The Album <em>Difference</em></h2>
+  <!-- ═══════════ THE COLLECTIONS ═══════════ -->
+  <section class="ppage-archive" id="archive">
+    <div class="ppage-archive__inner">
+      <div class="ppage-archive__header">
+        <span class="ppage-archive__eyebrow">Our Collections</span>
+        <h2 class="ppage-archive__heading">Choose Your <em>Heirloom</em></h2>
       </div>
-      <div class="sp-split">
-        <div class="fade-up">
-          <img class="sp-split__img" src="https://images.unsplash.com/photo-1481214110143-ed630356e1bb?w=900&q=80&auto=format&fit=crop" alt="Open wedding album" loading="lazy">
-        </div>
-        <div class="fade-up">
-          <p class="sp-split__headline">"Screens fade. Drives fail. Albums endure."</p>
-          <p class="sp-split__body">A luxury wedding album is not just a book of photographs ”” it is the physical manifestation of your love story. Printed on acid-free art paper with archival pigment inks that resist fading for over 100 years. Bound in genuine Italian leather or fine linen. Lay-flat construction so every spread opens beautifully from edge to edge. Gold foil name embossing on the cover. Hand-assembled, quality checked, delivered to your door.</p>
-          <p class="sp-split__body" style="margin-top:20px;">This is the heirloom your grandchildren will open. Make it worthy of the story it holds.</p>
-        </div>
+      <div class="ppage-archive__grid" id="archiveGrid">
+        <!-- Collection cards rendered by premium-albums-init.js from premium-albums-data.js -->
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ ALBUM COLLECTIONS ═══════════ -->
-  <section style="background:#fff; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:8px;">
-        <span class="sp-eyebrow">Our Collections</span>
-        <h2 class="sp-heading">Choose Your <em>Album</em></h2>
-      </div>
-      <div class="sp-album-cards">
-        <div class="sp-album-card fade-up">
-          <div class="sp-album-card__name">The Signature</div>
-          <div class="sp-album-card__spec">20Ã—20 cm Â· 30 Spreads</div>
-          <p class="sp-album-card__text">Premium matte finish pages, fine linen cover with debossed title, lay-flat binding. Perfect for those who want elegant simplicity. Comes with a protective clamshell box.</p>
-          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Enquire â†’</a>
-        </div>
-        <div class="sp-album-card fade-up">
-          <div class="sp-album-card__name">The Heritage</div>
-          <div class="sp-album-card__spec">30Ã—30 cm Â· 50 Spreads</div>
-          <p class="sp-album-card__text">Genuine Italian leather cover, lay-flat binding, gold foil name embossing on the front. Our most popular choice ”” the balance of luxury, size, and timeless elegance.</p>
-          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Enquire â†’</a>
-        </div>
-        <div class="sp-album-card fade-up">
-          <div class="sp-album-card__name">The Legacy</div>
-          <div class="sp-album-card__spec">40Ã—40 cm Â· 70 Spreads</div>
-          <p class="sp-album-card__text">Hand-stitched binding, custom slipcase presentation box, two parent albums included, 70 full-bleed spreads. The ultimate heirloom. Built to be passed down through generations.</p>
-          <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Enquire â†’</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ CRAFTSMANSHIP STEPS ═══════════ -->
-  <section style="background:#FAFAF8; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="text-align:center; margin-bottom:0;">
-        <span class="sp-eyebrow">The Process</span>
-        <h2 class="sp-heading">Crafted With <em>Care</em></h2>
-      </div>
-      <div class="sp-steps">
-        <div class="sp-step fade-up">
+  <!-- ═══════════ CRAFTSMANSHIP STEPS ═══════════ -->
+  <section class="ppage-craft">
+    <div class="ppage-craft__inner">
+      <span class="ppage-craft__eyebrow">The Process</span>
+      <h2 class="ppage-craft__heading">Crafted With <em>Care</em></h2>
+      <div class="ppage-craft__grid">
+        <div class="ppage-craft__step">
           <!-- Lucide: Pen-tool / Design icon -->
-          <svg class="sp-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="ppage-craft__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>
           </svg>
-          <div class="sp-step__title">Design</div>
-          <p class="sp-step__text">Our designers lay out every spread by hand, selecting your best images and crafting compositions that flow beautifully from page to page. You review and approve before we print.</p>
+          <div class="ppage-craft__title">Design</div>
+          <p class="ppage-craft__text">Our designers lay out every spread by hand, selecting your best images and crafting compositions that flow beautifully from page to page. You review and approve before we print.</p>
         </div>
-        <div class="sp-step fade-up">
+        <div class="ppage-craft__step">
           <!-- Lucide: Printer icon -->
-          <svg class="sp-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="ppage-craft__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/>
           </svg>
-          <div class="sp-step__title">Print</div>
-          <p class="sp-step__text">Archival pigment printing on acid-free art paper. Our inks are rated to resist fading for over 100 years under normal display conditions. Every page is inspected before binding.</p>
+          <div class="ppage-craft__title">Print</div>
+          <p class="ppage-craft__text">Archival pigment printing on acid-free art paper and canvas, with inks rated to resist fading for over 100 years. Every page and print is inspected before it moves on.</p>
         </div>
-        <div class="sp-step fade-up">
+        <div class="ppage-craft__step">
           <!-- Lucide: Package icon -->
-          <svg class="sp-step__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="ppage-craft__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/>
           </svg>
-          <div class="sp-step__title">Bind &amp; Deliver</div>
-          <p class="sp-step__text">Hand-assembled by skilled craftspeople. Quality-checked at every stage. Delivered to your door in a custom presentation box, ready to be displayed or gifted with pride.</p>
+          <div class="ppage-craft__title">Bind &amp; Deliver</div>
+          <p class="ppage-craft__text">Hand-assembled by skilled craftspeople and quality-checked at every stage. Delivered to your door in a custom presentation box, ready to be displayed or gifted with pride.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ ALBUM DETAIL GALLERY ═══════════ -->
-  <section style="background:#fff; padding: clamp(70px,10vw,130px) var(--container-gutter);">
-    <div style="max-width:var(--container-max); margin:0 auto;">
-      <div class="fade-up" style="margin-bottom:48px;">
-        <span class="sp-eyebrow">The Details</span>
-        <h2 class="sp-heading">Built to <em>Last</em></h2>
-      </div>
-      <div class="sp-album-gallery">
-        <div class="sp-album-gallery__item fade-up">
-          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=900&q=80&auto=format&fit=crop" alt="Album open spread" loading="lazy">
-        </div>
-        <div class="sp-album-gallery__item fade-up">
-          <img src="https://images.unsplash.com/photo-1495421286286-2e0c01d7f8c2?w=900&q=80&auto=format&fit=crop" alt="Leather texture cover" loading="lazy">
-        </div>
-        <div class="sp-album-gallery__item fade-up">
-          <img src="https://images.unsplash.com/photo-1481214110143-ed630356e1bb?w=900&q=80&auto=format&fit=crop" alt="Embossed album cover" loading="lazy">
-        </div>
-        <div class="sp-album-gallery__item fade-up">
-          <img src="https://images.unsplash.com/photo-1467533003447-e295ff1b0435?w=900&q=80&auto=format&fit=crop" alt="Album box packaging" loading="lazy">
-        </div>
-      </div>
-    </div>
+  <!-- ═══════════ CTA ═══════════ -->
+  <section class="ppage-cta">
+    <span class="ppage-cta__label">Begin Your Heirloom</span>
+    <h2 class="ppage-cta__heading">Make It Worthy of the Story <em>It Holds</em></h2>
+    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="ppage-cta__btn">Enquire on WhatsApp <span class="ppage-cta__btn-arrow" aria-hidden="true">&#8594;</span></a>
   </section>
 
-  <!-- ═══════════ CTA STRIP ═══════════ -->
-  <div class="sp-cta-strip fade-up">
-    <p class="sp-cta-strip__title">Your love story deserves<br><em>a cover worthy of it.</em></p>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--champagne">Order Your Album â†’</a>
+  <!-- ═══════════ COLLECTION GALLERY (opened collection) ═══════════ -->
+  <div class="ppage-album" id="albumOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Collection gallery">
+    <div class="ppage-album__scroll" id="albumOverlayScroll" data-lenis-prevent>
+      <div class="ppage-album__bar">
+        <span class="ppage-album__chip" id="overlayFolderLabel">Collection 01</span>
+        <button class="ppage-album__close" id="overlayClose" aria-label="Close collection">Close &#10005;</button>
+      </div>
+      <header class="ppage-album__head">
+        <span class="ppage-album__eyebrow">From Our Workshop</span>
+        <h2 class="ppage-album__title" id="overlayTitle"></h2>
+        <p class="ppage-album__meta" id="overlayMeta"></p>
+        <p class="ppage-album__desc" id="overlayDesc"></p>
+      </header>
+      <div class="ppage-album__masonry" id="albumMasonry"></div>
+      <footer class="ppage-album__footer">
+        <span class="ppage-album__footer-label">Continue Browsing</span>
+        <button class="ppage-album__next" id="overlayNext"></button>
+      </footer>
+    </div>
   </div>
 
-  <!-- FOOTER -->
-    <!-- === FOOTER === -->
-  <footer class="footer" id="contact">
+  <!-- ═══════════ PHOTO LIGHTBOX ═══════════ -->
+  <div class="ppage-lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photograph viewer">
+    <div class="ppage-lightbox__backdrop"></div>
+    <button class="ppage-lightbox__close" id="lightboxClose" aria-label="Close photograph">&times;</button>
+    <button class="ppage-lightbox__arrow ppage-lightbox__arrow--prev" id="lightboxPrev" aria-label="Previous photograph">&#8592;</button>
+    <img class="ppage-lightbox__img" id="lightboxImg" src="" alt="">
+    <button class="ppage-lightbox__arrow ppage-lightbox__arrow--next" id="lightboxNext" aria-label="Next photograph">&#8594;</button>
+    <span class="ppage-lightbox__counter" id="lightboxCounter"></span>
+  </div>
 
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="footer" id="contact">
     <!-- Top Band: Tagline + CTA -->
     <div class="footer__top">
       <div class="container">
@@ -214,7 +171,6 @@
     <!-- Main Grid -->
     <div class="container">
       <div class="footer__grid">
-
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
@@ -284,12 +240,11 @@
             title="Amour Affairs office location in Pune"
           ></iframe>
         </div>
-
       </div>
 
       <!-- Footer Bar -->
       <div class="footer__bar">
-        <span class="footer__copyright">&copy; 2011&ndash;<span class="dynamic-year">2025</span> Amour Affairs. All rights reserved.</span>
+        <span class="footer__copyright">&copy; 2011&ndash;<span class="dynamic-year">2026</span> Amour Affairs. All rights reserved.</span>
         <div class="footer__bar-links">
           <a href="/privacy-policy/" class="footer__bar-link">Privacy Policy</a>
           <a href="/disclaimer/" class="footer__bar-link">Disclaimer</a>

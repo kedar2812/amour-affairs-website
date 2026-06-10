@@ -1,0 +1,43 @@
+/* ============================================================
+   PREMIUM-ALBUMS-INIT.JS — Dedicated init for Premium Albums page
+   Amour Affairs · Premium Wedding Photography
+   Albums & Prints: collection grid → gallery view → lightbox
+   ============================================================ */
+
+// ── Styles ──
+import '../styles/reset.css';
+import '../styles/variables.css';
+import '../styles/typography.css';
+import '../styles/components.css';
+import '../styles/sections/hero.css';
+import '../styles/sections/contact.css';
+import '../styles/service-pages.css';
+import '../styles/premium-albums-page.css';
+
+// ── Shared archive page behaviour + data ──
+import { initArchivePage } from './archive-page.js';
+import { albums } from './premium-albums-data.js';
+
+initArchivePage({
+  albums,
+  prefix: 'ppage',
+  folderWord: 'Collection',
+  openWord: 'View Collection',
+  onReady({ gsap }) {
+    // Craftsmanship steps reveal (section unique to this page)
+    if (document.querySelector('.ppage-craft')) {
+      gsap.from('.ppage-craft__inner > *', {
+        scrollTrigger: {
+          trigger: '.ppage-craft',
+          start: 'top 85%',
+          toggleActions: 'play none none none',
+        },
+        y: 35,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 1.0,
+        ease: 'power2.out',
+      });
+    }
+  },
+});

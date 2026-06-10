@@ -25,7 +25,13 @@ const pad2 = (n) => String(n + 1).padStart(2, '0');
 // "Aarohi & Vedant" → "Aarohi <em>&</em> Vedant"
 const formatCouple = (couple) => couple.replace(' & ', ' <em>&amp;</em> ');
 
-export function initArchivePage({ albums, prefix, onReady }) {
+export function initArchivePage({
+  albums,
+  prefix,
+  onReady,
+  folderWord = 'Folder',
+  openWord = 'Open Folder',
+}) {
   const p = prefix;
 
   // ── Lenis Smooth Scroll ──
@@ -78,11 +84,11 @@ export function initArchivePage({ albums, prefix, onReady }) {
     grid.innerHTML = albums
       .map((album, i) => `
         <article class="${p}-card" data-album="${i}" tabindex="0" role="button"
-                 aria-label="Open the photo folder of ${album.couple}">
+                 aria-label="${openWord}: ${album.couple}">
           <div class="${p}-card__thumb">
             <img src="${album.cover}" alt="${album.couple} — cover photograph" loading="lazy" />
-            <span class="${p}-card__chip">Folder ${pad2(i)}</span>
-            <span class="${p}-card__open">Open Folder <span aria-hidden="true">&#8594;</span></span>
+            <span class="${p}-card__chip">${folderWord} ${pad2(i)}</span>
+            <span class="${p}-card__open">${openWord} <span aria-hidden="true">&#8594;</span></span>
           </div>
           <div class="${p}-card__body">
             <span class="${p}-card__title">${formatCouple(album.couple)}</span>
@@ -113,7 +119,7 @@ export function initArchivePage({ albums, prefix, onReady }) {
     currentAlbumIndex = index;
     if (sourceCard) lastFocusedCard = sourceCard;
 
-    document.getElementById('overlayFolderLabel').textContent = `Folder ${pad2(index)}`;
+    document.getElementById('overlayFolderLabel').textContent = `${folderWord} ${pad2(index)}`;
     document.getElementById('overlayTitle').innerHTML = formatCouple(album.couple);
     document.getElementById('overlayMeta').innerHTML =
       `${album.location} &middot; ${album.date} &middot; ${album.photos.length} Photographs`;
