@@ -38,10 +38,11 @@ define('ALLOWED_ORIGINS', [
 ```
 
 ### 3. Run the Database Seeder
-1. Point your browser to `https://amouraffairs.in/api/seed.php`.
-2. This initializes:
-   - Super Admin: `info@amouraffairs.in` / Password: `admin_password_here` (Change in seed.php prior to run)
-   - Test User: `test@test.in` / Password: `test123`
+1. Open `api/seed.php` and set `$ADMIN_PASSWORD` to a strong, unique password
+   (the script refuses to run while the placeholder is in place). Leave
+   `$SEED_TEST_USER = false` in production — it exists only for local development.
+2. Point your browser to `https://amouraffairs.in/api/seed.php?key=YOUR_SEED_KEY`.
+   This creates the Super Admin: `info@amouraffairs.in` with the password you set.
 3. ⚠️ **IMPORTANT SECURITY STEP**: Delete the file `api/seed.php` immediately after seeding or uncomment the file matching rules in `api/.htaccess` to block any future execution.
 
 ---

@@ -16,6 +16,21 @@ require_once __DIR__ . '/config.php';
 // Security: one-time seed key (change this, then delete after use)
 $SEED_KEY = 'amour_affairs_initial_setup_2026';
 
+// REQUIRED: set a strong admin password before running. The script
+// refuses to run while the placeholder is in place so a real password
+// never gets committed to version control.
+$ADMIN_PASSWORD = 'CHANGE_ME_BEFORE_RUNNING';
+
+// Local development only — set true to also create test@test.in/test123.
+// NEVER enable on the production server.
+$SEED_TEST_USER = false;
+
+if ($ADMIN_PASSWORD === 'CHANGE_ME_BEFORE_RUNNING') {
+    http_response_code(500);
+    echo json_encode(['error' => 'Set $ADMIN_PASSWORD in seed.php before running.']);
+    exit;
+}
+
 // If accessed via web, require seed key
 if (php_sapi_name() !== 'cli') {
     $key = $_GET['key'] ?? '';
@@ -43,17 +58,20 @@ try {
     $usersToSeed = [
         [
             'email' => 'info@amouraffairs.in',
-            'password' => 'REMOVED-SECRET',
+            'password' => $ADMIN_PASSWORD,
             'name' => 'Amour Affairs',
             'role' => 'super_admin'
-        ],
-        [
+        ]
+    ];
+
+    if ($SEED_TEST_USER) {
+        $usersToSeed[] = [
             'email' => 'test@test.in',
             'password' => 'test123',
             'name' => 'Test User',
             'role' => 'admin'
-        ]
-    ];
+        ];
+    }
 
     $seeded = [];
     $stmt = $db->prepare(
