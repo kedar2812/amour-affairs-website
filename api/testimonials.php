@@ -34,12 +34,14 @@ switch ($method) {
         }
 
         $featured = isset($_GET['featured']) ? (int)$_GET['featured'] : null;
+        $weddings = isset($_GET['weddings']) ? (int)$_GET['weddings'] : null;
         $activeOnly = !isset($_GET['all']);
 
         $where = [];
         $params = [];
         if ($activeOnly) { $where[] = 'is_active = 1'; }
         if ($featured !== null) { $where[] = 'is_featured = ?'; $params[] = $featured; }
+        if ($weddings !== null) { $where[] = 'show_on_weddings = ?'; $params[] = $weddings; }
 
         $whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
         $stmt = $db->prepare("SELECT * FROM testimonials {$whereSQL} ORDER BY sort_order ASC, created_at DESC");
@@ -51,6 +53,37 @@ switch ($method) {
 
     case 'POST':
         $auth = requireAuth();
+        $action = $_GET['action'] ?? '';
+
+        // ─ Replace / set a testimonial's photo (multipart `photo`) ─
+        if ($action === 'photo') {
+            if (!$id) sendError('Testimonial ID is required', 400);
+
+            $db = getDB();
+            $stmt = $db->prepare('SELECT photo_path FROM testimonials WHERE id = ?');
+            $stmt->execute([$id]);
+            $existing = $stmt->fetch();
+            if (!$existing) sendError('Testimonial not found', 404);
+
+            $photoData = processImageUpload('photo', 'testimonials/');
+            if (empty($photoData)) {
+                sendError('Photo file is required (field: photo)', 400);
+            }
+
+            if ($existing['photo_path']) {
+                deleteImageFiles($existing['photo_path']);
+            }
+
+            $stmt = $db->prepare('UPDATE testimonials SET photo_path = ? WHERE id = ?');
+            $stmt->execute([$photoData['file_path'], $id]);
+
+            auditLog('update_photo', 'testimonials', $id, null, $auth['sub']);
+
+            $stmt = $db->prepare('SELECT * FROM testimonials WHERE id = ?');
+            $stmt->execute([$id]);
+            sendJSON($stmt->fetch());
+            break;
+        }
 
         $photoData = processImageUpload('photo', 'testimonials/');
 
@@ -62,8 +95,8 @@ switch ($method) {
 
         $db = getDB();
         $stmt = $db->prepare(
-            'INSERT INTO testimonials (client_name, event_type, event_date, review_text, rating, photo_path, city, is_featured, is_active, sort_order)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO testimonials (client_name, event_type, event_date, review_text, rating, photo_path, city, is_featured, show_on_weddings, is_active, sort_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $clientName,
@@ -74,6 +107,7 @@ switch ($method) {
             $photoData['file_path'] ?? null,
             sanitize($_POST['city'] ?? ''),
             (int)($_POST['is_featured'] ?? 0),
+            (int)($_POST['show_on_weddings'] ?? 0),
             1,
             (int)($_POST['sort_order'] ?? 0)
         ]);
@@ -100,7 +134,7 @@ switch ($method) {
         $fields = [];
         $params = [];
 
-        $updatable = ['client_name', 'event_type', 'event_date', 'review_text', 'rating', 'city', 'is_featured', 'is_active', 'sort_order'];
+        $updatable = ['client_name', 'event_type', 'event_date', 'review_text', 'rating', 'city', 'is_featured', 'show_on_weddings', 'is_active', 'sort_order'];
         foreach ($updatable as $f) {
             if (array_key_exists($f, $body)) {
                 $fields[] = "{$f} = ?";

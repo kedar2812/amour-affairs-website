@@ -311,6 +311,7 @@ export const testimonialsAPI = {
   get: (id: number) => api.get(`testimonials.php?id=${id}`),
   create: (formData: FormData) => api.post('testimonials.php', formData),
   update: (id: number, data: Record<string, unknown>) => api.put(`testimonials.php?id=${id}`, data),
+  setPhoto: (id: number, formData: FormData) => api.post(`testimonials.php?action=photo&id=${id}`, formData),
   delete: (id: number) => api.delete(`testimonials.php?id=${id}`),
 };
 

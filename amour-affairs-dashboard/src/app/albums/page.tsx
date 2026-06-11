@@ -40,6 +40,7 @@ interface Album {
   location: string;
   date_label: string;
   description: string;
+  film_youtube_id: string | null;
   cover: string | null;
   cover_thumb: string | null;
   photo_count: number;
@@ -55,9 +56,10 @@ interface AlbumFormState {
   location: string;
   date_label: string;
   description: string;
+  film_youtube_id: string;
 }
 
-const EMPTY_FORM: AlbumFormState = { type: "wedding", couple: "", location: "", date_label: "", description: "" };
+const EMPTY_FORM: AlbumFormState = { type: "wedding", couple: "", location: "", date_label: "", description: "", film_youtube_id: "" };
 
 const getTypeLabel = (val: string) => ALBUM_TYPES.find(t => t.value === val)?.label || val;
 
@@ -145,6 +147,7 @@ export default function AlbumsPage() {
       location: album.location || "",
       date_label: album.date_label || "",
       description: album.description || "",
+      film_youtube_id: album.film_youtube_id ? `https://youtu.be/${album.film_youtube_id}` : "",
     });
     setCoverFile(null);
     setCoverPreview(album.cover_thumb ? assetUrl(album.cover_thumb) : "");
@@ -486,6 +489,17 @@ export default function AlbumsPage() {
                   placeholder="A two-day celebration at a heritage wada…"
                   className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none" />
               </div>
+              {form.type === "wedding" && (
+                <div>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                    Wedding Film (optional)
+                  </label>
+                  <input type="text" value={form.film_youtube_id} onChange={(e) => setForm(f => ({ ...f, film_youtube_id: e.target.value }))}
+                    placeholder="Paste a YouTube link, e.g. https://youtu.be/abc123…"
+                    className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+                  <p className="text-[11px] text-muted-foreground mt-1.5">Shown inside this folder on the Weddings page. Paste a YouTube link or video ID — leave blank for no film.</p>
+                </div>
+              )}
               <div>
                 <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
                   Cover Image {editingAlbum ? "(replace)" : "(optional — first photo is used if empty)"}

@@ -139,13 +139,15 @@ CREATE TABLE IF NOT EXISTS `testimonials` (
   `photo_path` VARCHAR(500) DEFAULT NULL,
   `city` VARCHAR(100) DEFAULT NULL,
   `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `show_on_weddings` TINYINT(1) NOT NULL DEFAULT 0,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `sort_order` INT NOT NULL DEFAULT 0,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_active` (`is_active`, `sort_order`),
-  KEY `idx_featured` (`is_featured`, `is_active`)
+  KEY `idx_featured` (`is_featured`, `is_active`),
+  KEY `idx_weddings` (`show_on_weddings`, `is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
@@ -361,6 +363,7 @@ CREATE TABLE IF NOT EXISTS `albums` (
   `location` VARCHAR(150) DEFAULT NULL,
   `date_label` VARCHAR(100) DEFAULT NULL,
   `description` TEXT DEFAULT NULL,
+  `film_youtube_id` VARCHAR(20) DEFAULT NULL,
   `cover_path` VARCHAR(500) DEFAULT NULL,
   `cover_thumbnail` VARCHAR(500) DEFAULT NULL,
   `sort_order` INT NOT NULL DEFAULT 0,
@@ -448,3 +451,57 @@ INSERT INTO `testimonials` (`client_name`, `event_type`, `review_text`, `city`, 
 ('Deepika & Karan', 'Wedding', 'Thank you Amour Affairs for making our wedding so beautiful through your lens. It was great working with you and we would definitely be giving your reference to all our friends and family. We appreciate all your insights and you being able to make it to the function despite your booked schedule. Everyone loved your work!', 'New Delhi', 0, 30);
 
 COMMIT;
+
+
+-- ============================================================
+-- MIGRATIONS — safe to re-run on an existing database
+-- ------------------------------------------------------------
+-- These add the columns introduced after the initial schema
+-- without erroring if they already exist. Works on MySQL 5.7+
+-- and MariaDB 10.2+ (information_schema-guarded dynamic ALTER).
+-- ============================================================
+
+-- albums.film_youtube_id — wedding film attached to a folder
+SET @stmt := (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `albums` ADD COLUMN `film_youtube_id` VARCHAR(20) DEFAULT NULL AFTER `description`',
+    'DO 0'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'albums' AND COLUMN_NAME = 'film_youtube_id'
+);
+PREPARE migrate_albums_film FROM @stmt;
+EXECUTE migrate_albums_film;
+DEALLOCATE PREPARE migrate_albums_film;
+
+-- testimonials.show_on_weddings — surface this review in the weddings-page marquee
+SET @stmt := (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `testimonials` ADD COLUMN `show_on_weddings` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_featured`',
+    'DO 0'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND COLUMN_NAME = 'show_on_weddings'
+);
+PREPARE migrate_testi_weddings FROM @stmt;
+EXECUTE migrate_testi_weddings;
+DEALLOCATE PREPARE migrate_testi_weddings;
+
+-- Index for the weddings-marquee query (guarded the same way)
+SET @stmt := (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `testimonials` ADD KEY `idx_weddings` (`show_on_weddings`, `is_active`)',
+    'DO 0'
+  )
+  FROM information_schema.STATISTICS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND INDEX_NAME = 'idx_weddings'
+);
+PREPARE migrate_testi_idx FROM @stmt;
+EXECUTE migrate_testi_idx;
+DEALLOCATE PREPARE migrate_testi_idx;
+
+-- Seed: surface a handful of the strongest reviews in the weddings marquee by default
+UPDATE `testimonials` SET `show_on_weddings` = 1 WHERE `is_active` = 1;

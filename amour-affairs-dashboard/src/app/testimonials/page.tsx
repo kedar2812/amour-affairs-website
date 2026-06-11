@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Search, Plus, Trash2, Star, X, Loader2, Edit3 } from "lucide-react";
+import { Search, Plus, Trash2, Star, X, Loader2, Edit3, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/Drawer";
-import { testimonialsAPI } from "@/lib/api";
+import { testimonialsAPI, assetUrl } from "@/lib/api";
+
+const MAX_PHOTO_SIZE = 15 * 1024 * 1024;
 
 interface Testimonial {
   id: number;
@@ -16,6 +18,7 @@ interface Testimonial {
   photo_path: string | null;
   city: string;
   is_featured: number;
+  show_on_weddings: number;
   is_active: number;
   sort_order: number;
   created_at: string;
@@ -36,7 +39,10 @@ export default function TestimonialsPage() {
   const [formCity, setFormCity] = useState("");
   const [formRating, setFormRating] = useState(5);
   const [formFeatured, setFormFeatured] = useState(false);
+  const [formWeddings, setFormWeddings] = useState(false);
   const [formDate, setFormDate] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchTestimonials = useCallback(async () => {
@@ -58,7 +64,8 @@ export default function TestimonialsPage() {
   const openCreate = () => {
     setEditingId(null);
     setFormName(""); setFormText(""); setFormType("Wedding");
-    setFormCity(""); setFormRating(5); setFormFeatured(false); setFormDate("");
+    setFormCity(""); setFormRating(5); setFormFeatured(false); setFormWeddings(false); setFormDate("");
+    setPhotoFile(null); setPhotoPreview("");
     setShowForm(true);
   };
 
@@ -66,8 +73,19 @@ export default function TestimonialsPage() {
     setEditingId(t.id);
     setFormName(t.client_name); setFormText(t.review_text); setFormType(t.event_type);
     setFormCity(t.city || ""); setFormRating(t.rating); setFormFeatured(!!t.is_featured);
+    setFormWeddings(!!t.show_on_weddings);
     setFormDate(t.event_date || "");
+    setPhotoFile(null);
+    setPhotoPreview(t.photo_path ? assetUrl(t.photo_path) : "");
     setShowForm(true);
+  };
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_PHOTO_SIZE) { setError("Photo must be under 15MB"); return; }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async () => {
@@ -79,8 +97,15 @@ export default function TestimonialsPage() {
         await testimonialsAPI.update(editingId, {
           client_name: formName, review_text: formText, event_type: formType,
           city: formCity, rating: formRating, is_featured: formFeatured ? 1 : 0,
+          show_on_weddings: formWeddings ? 1 : 0,
           event_date: formDate || null,
         });
+        // Photo is a separate multipart action — only upload when a new file is picked
+        if (photoFile) {
+          const pf = new FormData();
+          pf.append("photo", photoFile);
+          await testimonialsAPI.setPhoto(editingId, pf);
+        }
       } else {
         const formData = new FormData();
         formData.append("client_name", formName);
@@ -89,7 +114,9 @@ export default function TestimonialsPage() {
         formData.append("city", formCity);
         formData.append("rating", String(formRating));
         formData.append("is_featured", formFeatured ? "1" : "0");
+        formData.append("show_on_weddings", formWeddings ? "1" : "0");
         if (formDate) formData.append("event_date", formDate);
+        if (photoFile) formData.append("photo", photoFile);
         await testimonialsAPI.create(formData);
       }
       setShowForm(false);
@@ -172,7 +199,10 @@ export default function TestimonialsPage() {
                   <p className="text-[14px] font-semibold text-foreground">{t.client_name}</p>
                   <p className="text-[12px] text-muted-foreground">{t.event_type}{t.city ? ` · ${t.city}` : ""}</p>
                 </div>
-                {t.is_featured ? <span className="text-[10px] font-bold uppercase bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Featured</span> : null}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {t.show_on_weddings ? <span className="text-[10px] font-bold uppercase bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full">Weddings</span> : null}
+                  {t.is_featured ? <span className="text-[10px] font-bold uppercase bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Featured</span> : null}
+                </div>
               </div>
             </div>
           ))}
@@ -227,6 +257,27 @@ export default function TestimonialsPage() {
             <input type="checkbox" checked={formFeatured} onChange={(e) => setFormFeatured(e.target.checked)} className="rounded border-border" />
             <span className="text-sm font-medium text-foreground">Show on homepage (Featured)</span>
           </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={formWeddings} onChange={(e) => setFormWeddings(e.target.checked)} className="rounded border-border" />
+            <span className="text-sm font-medium text-foreground">Showcase on the Weddings page</span>
+          </label>
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Couple Photo (optional)</label>
+            <label className="block cursor-pointer">
+              <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${photoPreview ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/30 hover:bg-muted/30"}`}>
+                {photoPreview ? (
+                  <img src={photoPreview} alt="Couple preview" className="max-h-[160px] mx-auto rounded-lg object-contain" />
+                ) : (
+                  <>
+                    <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
+                    <p className="text-[12px] text-muted-foreground">JPEG, PNG, WebP — max 15MB</p>
+                  </>
+                )}
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+            </label>
+            <p className="text-[11px] text-muted-foreground mt-1.5">Shown on the Testimonials page and the Weddings-page marquee. Leave empty to use a stock couple photo.</p>
+          </div>
           <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold">
             {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : editingId ? "Save Changes" : "Add Testimonial"}
           </Button>

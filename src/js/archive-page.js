@@ -31,6 +31,15 @@ const albumMeta = (album) =>
     .filter(Boolean)
     .join(' &middot; ');
 
+// Normalise a YouTube URL or bare ID to its 11-char video id ('' if none)
+const youtubeId = (input) => {
+  if (!input) return '';
+  const s = String(input).trim();
+  if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+};
+
 export function initArchivePage({
   albums,
   prefix,
@@ -116,6 +125,49 @@ export function initArchivePage({
     });
   }
 
+  /* ── Wedding film (optional, weddings page only) ──
+     Renders a lightweight click-to-play facade so YouTube's player is
+     only loaded when the visitor actually wants to watch. Returns true
+     when a film was shown. Safe on pages without a #overlayFilm slot. */
+  function renderAlbumFilm(album) {
+    const wrap = document.getElementById('overlayFilm');
+    if (!wrap) return false;
+
+    const id = youtubeId(album && album.film);
+    if (!id) {
+      wrap.hidden = true;
+      wrap.innerHTML = '';
+      return false;
+    }
+
+    wrap.hidden = false;
+    wrap.innerHTML = `
+      <span class="${p}-album__film-label">The Wedding Film</span>
+      <button class="${p}-album__film-frame" type="button"
+              aria-label="Play the wedding film for ${album.couple}">
+        <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy" />
+        <span class="${p}-album__film-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+        </span>
+      </button>`;
+
+    const frame = wrap.querySelector(`.${p}-album__film-frame`);
+    frame.addEventListener('click', () => {
+      const player = document.createElement('div');
+      player.className = `${p}-album__film-frame ${p}-album__film-frame--playing`;
+      player.innerHTML = `
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1"
+          title="Wedding film for ${album.couple}"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>`;
+      frame.replaceWith(player);
+    });
+
+    return true;
+  }
+
   /* ── Album view (the opened folder) ── */
 
   function openAlbum(index, sourceCard = null) {
@@ -129,6 +181,8 @@ export function initArchivePage({
     document.getElementById('overlayTitle').innerHTML = formatCouple(album.couple);
     document.getElementById('overlayMeta').innerHTML = albumMeta(album);
     document.getElementById('overlayDesc').textContent = album.description;
+
+    const hasFilm = renderAlbumFilm(album);
 
     const next = albums[(index + 1) % albums.length];
     document.getElementById('overlayNext').innerHTML =
@@ -156,10 +210,17 @@ export function initArchivePage({
       { y: 26, opacity: 0 },
       { y: 0, opacity: 1, stagger: 0.08, duration: 0.8, ease: 'power3.out', delay: 0.15 }
     );
+    if (hasFilm) {
+      gsap.fromTo(
+        '#overlayFilm',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out', delay: 0.28 }
+      );
+    }
     gsap.fromTo(
       `.${p}-album__photo`,
       { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.05, duration: 0.85, ease: 'power3.out', delay: 0.3 }
+      { y: 0, opacity: 1, stagger: 0.05, duration: 0.85, ease: 'power3.out', delay: hasFilm ? 0.42 : 0.3 }
     );
 
     document.getElementById('overlayClose').focus({ preventScroll: true });

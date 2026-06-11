@@ -34,6 +34,31 @@ setJSONHeaders();
 
 const ALBUM_TYPES = ['wedding', 'couple_shoot', 'premium_album'];
 
+/**
+ * Normalise a YouTube URL or bare ID down to its 11-char video ID.
+ * Returns '' for empty input and null when the value isn't a valid ID/URL,
+ * so callers can distinguish "clear the film" from "reject bad input".
+ */
+function extractAlbumFilmId(string $input): ?string {
+    $input = trim($input);
+    if ($input === '') return '';
+
+    if (preg_match('/^[A-Za-z0-9_-]{11}$/', $input)) {
+        return $input;
+    }
+    $patterns = [
+        '/[?&]v=([A-Za-z0-9_-]{11})/',
+        '/youtu\.be\/([A-Za-z0-9_-]{11})/',
+        '/youtube\.com\/(?:embed|shorts|live)\/([A-Za-z0-9_-]{11})/',
+    ];
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $input, $matches)) {
+            return $matches[1];
+        }
+    }
+    return null;
+}
+
 $method = getMethod();
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $action = $_GET['action'] ?? '';
@@ -266,6 +291,12 @@ switch ($method) {
         $dateLabel = sanitize($_POST['date_label'] ?? '');
         $description = sanitize($_POST['description'] ?? '');
 
+        // Optional wedding film (YouTube). Accept a URL or a bare ID.
+        $filmId = extractAlbumFilmId((string)($_POST['film_youtube_id'] ?? ''));
+        if ($filmId === null) {
+            sendError('film_youtube_id must be a valid YouTube link or video ID', 400);
+        }
+
         // Optional cover upload
         $coverData = processImageUpload('cover', 'albums/');
 
@@ -274,8 +305,8 @@ switch ($method) {
         $nextOrder = (int)$stmt->fetch()['next_order'];
 
         $stmt = $db->prepare(
-            'INSERT INTO albums (type, couple, location, date_label, description, cover_path, cover_thumbnail, sort_order, created_by)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO albums (type, couple, location, date_label, description, film_youtube_id, cover_path, cover_thumbnail, sort_order, created_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $type,
@@ -283,6 +314,7 @@ switch ($method) {
             $location,
             $dateLabel,
             $description,
+            $filmId !== '' ? $filmId : null,
             $coverData['file_path'] ?? null,
             $coverData['thumbnail_path'] ?? null,
             $nextOrder,
@@ -319,6 +351,16 @@ switch ($method) {
 
         $fields = [];
         $params = [];
+
+        // Wedding film — normalise URL/ID, allow clearing with an empty string
+        if (array_key_exists('film_youtube_id', $body)) {
+            $filmId = extractAlbumFilmId((string)$body['film_youtube_id']);
+            if ($filmId === null) {
+                sendError('film_youtube_id must be a valid YouTube link or video ID', 400);
+            }
+            $fields[] = 'film_youtube_id = ?';
+            $params[] = $filmId !== '' ? $filmId : null;
+        }
 
         $updatable = ['type', 'couple', 'location', 'date_label', 'description', 'sort_order', 'is_active'];
         foreach ($updatable as $field) {

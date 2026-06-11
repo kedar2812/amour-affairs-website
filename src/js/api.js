@@ -98,6 +98,7 @@ export async function loadArchiveAlbums(type, fallback) {
       location: decodeEntities(a.location),
       date: decodeEntities(a.date_label),
       description: decodeEntities(a.description),
+      film: a.film_youtube_id || '',
       cover: assetUrl(a.cover),
       photos: a.photos.map((p) => assetUrl(p.file_path)),
     }));
@@ -143,6 +144,26 @@ export async function loadTestimonials(stockPhotos = []) {
     quote: decodeEntities(t.review_text),
     name: decodeEntities(t.client_name),
     location: decodeEntities(t.city || t.event_type || ''),
+    src: t.photo_path
+      ? assetUrl(t.photo_path)
+      : stockPhotos[i % Math.max(stockPhotos.length, 1)] || '',
+  }));
+}
+
+/**
+ * Load testimonials flagged for the weddings-page marquee, or null.
+ * Mirrors the testimonials-page card shape ({ quote, name, location, src }).
+ * Testimonials saved without a photo borrow a stock couple shot so every
+ * marquee card keeps its image.
+ */
+export async function loadWeddingsTestimonials(stockPhotos = []) {
+  const data = await fetchFromAPI('testimonials.php?weddings=1');
+  if (!data || !Array.isArray(data.testimonials) || data.testimonials.length === 0) return null;
+
+  return data.testimonials.map((t, i) => ({
+    quote: decodeEntities(t.review_text),
+    name: decodeEntities(t.client_name),
+    location: decodeEntities(t.city || ''),
     src: t.photo_path
       ? assetUrl(t.photo_path)
       : stockPhotos[i % Math.max(stockPhotos.length, 1)] || '',

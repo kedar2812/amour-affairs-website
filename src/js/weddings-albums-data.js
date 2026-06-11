@@ -1,7 +1,9 @@
 /* ============================================================
    WEDDINGS-ALBUMS-DATA.JS — Stock data for the Wedding Archive
-   Each "folder" is a couple's album: cover, peek prints, photos.
-   Replace stock Unsplash imagery with client photos later.
+   Each "folder" is a couple's album: cover, peek prints, photos,
+   and an optional `film` (YouTube id) — the couple's wedding film.
+   Replace stock Unsplash imagery with client photos later; in
+   production these are supplied by the CMS (dashboard → Albums).
    ============================================================ */
 
 const img = (id, w = 1100) =>
@@ -14,6 +16,7 @@ export const albums = [
     date: 'December 2025',
     description:
       'A two-day celebration at a heritage wada — marigold mornings, a tearful bidaai, and a sangeet that refused to end.',
+    film: 'p38a2BZKXLQ',
     cover: img('photo-1606800052052-a08af7148866'),
     photos: [
       img('photo-1606800052052-a08af7148866'),
@@ -32,6 +35,7 @@ export const albums = [
     date: 'February 2026',
     description:
       'An intimate, sun-drenched palace wedding by the lake — raw emotional candids and striking editorial portraiture.',
+    film: 'H-9VEi9q1NI',
     cover: img('photo-1519741497674-611481863552'),
     photos: [
       img('photo-1519741497674-611481863552'),
