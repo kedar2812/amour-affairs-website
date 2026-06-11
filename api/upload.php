@@ -4,23 +4,51 @@
  * AMOUR AFFAIRS — Image Upload Helper
  * ============================================================
  * Secure image upload with validation and WebP conversion.
+ * Supports single-field uploads and multi-file batches
+ * (validate everything first, then process file by file).
  * ============================================================
  */
 
 require_once __DIR__ . '/config.php';
 
 /**
- * Process and store an uploaded image
- * Returns [file_path, thumbnail_path, width, height, file_size] or sends error
+ * Normalize $_FILES[$fieldName] into a list of single-file arrays.
+ * Handles both `<input name="photo">` and `<input name="photos[]" multiple>`.
+ * Returns [] when the field is absent or empty.
  */
-function processImageUpload(string $fieldName, string $subdir): array {
-    if (!isset($_FILES[$fieldName]) || $_FILES[$fieldName]['error'] === UPLOAD_ERR_NO_FILE) {
+function normalizeUploadedFiles(string $fieldName): array {
+    if (!isset($_FILES[$fieldName])) {
         return [];
     }
 
-    $file = $_FILES[$fieldName];
+    $field = $_FILES[$fieldName];
 
-    // Check upload error
+    // Single file
+    if (!is_array($field['name'])) {
+        return $field['error'] === UPLOAD_ERR_NO_FILE ? [] : [$field];
+    }
+
+    // Multi-file: PHP transposes the structure — re-assemble per file
+    $files = [];
+    foreach ($field['name'] as $i => $name) {
+        if ($field['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
+        $files[] = [
+            'name'     => $name,
+            'type'     => $field['type'][$i],
+            'tmp_name' => $field['tmp_name'][$i],
+            'error'    => $field['error'][$i],
+            'size'     => $field['size'][$i],
+        ];
+    }
+    return $files;
+}
+
+
+/**
+ * Validate a single uploaded file array.
+ * Returns an error message string, or null if the file is valid.
+ */
+function validateImageFile(array $file): ?string {
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $errors = [
             UPLOAD_ERR_INI_SIZE   => 'File exceeds server upload limit',
@@ -29,12 +57,11 @@ function processImageUpload(string $fieldName, string $subdir): array {
             UPLOAD_ERR_NO_TMP_DIR => 'Missing temp directory',
             UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
         ];
-        sendError($errors[$file['error']] ?? 'Upload error', 400);
+        return $errors[$file['error']] ?? 'Upload error';
     }
 
-    // Check file size
     if ($file['size'] > MAX_UPLOAD_SIZE) {
-        sendError('File size exceeds ' . (MAX_UPLOAD_SIZE / 1024 / 1024) . 'MB limit', 400);
+        return 'File size exceeds ' . (MAX_UPLOAD_SIZE / 1024 / 1024) . 'MB limit';
     }
 
     // Validate MIME type using finfo (not the untrusted $_FILES['type'])
@@ -42,17 +69,32 @@ function processImageUpload(string $fieldName, string $subdir): array {
     $mimeType = $finfo->file($file['tmp_name']);
 
     if (!in_array($mimeType, ALLOWED_MIME_TYPES, true)) {
-        sendError('Invalid file type. Allowed: JPEG, PNG, WebP, GIF', 400);
+        return 'Invalid file type. Allowed: JPEG, PNG, WebP, GIF';
     }
 
     // Double-check with getimagesize (prevents disguised files)
-    $imageInfo = @getimagesize($file['tmp_name']);
-    if ($imageInfo === false) {
-        sendError('File is not a valid image', 400);
+    if (@getimagesize($file['tmp_name']) === false) {
+        return 'File is not a valid image';
     }
+
+    return null;
+}
+
+
+/**
+ * Convert a validated upload to WebP + thumbnail and store it.
+ * Returns the stored file metadata, or false on processing failure.
+ * Call validateImageFile() first — this assumes the file is valid.
+ */
+function processSingleImageFile(array $file, string $subdir): array|false {
+    $imageInfo = @getimagesize($file['tmp_name']);
+    if ($imageInfo === false) return false;
 
     $width = $imageInfo[0];
     $height = $imageInfo[1];
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
 
     // Generate unique filename
     $timestamp = time();
@@ -83,9 +125,7 @@ function processImageUpload(string $fieldName, string $subdir): array {
             break;
     }
 
-    if (!$srcImage) {
-        sendError('Failed to process image', 500);
-    }
+    if (!$srcImage) return false;
 
     // Preserve transparency for PNG
     imagealphablending($srcImage, true);
@@ -114,7 +154,7 @@ function processImageUpload(string $fieldName, string $subdir): array {
     // Save as WebP (main image)
     if (!imagewebp($srcImage, $filePath, WEBP_QUALITY)) {
         imagedestroy($srcImage);
-        sendError('Failed to save image', 500);
+        return false;
     }
 
     // Create thumbnail
@@ -155,6 +195,33 @@ function processImageUpload(string $fieldName, string $subdir): array {
         'file_size'      => $fileSize,
         'original_name'  => $file['name'],
     ];
+}
+
+
+/**
+ * Process and store a single uploaded image from a form field.
+ * Returns [file_path, thumbnail_path, width, height, file_size] or sends error.
+ * Returns [] when the field is absent (optional upload).
+ */
+function processImageUpload(string $fieldName, string $subdir): array {
+    $files = normalizeUploadedFiles($fieldName);
+    if (empty($files)) {
+        return [];
+    }
+
+    $file = $files[0];
+
+    $error = validateImageFile($file);
+    if ($error !== null) {
+        sendError($error, 400);
+    }
+
+    $result = processSingleImageFile($file, $subdir);
+    if ($result === false) {
+        sendError('Failed to process image', 500);
+    }
+
+    return $result;
 }
 
 

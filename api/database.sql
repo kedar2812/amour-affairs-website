@@ -27,8 +27,7 @@ CREATE TABLE IF NOT EXISTS `admin_users` (
   UNIQUE KEY `uk_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Default admin user (password: REMOVED-SECRET — will be hashed by seed script)
--- INSERT handled by api/seed.php
+-- Default admin user is created by api/seed.php (password set there, stored hashed)
 
 -- ────────────────────────────────────────────────────────────
 -- 2. REFRESH TOKENS (Secure Token Rotation)
@@ -52,6 +51,7 @@ CREATE TABLE IF NOT EXISTS `refresh_tokens` (
 CREATE TABLE IF NOT EXISTS `gallery_images` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `category` ENUM('wedding','couple_shoot','film','premium_album','general') NOT NULL,
+  `album_id` INT UNSIGNED DEFAULT NULL, -- FK to albums (constraint added after albums table, section 15)
   `title` VARCHAR(255) DEFAULT NULL,
   `caption` VARCHAR(500) DEFAULT NULL,
   `file_path` VARCHAR(500) NOT NULL,
@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `gallery_images` (
   PRIMARY KEY (`id`),
   KEY `idx_category` (`category`, `is_active`, `sort_order`),
   KEY `idx_featured` (`is_featured`, `is_active`),
+  KEY `idx_album` (`album_id`, `is_active`, `sort_order`),
   CONSTRAINT `fk_gallery_user` FOREIGN KEY (`uploaded_by`) REFERENCES `admin_users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -349,5 +350,65 @@ CREATE TABLE IF NOT EXISTS `audit_log` (
   KEY `idx_entity` (`entity_type`, `entity_id`),
   KEY `idx_created` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- 15. ALBUMS (Website archives: weddings, couple shoots, premium albums)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `albums` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `type` ENUM('wedding','couple_shoot','premium_album') NOT NULL DEFAULT 'wedding',
+  `couple` VARCHAR(200) NOT NULL,
+  `location` VARCHAR(150) DEFAULT NULL,
+  `date_label` VARCHAR(100) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `cover_path` VARCHAR(500) DEFAULT NULL,
+  `cover_thumbnail` VARCHAR(500) DEFAULT NULL,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_by` INT UNSIGNED DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_type` (`type`, `is_active`, `sort_order`),
+  CONSTRAINT `fk_album_user` FOREIGN KEY (`created_by`) REFERENCES `admin_users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Album photos live in gallery_images via album_id (deleting an album removes its photos)
+ALTER TABLE `gallery_images`
+  ADD CONSTRAINT `fk_gallery_album` FOREIGN KEY (`album_id`) REFERENCES `albums` (`id`) ON DELETE CASCADE;
+
+-- ────────────────────────────────────────────────────────────
+-- 16. FILMS (YouTube films shown on the Films page)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `films` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `youtube_id` VARCHAR(20) NOT NULL,
+  `title` VARCHAR(200) NOT NULL,
+  `caption` VARCHAR(200) DEFAULT NULL,
+  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_youtube` (`youtube_id`),
+  KEY `idx_active` (`is_active`, `sort_order`),
+  KEY `idx_featured` (`is_featured`, `is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Real Amour Affairs films currently shown on the website
+-- (is_featured = 1 → eligible for the "Now Showing" random pool)
+INSERT INTO `films` (`youtube_id`, `title`, `caption`, `is_featured`, `sort_order`) VALUES
+('p38a2BZKXLQ', 'Annie & Shyam', 'Wedding Trailer', 1, 1),
+('H-9VEi9q1NI', 'Taniya & Neeraj', 'Della Resorts, Lonavla', 1, 2),
+('53z3LB8dXo0', 'Neha & Gaurav', 'Wedding Teaser', 1, 3),
+('gvlezU6RDC0', 'Medini & Abishal', 'Haldi Highlight', 1, 4),
+('8GXP7T-o72U', 'Annie & Shyam', 'Final Trailer', 1, 5),
+('cHWYpSlPYE8', 'Disha & Kunal', 'Prewedding Film', 1, 6),
+('WN0VRFZKPTA', 'Bhairavi & Apurv', 'Wedding Trailer 2019', 0, 7),
+('I2lyZU1mL7U', 'Suraksha & Harsh', 'Oxford Golf Resort, Pune', 0, 8),
+('llT0dTpTGQU', 'Medini & Abishal', 'Final Trailer', 0, 9),
+('xPad7IwJumE', 'Medini & Abishal', 'A Tale of Two Hearts', 0, 10),
+('gxecVMBOajM', 'Bansri & Chintan', 'Dream Wedding, Rishikesh', 0, 11);
 
 COMMIT;

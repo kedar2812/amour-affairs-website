@@ -15,6 +15,8 @@ import {
   BarChart3,
   Settings,
   Image,
+  FolderOpen,
+  Film,
   MessageSquareQuote,
   LogOut,
 } from "lucide-react";
@@ -27,6 +29,8 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
   { name: "Team", href: "/team", icon: Camera },
   { name: "Packages", href: "/packages", icon: Package },
   { name: "Gallery", href: "/gallery", icon: Image },
+  { name: "Albums", href: "/albums", icon: FolderOpen },
+  { name: "Films", href: "/films", icon: Film },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Payments", href: "/payments", icon: CircleDollarSign },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },

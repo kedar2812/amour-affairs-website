@@ -212,6 +212,19 @@ export const authAPI = {
 };
 
 
+// ── Asset URL Helper ──
+
+// /uploads/... paths returned by the API live on the API host,
+// not on the dashboard origin — resolve them against the API base.
+const ASSET_BASE = API_BASE.replace(/\/api\/?$/, '');
+
+export function assetUrl(path: string | null | undefined): string {
+  if (!path) return '';
+  if (/^https?:\/\//.test(path)) return path;
+  return `${ASSET_BASE}${path}`;
+}
+
+
 // ── Resource APIs ──
 
 export const galleryAPI = {
@@ -228,6 +241,40 @@ export const galleryAPI = {
   delete: (id: number) => api.delete(`gallery.php?id=${id}`),
   reorder: (orders: { id: number; sort_order: number }[]) =>
     api.post('gallery.php?action=reorder', { orders } as unknown as Record<string, unknown>),
+};
+
+export const albumsAPI = {
+  list: (params?: { type?: string; all?: boolean; withPhotos?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params?.type) qs.set('type', params.type);
+    if (params?.all) qs.set('all', '1');
+    if (params?.withPhotos) qs.set('with_photos', '1');
+    return api.get<{ albums: unknown[]; total: number }>(`albums.php?${qs}`);
+  },
+  // all=1 so the dashboard can open hidden albums and see hidden photos
+  get: (id: number) => api.get(`albums.php?id=${id}&all=1`),
+  create: (formData: FormData) => api.post('albums.php', formData),
+  update: (id: number, data: Record<string, unknown>) => api.put(`albums.php?id=${id}`, data),
+  delete: (id: number) => api.delete(`albums.php?id=${id}`),
+  addPhotos: (id: number, formData: FormData) => api.post(`albums.php?action=photos&id=${id}`, formData),
+  setCover: (id: number, formData: FormData) => api.post(`albums.php?action=cover&id=${id}`, formData),
+  reorder: (orders: { id: number; sort_order: number }[]) =>
+    api.post('albums.php?action=reorder', { orders } as unknown as Record<string, unknown>),
+};
+
+export const filmsAPI = {
+  list: (params?: { featured?: number; all?: boolean }) => {
+    const qs = new URLSearchParams();
+    if (params?.featured !== undefined) qs.set('featured', String(params.featured));
+    if (params?.all) qs.set('all', '1');
+    return api.get<{ films: unknown[]; total: number }>(`films.php?${qs}`);
+  },
+  get: (id: number) => api.get(`films.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post('films.php', data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`films.php?id=${id}`, data),
+  delete: (id: number) => api.delete(`films.php?id=${id}`),
+  reorder: (orders: { id: number; sort_order: number }[]) =>
+    api.post('films.php?action=reorder', { orders } as unknown as Record<string, unknown>),
 };
 
 export const packagesAPI = {
