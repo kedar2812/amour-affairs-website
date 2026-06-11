@@ -59,9 +59,14 @@ check('films: shape matches FEATURED_FILMS contract', !!(films.featured[0].id &&
 const filmsOffline = await dead.loadFilms();
 check('films: unreachable API returns null', filmsOffline === null);
 
-// ── Testimonials (none seeded yet → null → component fallback) ──
-const testi = await live.loadTestimonials(['s1.jpg']);
-check('testimonials: empty CMS returns null (fallback path)', testi === null);
+// ── Testimonials (30 seeded, 6 featured → carousel gets the featured set) ──
+const testi = await live.loadTestimonials(['s1.jpg', 's2.jpg']);
+check('testimonials: featured set loaded from CMS', Array.isArray(testi) && testi.length === 6, `got ${testi?.length}`);
+check('testimonials: shape matches carousel contract', !!(testi?.[0]?.quote && testi[0].name && 'location' in testi[0]), JSON.stringify(testi?.[0])?.slice(0, 120));
+check('testimonials: stock photos cycle in when CMS has none', testi?.[0]?.src === 's1.jpg' && testi?.[1]?.src === 's2.jpg' && testi?.[2]?.src === 's1.jpg', `${testi?.[0]?.src} ${testi?.[1]?.src} ${testi?.[2]?.src}`);
+
+const testiOffline = await dead.loadTestimonials(['s1.jpg']);
+check('testimonials: unreachable API returns null (fallback path)', testiOffline === null);
 
 // ── Team (none seeded yet → null → static marquee kept) ──
 const team = await live.loadTeam();
