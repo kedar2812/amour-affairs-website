@@ -131,11 +131,19 @@ function initFadeUps() {
 /* ── Text Reveal (word-by-word) ── */
 function initTextReveals() {
   document.querySelectorAll('.text-reveal').forEach((el) => {
-    const text = el.textContent;
-    const words = text.split(' ').filter(w => w.length > 0);
-    el.innerHTML = words.map((word) =>
-      `<span class="word"><span class="word-inner">${word}</span></span>`
-    ).join(' ');
+    const buildWords = (text, emphasize) =>
+      text.split(' ').filter(w => w.length > 0).map((word) =>
+        `<span class="word"><span class="word-inner">${emphasize ? `<em>${word}</em>` : word}</span></span>`
+      );
+    const parts = [];
+    el.childNodes.forEach((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        parts.push(...buildWords(node.textContent, false));
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        parts.push(...buildWords(node.textContent, node.tagName === 'EM'));
+      }
+    });
+    el.innerHTML = parts.join(' ');
   });
 
   document.querySelectorAll('.text-reveal').forEach((el) => {

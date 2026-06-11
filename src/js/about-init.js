@@ -64,11 +64,11 @@ ScrollTrigger.defaults({ scroller: document.body });
    ANIMATIONS
    ═══════════════════════════════════════════════════════ */
 
-/* ── 1. Hero Cinematic Entrance (plays once on load) ── */
+/* ── 1. Intro Hero — "Entering Text" Entrance (plays once on load) ── */
 function initHeroReveal() {
   const tl = gsap.timeline({ delay: 0.3 });
 
-  // Line 1 — "The Storyteller"
+  // Display title fades / slides up
   tl.to('#heroTitle', {
     opacity: 1,
     y: 0,
@@ -76,27 +76,52 @@ function initHeroReveal() {
     ease: 'power3.out',
   });
 
-  // Line 2 — subline
-  tl.to('#heroSub', {
-    opacity: 1,
-    y: 0,
-    duration: 1,
-    ease: 'power3.out',
-  }, '-=0.7');
-
   // Gold line draws in
   tl.to('#heroLine', {
     scaleX: 1,
     duration: 0.8,
     ease: 'power3.out',
-  }, '-=0.4');
+  }, '-=0.7');
 
-  // Roman numeral watermark fades in
-  tl.to('.about-hero__watermark', {
-    opacity: 0.03,
-    duration: 1.5,
+  // Tagline subline
+  tl.to('#heroSub', {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    ease: 'power3.out',
+  }, '-=0.5');
+
+  // Oversized "est. 2011" watermark settles in
+  tl.to('.about-hero__numeral', {
+    opacity: 0.06,
+    duration: 1.6,
     ease: 'power2.out',
-  }, '-=1.0');
+  }, '-=1.1');
+
+  // Scroll cue appears last
+  tl.to('#heroScroll', {
+    opacity: 1,
+    duration: 0.8,
+    ease: 'power2.out',
+  }, '-=0.6');
+}
+
+
+/* ── 1b. Fade the scroll cue out once the user starts scrolling ── */
+function initHeroScrollCue() {
+  const cue = document.getElementById('heroScroll');
+  if (!cue) return;
+
+  gsap.to(cue, {
+    opacity: 0,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '.about-hero',
+      start: 'top top',
+      end: '30% top',
+      scrub: true,
+    },
+  });
 }
 
 
@@ -314,6 +339,8 @@ async function init() {
   await initPreloader();
   initNav(lenis);
   initAboutNav();
+  initHeroReveal();
+  initHeroScrollCue();
   initFounderReveals();
   initPhilosophyReveals();
   initParallax();
