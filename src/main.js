@@ -16,6 +16,7 @@ import './styles/sections/process.css';
 import './styles/sections/gallery.css';
 import './styles/sections/press.css';
 import './styles/sections/testimonials.css';
+import './styles/sections/inquiry.css';
 import './styles/sections/contact.css';
 
 // ── Libraries ──
@@ -32,6 +33,7 @@ import { initInstagramFeed } from './js/gallery.js';
 import { initGlobe } from './js/globe.js';
 import { initFooterTyping } from './js/footer-typing.js';
 import { initTestimonials } from './js/testimonials.js';
+import { initLeadForm } from './js/lead-form.js';
 
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
@@ -101,6 +103,9 @@ async function init() {
 
   // 5.5. Initialize testimonials carousel
   initTestimonials();
+
+  // 5.6. Initialize inquiry form (lead capture)
+  initLeadForm();
 
   // 6. Init footer typing effect
   initFooterTyping();

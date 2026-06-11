@@ -3,12 +3,13 @@
  * ============================================================
  * AMOUR AFFAIRS — Leads API
  * ============================================================
- * All endpoints require authentication.
- * GET    /api/leads.php           — List leads
- * GET    /api/leads.php?id=X      — Get single
- * POST   /api/leads.php           — Create lead
- * PUT    /api/leads.php?id=X      — Update lead
- * DELETE /api/leads.php?id=X      — Delete lead
+ * GET    /api/leads.php                  — List leads (auth)
+ * GET    /api/leads.php?id=X             — Get single (auth)
+ * POST   /api/leads.php                  — Create lead (auth)
+ * POST   /api/leads.php?action=inquiry   — Website contact form (PUBLIC,
+ *                                          rate-limited + honeypot + strict validation)
+ * PUT    /api/leads.php?id=X             — Update lead (auth)
+ * DELETE /api/leads.php?id=X             — Delete lead (auth)
  * ============================================================
  */
 
@@ -20,6 +21,99 @@ setJSONHeaders();
 
 $method = getMethod();
 $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+$action = $_GET['action'] ?? '';
+
+/**
+ * Public website inquiry — the only unauthenticated write in the API,
+ * so everything is validated, length-capped and rate-limited, and the
+ * stage/source/assignment fields are forced server-side.
+ */
+function handlePublicInquiry(): void {
+    checkRateLimit('lead_inquiry', 5, 600); // 5 inquiries per 10 min per IP
+
+    $body = getJSONBody();
+
+    // Honeypot — bots fill every field. Pretend success, store nothing.
+    if (!empty($body['website'])) {
+        sendJSON(['message' => 'Thank you! Your inquiry was sent successfully.'], 201);
+    }
+
+    $clientName = sanitize($body['client_name'] ?? '');
+    $phone = sanitize($body['phone'] ?? '');
+    $email = trim((string)($body['email'] ?? ''));
+    $message = trim((string)($body['message'] ?? ''));
+    $eventType = (string)($body['event_type'] ?? 'Wedding');
+    $eventDate = trim((string)($body['event_date'] ?? ''));
+
+    if (mb_strlen($clientName) < 2 || mb_strlen($clientName) > 200) {
+        sendError('Please enter your name', 400);
+    }
+    if ($phone === '' && $email === '') {
+        sendError('Please provide a phone number or email so we can reach you', 400);
+    }
+    if ($phone !== '' && !preg_match('/^[0-9+\-\s().]{7,20}$/', $phone)) {
+        sendError('Please enter a valid phone number', 400);
+    }
+    if ($email !== '') {
+        if (!isValidEmail($email) || mb_strlen($email) > 255) {
+            sendError('Please enter a valid email address', 400);
+        }
+    }
+    if (mb_strlen($message) > 2000) {
+        sendError('Message is too long (2000 characters max)', 400);
+    }
+
+    $allowedEventTypes = ['Wedding', 'Pre-Wedding', 'Couple Shoot', 'Engagement', 'Corporate', 'Other'];
+    if (!in_array($eventType, $allowedEventTypes, true)) {
+        $eventType = 'Wedding';
+    }
+
+    if ($eventDate !== '') {
+        $parsed = DateTime::createFromFormat('Y-m-d', $eventDate);
+        if (!$parsed || $parsed->format('Y-m-d') !== $eventDate) {
+            sendError('Please enter a valid event date', 400);
+        }
+    }
+
+    $notes = [];
+    if ($message !== '') {
+        $notes[] = [
+            'content' => sanitize($message),
+            'author' => 'Website Form',
+            'date' => date('Y-m-d H:i:s'),
+        ];
+    }
+
+    $db = getDB();
+
+    // Insert with a placeholder ref, then derive the final ref from the
+    // auto-increment id — immune to concurrent-submit collisions.
+    $stmt = $db->prepare(
+        'INSERT INTO leads (lead_ref, client_name, phone, email, event_type, event_date, source, stage, last_activity, moved_to_stage_at, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
+    );
+    $stmt->execute([
+        'tmp-' . bin2hex(random_bytes(8)),
+        $clientName,
+        $phone,
+        sanitize($email),
+        $eventType,
+        $eventDate !== '' ? $eventDate : null,
+        'Website',
+        'New Inquiry',
+        json_encode($notes, JSON_UNESCAPED_UNICODE),
+    ]);
+
+    $newId = (int)$db->lastInsertId();
+    $leadRef = '#LD-' . (800 + $newId);
+    $stmt = $db->prepare('UPDATE leads SET lead_ref = ? WHERE id = ?');
+    $stmt->execute([$leadRef, $newId]);
+
+    auditLog('create', 'leads', $newId, ['ref' => $leadRef, 'via' => 'website_inquiry'], null);
+
+    // Public response stays minimal — never expose the full lead record
+    sendJSON(['message' => 'Thank you! Your inquiry was sent successfully.', 'lead_ref' => $leadRef], 201);
+}
 
 switch ($method) {
 
@@ -56,6 +150,11 @@ switch ($method) {
 
 
     case 'POST':
+        if ($action === 'inquiry') {
+            handlePublicInquiry();
+            break;
+        }
+
         $auth = requireAuth();
         $body = getJSONBody();
 

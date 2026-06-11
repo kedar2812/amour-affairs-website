@@ -204,9 +204,10 @@ function checkRateLimit(string $endpoint, int $maxAttempts, int $windowSeconds):
     $ip = getClientIP();
     $db = getDB();
 
-    // Clean old entries
-    $stmt = $db->prepare('DELETE FROM rate_limits WHERE window_start < DATE_SUB(NOW(), INTERVAL ? SECOND)');
-    $stmt->execute([$windowSeconds]);
+    // Clean old entries — scoped to this endpoint so endpoints with short
+    // windows can't purge another endpoint's (e.g. auth) attempt history
+    $stmt = $db->prepare('DELETE FROM rate_limits WHERE endpoint = ? AND window_start < DATE_SUB(NOW(), INTERVAL ? SECOND)');
+    $stmt->execute([$endpoint, $windowSeconds]);
 
     // Count attempts
     $stmt = $db->prepare(
