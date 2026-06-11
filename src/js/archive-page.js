@@ -25,6 +25,12 @@ const pad2 = (n) => String(n + 1).padStart(2, '0');
 // "Aarohi & Vedant" → "Aarohi <em>&</em> Vedant"
 const formatCouple = (couple) => couple.replace(' & ', ' <em>&amp;</em> ');
 
+// CMS albums may omit location or date — join whatever exists
+const albumMeta = (album) =>
+  [album.location, album.date, `${album.photos.length} Photographs`]
+    .filter(Boolean)
+    .join(' &middot; ');
+
 export function initArchivePage({
   albums,
   prefix,
@@ -92,7 +98,7 @@ export function initArchivePage({
           </div>
           <div class="${p}-card__body">
             <span class="${p}-card__title">${formatCouple(album.couple)}</span>
-            <span class="${p}-card__caption">${album.location} &middot; ${album.date} &middot; ${album.photos.length} Photographs</span>
+            <span class="${p}-card__caption">${albumMeta(album)}</span>
           </div>
         </article>
       `)
@@ -121,8 +127,7 @@ export function initArchivePage({
 
     document.getElementById('overlayFolderLabel').textContent = `${folderWord} ${pad2(index)}`;
     document.getElementById('overlayTitle').innerHTML = formatCouple(album.couple);
-    document.getElementById('overlayMeta').innerHTML =
-      `${album.location} &middot; ${album.date} &middot; ${album.photos.length} Photographs`;
+    document.getElementById('overlayMeta').innerHTML = albumMeta(album);
     document.getElementById('overlayDesc').textContent = album.description;
 
     const next = albums[(index + 1) % albums.length];

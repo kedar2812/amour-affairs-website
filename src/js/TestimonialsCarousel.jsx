@@ -9,7 +9,8 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const testimonials = [
+// Fallback slides when the CMS has no featured testimonials yet
+export const FALLBACK_TESTIMONIALS = [
   {
     quote: "Planning a wedding can be a very stressful time, but Taher immediately put our minds at ease with his calm, measured approach. On the day he blended into the background, capturing an array of shots we didn\u2019t think were possible. The end results are truly amazing, something we will cherish for the rest of our lives together. You are utterly brilliant, and we are already recommending you to others.",
     name: "Sarrah & Aliasgar",
@@ -56,7 +57,7 @@ const ChevronRight = () => (
 );
 
 /* ── Stacked Photo Cards ── */
-function PhotoStack({ active, total }) {
+function PhotoStack({ testimonials, active, total }) {
   const randomRotate = useCallback(() => {
     return Math.floor(Math.random() * 14) - 7;
   }, []);
@@ -71,7 +72,7 @@ function PhotoStack({ active, total }) {
 
             return (
               <motion.div
-                key={t.name}
+                key={`${t.name}-${i}`}
                 className="testi__photo-card"
                 initial={false}
                 animate={{
@@ -104,7 +105,7 @@ function PhotoStack({ active, total }) {
 }
 
 /* ── Text Content with crossfade ── */
-function QuoteContent({ active }) {
+function QuoteContent({ testimonials, active }) {
   const t = testimonials[active];
 
   return (
@@ -141,7 +142,7 @@ function QuoteContent({ active }) {
 }
 
 /* ── Main Carousel Component ── */
-export default function TestimonialsCarousel() {
+export default function TestimonialsCarousel({ testimonials = FALLBACK_TESTIMONIALS }) {
   const [active, setActive] = useState(0);
   const total = testimonials.length;
 
@@ -160,11 +161,11 @@ export default function TestimonialsCarousel() {
   return (
     <div className="testi__carousel">
       {/* LEFT — Stacked Photo Cards */}
-      <PhotoStack active={active} total={total} />
+      <PhotoStack testimonials={testimonials} active={active} total={total} />
 
       {/* RIGHT — Quote + Nav */}
       <div className="testi__content">
-        <QuoteContent active={active} />
+        <QuoteContent testimonials={testimonials} active={active} />
 
         {/* Navigation */}
         <div className="testi__nav">

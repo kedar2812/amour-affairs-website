@@ -23,8 +23,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
 import { initFooterTyping } from './footer-typing.js';
+import { loadFilms } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Start loading CMS films immediately — awaited during boot
+const filmsPromise = loadFilms();
 
 // ── Lenis Smooth Scroll ──
 const lenis = new Lenis({
@@ -60,6 +64,7 @@ ScrollTrigger.defaults({ scroller: document.body });
    RANDOM FEATURED FILM
    ═══════════════════════════════════════════════════════ */
 
+// Fallback pool when the CMS is unreachable
 const FEATURED_FILMS = [
   { id: 'p38a2BZKXLQ', title: 'Annie & Shyam', type: 'Wedding Trailer' },
   { id: 'H-9VEi9q1NI', title: 'Taniya & Neeraj', type: 'Della Resorts, Lonavla' },
@@ -69,20 +74,54 @@ const FEATURED_FILMS = [
   { id: 'cHWYpSlPYE8', title: 'Disha & Kunal', type: 'Prewedding Film' },
 ];
 
-function initFeaturedFilm() {
+function initFeaturedFilm(pool) {
   const iframe = document.getElementById('featuredIframe');
   const titleEl = document.getElementById('featuredTitle');
   const typeEl = document.getElementById('featuredType');
 
   if (!iframe) return;
 
-  const film = FEATURED_FILMS[Math.floor(Math.random() * FEATURED_FILMS.length)];
+  const film = pool[Math.floor(Math.random() * pool.length)];
 
   iframe.src = `https://www.youtube.com/embed/${film.id}?rel=0&modestbranding=1&color=white`;
   iframe.title = `${film.title} — ${film.type}`;
 
   if (titleEl) titleEl.textContent = film.title;
   if (typeEl) typeEl.textContent = film.type;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   CMS GALLERY GRID
+   Replaces the static fallback cards when films exist
+   in the CMS. Must run before initVideoModal so the new
+   cards get click handlers.
+   ═══════════════════════════════════════════════════════ */
+
+function renderFilmsGrid(films) {
+  const grid = document.querySelector('.fpage-gallery__grid');
+  if (!grid || !films.length) return;
+
+  grid.innerHTML = films
+    .map((film) => `
+      <div class="fpage-card" data-video-id="${film.id}" role="button" tabindex="0">
+        <div class="fpage-card__thumb">
+          <img src="https://img.youtube.com/vi/${film.id}/maxresdefault.jpg" alt="${film.title.replace(/"/g, '&quot;')}" loading="lazy" />
+          <div class="fpage-card__play"><svg viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="currentColor"/></svg></div>
+        </div>
+        <div class="fpage-card__body">
+          <span class="fpage-card__title"></span>
+          <span class="fpage-card__caption"></span>
+        </div>
+      </div>
+    `)
+    .join('');
+
+  // Titles/captions as text — avoids HTML injection through CMS fields
+  grid.querySelectorAll('.fpage-card').forEach((card, i) => {
+    card.querySelector('.fpage-card__title').textContent = films[i].title;
+    card.querySelector('.fpage-card__caption').textContent = films[i].type;
+  });
 }
 
 
@@ -223,10 +262,14 @@ function initVideoModal() {
    ═══════════════════════════════════════════════════════ */
 
 async function init() {
+  // CMS film library, or null to keep the static fallback markup
+  const cms = await filmsPromise;
+
   await initPreloader();
   initNav(lenis);
   initPageNav();
-  initFeaturedFilm();
+  if (cms) renderFilmsGrid(cms.gallery);
+  initFeaturedFilm(cms ? cms.featured : FEATURED_FILMS);
   initVideoModal();
   initHeroReveal();
   initFeaturedReveal();

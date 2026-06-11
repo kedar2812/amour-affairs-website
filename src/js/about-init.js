@@ -23,8 +23,12 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { loadTeam } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Start loading CMS team members immediately — awaited during boot
+const teamPromise = loadTeam();
 
 // ── Lenis Smooth Scroll ──
 const lenis = new Lenis({
@@ -251,6 +255,39 @@ function initCtaReveal() {
 }
 
 
+/* ── Team marquee from the CMS ──
+   Replaces the static placeholder cards when real team members
+   (with photos) exist. The track holds two identical sets so the
+   CSS translateX(-50%) loop stays seamless. */
+function renderTeamMarquee(members) {
+  const track = document.querySelector('.team-marquee__track');
+  if (!track || !members) return;
+
+  const cardSet = (hidden) => members
+    .map((m) => `
+      <div class="team-card"${hidden ? ' aria-hidden="true"' : ''}>
+        <div class="team-card__img-wrap">
+          <img src="${m.photo}" alt="${m.name.replace(/"/g, '&quot;')}" class="team-card__img" loading="lazy">
+        </div>
+        <div class="team-card__info">
+          <span class="team-card__name"></span>
+          <span class="team-card__role"></span>
+        </div>
+      </div>
+    `)
+    .join('');
+
+  track.innerHTML = cardSet(false) + cardSet(true);
+
+  // Names/roles as text — avoids HTML injection through CMS fields
+  track.querySelectorAll('.team-card').forEach((card, i) => {
+    const m = members[i % members.length];
+    card.querySelector('.team-card__name').textContent = m.name;
+    card.querySelector('.team-card__role').textContent = m.role;
+  });
+}
+
+
 /* ── Nav scroll behavior for about page ── */
 function initAboutNav() {
   const nav = document.querySelector('.nav');
@@ -271,6 +308,9 @@ function initAboutNav() {
    ═══════════════════════════════════════════════════════ */
 
 async function init() {
+  // CMS team, or null to keep the static placeholder cards
+  renderTeamMarquee(await teamPromise);
+
   await initPreloader();
   initNav(lenis);
   initAboutNav();

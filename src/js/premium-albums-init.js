@@ -16,9 +16,11 @@ import '../styles/premium-albums-page.css';
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
-import { albums } from './premium-albums-data.js';
+import { albums as fallbackAlbums } from './premium-albums-data.js';
+import { loadArchiveAlbums } from './api.js';
 
-initArchivePage({
+// CMS albums first; bundled stock data if the API is unreachable
+loadArchiveAlbums('premium_album', fallbackAlbums).then((albums) => initArchivePage({
   albums,
   prefix: 'ppage',
   folderWord: 'Collection',
@@ -40,4 +42,4 @@ initArchivePage({
       });
     }
   },
-});
+}));

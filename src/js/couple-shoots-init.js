@@ -16,9 +16,11 @@ import '../styles/couple-shoots-page.css';
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
-import { albums } from './couple-shoots-albums-data.js';
+import { albums as fallbackAlbums } from './couple-shoots-albums-data.js';
+import { loadArchiveAlbums } from './api.js';
 
-initArchivePage({
+// CMS albums first; bundled stock data if the API is unreachable
+loadArchiveAlbums('couple_shoot', fallbackAlbums).then((albums) => initArchivePage({
   albums,
   prefix: 'cpage',
   onReady({ gsap }) {
@@ -38,4 +40,4 @@ initArchivePage({
       });
     }
   },
-});
+}));

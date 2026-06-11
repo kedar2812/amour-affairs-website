@@ -16,6 +16,10 @@ import '../styles/weddings-page.css';
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
-import { albums } from './weddings-albums-data.js';
+import { albums as fallbackAlbums } from './weddings-albums-data.js';
+import { loadArchiveAlbums } from './api.js';
 
-initArchivePage({ albums, prefix: 'wpage' });
+// CMS albums first; bundled stock data if the API is unreachable
+loadArchiveAlbums('wedding', fallbackAlbums).then((albums) => {
+  initArchivePage({ albums, prefix: 'wpage' });
+});
