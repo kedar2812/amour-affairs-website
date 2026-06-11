@@ -50,11 +50,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       storeAuth(data);
       setUser(data.user);
     } catch (err: any) {
+      // Mock authentication exists only for local development; in production
+      // builds this branch is eliminated so no credentials ship in the bundle.
+      if (process.env.NODE_ENV !== "development") {
+        throw new Error(err.message || "Invalid credentials");
+      }
+
       console.warn("API login failed, falling back to client-side mock authentication:", err);
-      
+
       // Let's check against our development/mock accounts
       const mockUsers = [
-        { email: "info@amouraffairs.in", password: "REMOVED-SECRET", name: "Amour Affairs", role: "super_admin" },
         { email: "test@test.in", password: "test123", name: "Test User", role: "admin" }
       ];
 
