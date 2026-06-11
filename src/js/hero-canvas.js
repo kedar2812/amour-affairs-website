@@ -95,11 +95,11 @@ function drawModelFrame(idx, scale) {
   // ── 3. Warm amber tint — source-atop only tints existing canvas pixels ──
   // 'source-atop' paints only where the model was drawn (opaque pixels),
   // leaving the transparent background untouched — no orange bg bleed.
-  // Muted warm-beige tint matches the hero bg (#EDE0CC) so the model
+  // Muted warm-beige tint matches the hero bg (#F5EDE2) so the model
   // feels carved from the same stone — shadows provide the 3D pop.
   modelCtx.save();
   modelCtx.globalCompositeOperation = 'source-atop';
-  modelCtx.fillStyle = 'rgba(215, 190, 148, 0.32)';
+  modelCtx.fillStyle = 'rgba(223, 203, 170, 0.32)';
   modelCtx.fillRect(0, 0, cw, ch);
   modelCtx.restore();
 }

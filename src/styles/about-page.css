@@ -5,7 +5,7 @@
 
 /* ── Page Base ── */
 .about-page {
-  background: #EDE0CC;
+  background: #F5EDE2;
   color: #2C2420;
   min-height: 100vh;
 }
@@ -59,7 +59,7 @@
 
 /* ── Scrolled state — frosted glass ── */
 .about-page .nav.scrolled {
-  background: rgba(237, 224, 204, 0.92);
+  background: rgba(245, 237, 226, 0.92);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
   box-shadow: 0 1px 0 rgba(158, 122, 78, 0.1);
@@ -180,7 +180,7 @@
    ══════════════════════════════════════════════════ */
 
 .founder {
-  background: #EDE0CC;
+  background: #F5EDE2;
   padding: 60px var(--container-gutter) 120px;
 }
 
@@ -330,7 +330,7 @@
    ══════════════════════════════════════════════════ */
 
 .team-section {
-  background: #EDE0CC;
+  background: #F5EDE2;
   padding: 100px 0;
   overflow: hidden;
 }
@@ -395,12 +395,12 @@
 
 .team-marquee__fade--left {
   left: 0;
-  background: linear-gradient(to right, #EDE0CC 0%, transparent 100%);
+  background: linear-gradient(to right, #F5EDE2 0%, transparent 100%);
 }
 
 .team-marquee__fade--right {
   right: 0;
-  background: linear-gradient(to left, #EDE0CC 0%, transparent 100%);
+  background: linear-gradient(to left, #F5EDE2 0%, transparent 100%);
 }
 
 /* ── Scrolling track ── */
@@ -607,7 +607,7 @@
    ══════════════════════════════════════════════════ */
 
 .about-cta {
-  background: #EDE0CC;
+  background: #F5EDE2;
   padding: 80px var(--container-gutter);
   text-align: center;
 }

@@ -6,17 +6,17 @@
 
 :root {
   /* ── Color Palette — Light / Bridal Edition ── */
-  --color-bg:           #EDE0CC;          /* warm beige — client approved */
-  --color-bg-alt:       #EDE0CC;          /* soft linen */
-  --color-surface:      #E4D5B8;          /* warm sand surface */
+  --color-bg:           #F5EDE2;          /* warm beige — client approved */
+  --color-bg-alt:       #F5EDE2;          /* soft linen */
+  --color-surface:      #ECE2CE;          /* warm sand surface */
   --color-text:           #3D2010;          /* deep espresso */
   --color-text-dim:     #7A6A5A;          /* warm taupe */
   --color-accent:       #9E7A4E;          /* rich warm gold */
   --color-accent-light: #C9A97C;          /* lighter champagne gold */
   --color-white:        #2C2420;          /* repurposed: dark for text over light */
-  --color-overlay:      rgba(237, 224, 204, 0.55);
-  --color-overlay-heavy: rgba(237, 224, 204, 0.75);
-  --color-overlay-light: rgba(237, 224, 204, 0.35);
+  --color-overlay:      rgba(245, 237, 226, 0.55);
+  --color-overlay-heavy: rgba(245, 237, 226, 0.75);
+  --color-overlay-light: rgba(245, 237, 226, 0.35);
 
   /* Photo overlays stay dark (images are photo-based) */
   --color-photo-overlay:       rgba(20, 14, 10, 0.42);

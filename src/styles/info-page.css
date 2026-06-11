@@ -513,6 +513,11 @@
   margin-bottom: 22px;
 }
 
+.ipage-footer__logo .nav__logo-img {
+  height: clamp(40px, 4.5vw, 56px);
+  width: auto;
+}
+
 .ipage-footer__links {
   display: flex;
   justify-content: center;

@@ -251,18 +251,10 @@ footer.footer {
   margin-bottom: 28px;
 }
 
-.footer .nav__logo .logo-amour,
-.footer .nav__logo .logo-affairs {
-  color: #FAF7F4;
-}
-
-.footer .nav__logo sup {
-  color: rgba(250, 247, 244, 0.5);
-}
-
 .footer .nav__logo-img {
-  filter: brightness(0) invert(1);
-  opacity: 0.85;
+  height: clamp(44px, 5vw, 62px);
+  width: auto;
+  opacity: 0.92;
 }
 
 /* ── Column Labels ── */
