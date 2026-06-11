@@ -7,3 +7,6 @@ dist/
 *.mp4
 *.txt
 *.ps1
+!scripts/*.ps1
+uploads/
+amouraffairs_details_IMP.txt
