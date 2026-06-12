@@ -46,6 +46,7 @@ export function initArchivePage({
   onReady,
   folderWord = 'Folder',
   openWord = 'Open Folder',
+  filmLabel = 'The Wedding Film',
 }) {
   const p = prefix;
 
@@ -125,10 +126,12 @@ export function initArchivePage({
     });
   }
 
-  /* ── Wedding film (optional, weddings page only) ──
-     Renders a lightweight click-to-play facade so YouTube's player is
-     only loaded when the visitor actually wants to watch. Returns true
-     when a film was shown. Safe on pages without a #overlayFilm slot. */
+  /* ── Folder film (optional) ──
+     Shown below the photographs — the images are the folder's main
+     content, the film follows them. Renders a lightweight click-to-play
+     facade so YouTube's player is only loaded when the visitor actually
+     wants to watch. Returns true when a film was shown. Safe on pages
+     without a #overlayFilm slot. */
   function renderAlbumFilm(album) {
     const wrap = document.getElementById('overlayFilm');
     if (!wrap) return false;
@@ -142,9 +145,9 @@ export function initArchivePage({
 
     wrap.hidden = false;
     wrap.innerHTML = `
-      <span class="${p}-album__film-label">The Wedding Film</span>
+      <span class="${p}-album__film-label">${filmLabel}</span>
       <button class="${p}-album__film-frame" type="button"
-              aria-label="Play the wedding film for ${album.couple}">
+              aria-label="Play the film for ${album.couple}">
         <img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy" />
         <span class="${p}-album__film-play" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -158,7 +161,7 @@ export function initArchivePage({
       player.innerHTML = `
         <iframe
           src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1"
-          title="Wedding film for ${album.couple}"
+          title="Film for ${album.couple}"
           loading="lazy"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowfullscreen></iframe>`;
@@ -210,18 +213,19 @@ export function initArchivePage({
       { y: 26, opacity: 0 },
       { y: 0, opacity: 1, stagger: 0.08, duration: 0.8, ease: 'power3.out', delay: 0.15 }
     );
-    if (hasFilm) {
-      gsap.fromTo(
-        '#overlayFilm',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out', delay: 0.28 }
-      );
-    }
     gsap.fromTo(
       `.${p}-album__photo`,
       { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.05, duration: 0.85, ease: 'power3.out', delay: hasFilm ? 0.42 : 0.3 }
+      { y: 0, opacity: 1, stagger: 0.05, duration: 0.85, ease: 'power3.out', delay: 0.3 }
     );
+    if (hasFilm) {
+      // The film sits below the photographs — reveal it after them
+      gsap.fromTo(
+        '#overlayFilm',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.85, ease: 'power3.out', delay: 0.5 }
+      );
+    }
 
     document.getElementById('overlayClose').focus({ preventScroll: true });
   }

@@ -22,8 +22,43 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // ── Modules ──
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { marqueeRowHTML } from './testimonial-cards.js';
+import { fallbackTestimonialRows } from './testimonials-page-data.js';
+import { loadTestimonialRows } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
+
+/* ═══════════════════════════════════════════════════════
+   MARQUEE ROWS
+   CMS rows when available, bundled archive otherwise.
+   Direction alternates by row position (left, right, left, ...)
+   inside marqueeRowHTML — never stored, never breakable.
+   ═══════════════════════════════════════════════════════ */
+
+// Stock couple photos stand in for CMS testimonials saved without one
+const STOCK_PHOTOS = fallbackTestimonialRows.flat().map((t) => t.src);
+
+function renderMarqueeRows(rows) {
+  const mount = document.getElementById('testiRows');
+  if (!mount) return;
+  mount.innerHTML = rows
+    .filter((row) => row.length > 0)
+    .map((row, i) => marqueeRowHTML(row, i))
+    .join('');
+}
+
+// Paint the bundled archive immediately so the page never looks empty…
+renderMarqueeRows(fallbackTestimonialRows);
+
+// …then swap in the CMS rows once (and if) they arrive.
+loadTestimonialRows(STOCK_PHOTOS)
+  .then((rows) => {
+    if (rows) {
+      renderMarqueeRows(rows);
+      ScrollTrigger.refresh();
+    }
+  })
+  .catch(() => { /* fallback already on screen */ });
 
 // ── Lenis Smooth Scroll ──
 const lenis = new Lenis({

@@ -1,7 +1,8 @@
 /* ============================================================
    WEDDINGS-INIT.JS — Dedicated init for Weddings page
    Amour Affairs · Premium Wedding Photography
-   The Wedding Archive: folder grid → album view → lightbox,
+   The Wedding Archive: folder grid → album view (photos first,
+   then the wedding film, then a booking enquiry) → lightbox,
    plus a love-letter testimonial marquee near the page end.
    ============================================================ */
 
@@ -11,6 +12,7 @@ import '../styles/variables.css';
 import '../styles/typography.css';
 import '../styles/components.css';
 import '../styles/sections/hero.css';
+import '../styles/sections/inquiry.css'; // folder enquiry form (same design as home)
 import '../styles/sections/contact.css';
 import '../styles/service-pages.css';
 import '../styles/testimonials-page.css'; // reuse the exact testimonial card + marquee design
@@ -19,8 +21,11 @@ import '../styles/weddings-page.css';
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
 import { albums as fallbackAlbums } from './weddings-albums-data.js';
-import { loadArchiveAlbums, loadWeddingsTestimonials } from './api.js';
+import { loadArchiveAlbums, loadWeddingsTestimonials, loadSiteContent } from './api.js';
 import { fallbackWeddingsTestimonials } from './weddings-testimonials-data.js';
+import { testimonialCardHTML } from './testimonial-cards.js';
+import { applyEnquiryContent } from './site-content.js';
+import { initLeadForm } from './lead-form.js';
 
 /* ── Testimonial marquee ─────────────────────────────────── */
 
@@ -28,13 +33,6 @@ const MAX_MARQUEE_CARDS = 15;
 
 // Stock couple shots fill in for any testimonial saved without a photo
 const STOCK_PHOTOS = fallbackWeddingsTestimonials.map((t) => t.src);
-
-const escapeHTML = (value) =>
-  String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 
 // Fisher–Yates shuffle on a copy — keeps the marquee feeling fresh per visit
 const shuffle = (arr) => {
@@ -44,36 +42,6 @@ const shuffle = (arr) => {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-};
-
-// "Sana & Mustafa" → "SM"  ·  "Neha" → "NE"
-const initialsOf = (name) => {
-  const words = String(name).replace(/&/g, ' ').split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return (words[0] || '?').slice(0, 2).toUpperCase();
-};
-
-// Identical structure/classes to the testimonials page card (tcard-page)
-const cardHTML = (t) => {
-  const name = escapeHTML(t.name);
-  return `
-    <div class="tcard-page">
-      ${t.src ? `
-      <div class="tcard-page__photo">
-        <img src="${escapeHTML(t.src)}" alt="${name}" loading="lazy" />
-      </div>` : ''}
-      <div class="tcard-page__body">
-        <div class="tcard-page__icon">&ldquo;&ldquo;</div>
-        <p class="tcard-page__text">${escapeHTML(t.quote)}</p>
-        <div class="tcard-page__author">
-          <div class="tcard-page__avatar">${escapeHTML(initialsOf(t.name))}</div>
-          <div>
-            <div class="tcard-page__name">${name}</div>
-            ${t.location ? `<div class="tcard-page__loc">${escapeHTML(t.location)}</div>` : ''}
-          </div>
-        </div>
-      </div>
-    </div>`;
 };
 
 function renderMarquee(testimonials) {
@@ -87,7 +55,7 @@ function renderMarquee(testimonials) {
   }
 
   // Cards rendered twice so the marqueeLeft (-50%) loop is seamless
-  const cards = list.map(cardHTML).join('');
+  const cards = list.map(testimonialCardHTML).join('');
   mount.innerHTML = `
     <div class="tpage-marquee-wrap">
       <div class="tpage-row tpage-row--left">
@@ -98,14 +66,22 @@ function renderMarquee(testimonials) {
 
 /* ── Boot ────────────────────────────────────────────────── */
 
-// Fetch testimonials in parallel with albums so neither blocks the other
+// Fetch CMS content in parallel with albums so nothing blocks anything
 const testimonialsPromise = loadWeddingsTestimonials(STOCK_PHOTOS).catch(() => null);
+const siteContentPromise = loadSiteContent().catch(() => null);
 
 loadArchiveAlbums('wedding', fallbackAlbums).then((albums) => {
   initArchivePage({
     albums,
     prefix: 'wpage',
+    filmLabel: 'The Wedding Film',
     onReady: async ({ ScrollTrigger }) => {
+      // The enquiry form inside the opened folder feeds the leads pipeline
+      initLeadForm();
+      siteContentPromise.then((content) => {
+        if (content) applyEnquiryContent('site_weddings_enq', content);
+      });
+
       const cms = await testimonialsPromise;
       const testimonials = cms && cms.length >= 4 ? cms : fallbackWeddingsTestimonials;
       renderMarquee(testimonials);

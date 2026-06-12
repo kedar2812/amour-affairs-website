@@ -869,3 +869,18 @@
     animation: none;
   }
 }
+
+
+/* ══════════════════════════════════════
+   FOLDER ENQUIRY — inside the opened folder
+   Sits after "Continue Browsing"; reuses the
+   home-page inquiry form design (inquiry.css).
+   ══════════════════════════════════════ */
+
+.wpage-album__enquiry {
+  max-width: 1100px;
+  margin: clamp(40px, 7vh, 80px) auto 0;
+  padding-top: clamp(36px, 5vh, 56px);
+  border-top: 1px solid rgba(158, 122, 78, 0.18);
+  text-align: left;
+}

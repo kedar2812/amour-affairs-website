@@ -171,6 +171,61 @@ export async function loadWeddingsTestimonials(stockPhotos = []) {
 }
 
 /**
+ * Load every active testimonial grouped into marquee rows for the
+ * Testimonials page, or null. Returns an array of rows (each an array
+ * of { quote, name, location, src }) ordered by row number; empty rows
+ * are dropped. Scroll direction is NOT part of the data — pages derive
+ * it from row position so the alternating pattern can never break.
+ * `stockPhotos` fills in for testimonials saved without a photo.
+ */
+export async function loadTestimonialRows(stockPhotos = []) {
+  const data = await fetchFromAPI('testimonials.php');
+  if (!data || !Array.isArray(data.testimonials) || data.testimonials.length === 0) return null;
+
+  const byRow = new Map();
+  data.testimonials.forEach((t, i) => {
+    const row = Math.max(1, parseInt(t.marquee_row, 10) || 1);
+    if (!byRow.has(row)) byRow.set(row, []);
+    byRow.get(row).push({
+      quote: decodeEntities(t.review_text),
+      name: decodeEntities(t.client_name),
+      location: decodeEntities(t.city || ''),
+      src: t.photo_path
+        ? assetUrl(t.photo_path)
+        : stockPhotos[i % Math.max(stockPhotos.length, 1)] || '',
+    });
+  });
+
+  const rows = [...byRow.keys()].sort((a, b) => a - b).map((k) => byRow.get(k));
+
+  // A sparse marquee looks broken — keep the bundled archive until the
+  // CMS holds a healthy amount of reviews.
+  const total = rows.reduce((sum, r) => sum + r.length, 0);
+  return total >= 9 ? rows : null;
+}
+
+/**
+ * Load dashboard-editable website copy (settings group `site_content`),
+ * or null. Values arrive HTML-encoded from the PHP API — they are
+ * decoded here; keys ending in `_json` are parsed into objects.
+ */
+export async function loadSiteContent() {
+  const data = await fetchFromAPI('settings.php?group=site_content');
+  if (!data || !data.settings || typeof data.settings !== 'object') return null;
+
+  const content = {};
+  for (const [key, raw] of Object.entries(data.settings)) {
+    const value = decodeEntities(raw);
+    if (key.endsWith('_json')) {
+      try { content[key] = JSON.parse(value); } catch { /* skip malformed */ }
+    } else if (value !== '') {
+      content[key] = value;
+    }
+  }
+  return Object.keys(content).length > 0 ? content : null;
+}
+
+/**
  * Load active team members (with photos) for the about-page marquee, or null.
  */
 export async function loadTeam() {
