@@ -15,6 +15,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { albumsAPI, galleryAPI, assetUrl } from "@/lib/api";
+import { decodeEntities } from "@/lib/utils";
 
 const ALBUM_TYPES = [
   { value: "wedding", label: "Weddings" },
@@ -63,6 +64,16 @@ const EMPTY_FORM: AlbumFormState = { type: "wedding", couple: "", location: "", 
 
 const getTypeLabel = (val: string) => ALBUM_TYPES.find(t => t.value === val)?.label || val;
 
+// Decode once on load — text displays correctly and edit-save cycles
+// re-encode to the same stored value (no double-encoding)
+const decodeAlbum = (a: Album): Album => ({
+  ...a,
+  couple: decodeEntities(a.couple),
+  location: decodeEntities(a.location),
+  date_label: decodeEntities(a.date_label),
+  description: decodeEntities(a.description),
+});
+
 export default function AlbumsPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [activeType, setActiveType] = useState("wedding");
@@ -94,7 +105,7 @@ export default function AlbumsPage() {
     setIsLoading(true);
     try {
       const res = await albumsAPI.list({ type: activeType, all: true });
-      setAlbums((res as { albums: Album[] }).albums || []);
+      setAlbums(((res as { albums: Album[] }).albums || []).map(decodeAlbum));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load albums");
     } finally {
@@ -108,7 +119,7 @@ export default function AlbumsPage() {
     setOpenAlbum(album);
     setIsLoadingPhotos(true);
     try {
-      const fresh = await albumsAPI.get(album.id) as Album;
+      const fresh = decodeAlbum(await albumsAPI.get(album.id) as Album);
       setOpenAlbum(fresh);
       setPhotos(fresh.photos || []);
     } catch (err) {
@@ -119,7 +130,7 @@ export default function AlbumsPage() {
   };
 
   const refreshOpenAlbum = async (albumId: number) => {
-    const fresh = await albumsAPI.get(albumId) as Album;
+    const fresh = decodeAlbum(await albumsAPI.get(albumId) as Album);
     setOpenAlbum(fresh);
     setPhotos(fresh.photos || []);
   };

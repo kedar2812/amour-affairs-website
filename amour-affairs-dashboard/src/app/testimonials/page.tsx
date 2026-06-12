@@ -5,6 +5,7 @@ import { Search, Plus, Trash2, Star, X, Loader2, Edit3, Upload } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/Drawer";
 import { testimonialsAPI, assetUrl } from "@/lib/api";
+import { decodeEntities } from "@/lib/utils";
 
 const MAX_PHOTO_SIZE = 15 * 1024 * 1024;
 
@@ -57,7 +58,16 @@ export default function TestimonialsPage() {
     setIsLoading(true);
     try {
       const res = await testimonialsAPI.list({ all: true });
-      setTestimonials((res as { testimonials: Testimonial[] }).testimonials || []);
+      const list = ((res as { testimonials: Testimonial[] }).testimonials || []).map(t => ({
+        ...t,
+        // Decode once on load — text displays correctly and edit-save
+        // cycles re-encode to the same stored value (no double-encoding)
+        client_name: decodeEntities(t.client_name),
+        review_text: decodeEntities(t.review_text),
+        event_type: decodeEntities(t.event_type),
+        city: decodeEntities(t.city),
+      }));
+      setTestimonials(list);
     } catch (err) { setError(err instanceof Error ? err.message : "Failed to load"); }
     finally { setIsLoading(false); }
   }, []);

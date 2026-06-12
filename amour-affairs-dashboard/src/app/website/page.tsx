@@ -4,6 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Loader2, X, Plus, Trash2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { settingsAPI, getStoredToken } from "@/lib/api";
+import { decodeEntities } from "@/lib/utils";
 
 /* ============================================================
    WEBSITE CONTENT — dashboard-editable page copy
@@ -77,17 +78,6 @@ const DEFAULT_PACKAGES: SessionPackage[] = [
     ],
   },
 ];
-
-/* The PHP API stores text HTML-encoded — decode before editing/parsing. */
-function decodeEntities(value: string): string {
-  if (!value) return "";
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
 
 const isMockMode = () => {
   const token = getStoredToken();

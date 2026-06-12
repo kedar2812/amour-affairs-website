@@ -25,15 +25,17 @@ export function assetUrl(path) {
   return `${ASSET_ORIGIN}${path}`;
 }
 
-/** The PHP API stores text HTML-encoded — decode for JS rendering. */
+/** The PHP API stores text HTML-encoded — decode for JS rendering.
+    PHP's ENT_QUOTES|ENT_HTML5 emits &apos; for apostrophes. */
 function decodeEntities(value) {
   if (!value) return '';
   return String(value)
-    .replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'")
+    .replace(/&apos;/g, "'")
     .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
 }
 
 /**

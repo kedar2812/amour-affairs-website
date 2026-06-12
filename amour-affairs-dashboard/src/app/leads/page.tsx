@@ -5,6 +5,7 @@ import { Search, Plus, Phone, Mail, Camera, Globe, Users, Loader2, X, Trash2, Me
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { leadsAPI, getStoredToken } from '@/lib/api';
+import { decodeEntities } from '@/lib/utils';
 import { leads as mockLeads } from '@/data/mockData';
 import { Drawer } from '@/components/ui/Drawer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,6 +67,20 @@ const isMockMode = () => {
   return !token || token.startsWith("mock_");
 };
 
+// Decode once on load — visitor names/messages arrive HTML-encoded
+// from the PHP sanitizer (e.g. "Priya &amp; Rahul", "We&apos;d love…")
+const decodeLead = (l: APILead): APILead => ({
+  ...l,
+  client_name: decodeEntities(l.client_name),
+  event_type: decodeEntities(l.event_type),
+  budget_range: l.budget_range ? decodeEntities(l.budget_range) : l.budget_range,
+  notes: (l.notes || []).map(n => ({
+    ...n,
+    content: decodeEntities(n.content),
+    author: n.author ? decodeEntities(n.author) : n.author,
+  })),
+});
+
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
@@ -126,7 +141,7 @@ export default function LeadsPage() {
     }
     try {
       const res = await leadsAPI.list() as { leads: APILead[] };
-      setLeads(res.leads || []);
+      setLeads((res.leads || []).map(decodeLead));
       setUsingMockData(false);
     } catch {
       setLeads(mockAsAPILeads);
