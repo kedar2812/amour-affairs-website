@@ -18,6 +18,7 @@ import {
   FolderOpen,
   Film,
   MessageSquareQuote,
+  Globe,
   LogOut,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
   { name: "Albums", href: "/albums", icon: FolderOpen },
   { name: "Films", href: "/films", icon: Film },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
+  { name: "Website", href: "/website", icon: Globe },
   { name: "Payments", href: "/payments", icon: CircleDollarSign },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];

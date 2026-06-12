@@ -489,15 +489,17 @@ export default function AlbumsPage() {
                   placeholder="A two-day celebration at a heritage wada…"
                   className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none" />
               </div>
-              {form.type === "wedding" && (
+              {(form.type === "wedding" || form.type === "couple_shoot") && (
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
-                    Wedding Film (optional)
+                    {form.type === "wedding" ? "Wedding Film (optional)" : "Couple Film (optional)"}
                   </label>
                   <input type="text" value={form.film_youtube_id} onChange={(e) => setForm(f => ({ ...f, film_youtube_id: e.target.value }))}
                     placeholder="Paste a YouTube link, e.g. https://youtu.be/abc123…"
                     className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-                  <p className="text-[11px] text-muted-foreground mt-1.5">Shown inside this folder on the Weddings page. Paste a YouTube link or video ID — leave blank for no film.</p>
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Shown inside this folder, below the photographs, on the {form.type === "wedding" ? "Weddings" : "Couple Shoots"} page. Paste a YouTube link or video ID — leave blank for no film.
+                  </p>
                 </div>
               )}
               <div>

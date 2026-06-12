@@ -19,10 +19,17 @@ interface Testimonial {
   city: string;
   is_featured: number;
   show_on_weddings: number;
+  marquee_row: number;
   is_active: number;
   sort_order: number;
   created_at: string;
 }
+
+/* The testimonials page scrolls its marquee rows in alternating
+   directions, derived purely from row position — row 1 left,
+   row 2 right, and so on. Keeping it derived (never stored) means
+   adding or emptying rows can never break the pattern. */
+const rowDirection = (row: number) => (row % 2 === 1 ? "scrolls left" : "scrolls right");
 
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -40,6 +47,7 @@ export default function TestimonialsPage() {
   const [formRating, setFormRating] = useState(5);
   const [formFeatured, setFormFeatured] = useState(false);
   const [formWeddings, setFormWeddings] = useState(false);
+  const [formRow, setFormRow] = useState(1);
   const [formDate, setFormDate] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
@@ -61,10 +69,19 @@ export default function TestimonialsPage() {
     t.review_text.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  /* Marquee rows currently in use. A new testimonial may join any
+     existing row, or open exactly the NEXT row (highest + 1) — rows
+     stay contiguous, so the alternating scroll pattern stays intact. */
+  const highestRow = Math.max(1, ...testimonials.map(t => Number(t.marquee_row) || 1));
+  const rowOptions = Array.from({ length: highestRow }, (_, i) => i + 1);
+  const rowCount = (row: number) =>
+    testimonials.filter(t => (Number(t.marquee_row) || 1) === row && t.id !== editingId).length;
+
   const openCreate = () => {
     setEditingId(null);
     setFormName(""); setFormText(""); setFormType("Wedding");
     setFormCity(""); setFormRating(5); setFormFeatured(false); setFormWeddings(false); setFormDate("");
+    setFormRow(1);
     setPhotoFile(null); setPhotoPreview("");
     setShowForm(true);
   };
@@ -74,6 +91,7 @@ export default function TestimonialsPage() {
     setFormName(t.client_name); setFormText(t.review_text); setFormType(t.event_type);
     setFormCity(t.city || ""); setFormRating(t.rating); setFormFeatured(!!t.is_featured);
     setFormWeddings(!!t.show_on_weddings);
+    setFormRow(Number(t.marquee_row) || 1);
     setFormDate(t.event_date || "");
     setPhotoFile(null);
     setPhotoPreview(t.photo_path ? assetUrl(t.photo_path) : "");
@@ -98,6 +116,7 @@ export default function TestimonialsPage() {
           client_name: formName, review_text: formText, event_type: formType,
           city: formCity, rating: formRating, is_featured: formFeatured ? 1 : 0,
           show_on_weddings: formWeddings ? 1 : 0,
+          marquee_row: formRow,
           event_date: formDate || null,
         });
         // Photo is a separate multipart action — only upload when a new file is picked
@@ -115,6 +134,7 @@ export default function TestimonialsPage() {
         formData.append("rating", String(formRating));
         formData.append("is_featured", formFeatured ? "1" : "0");
         formData.append("show_on_weddings", formWeddings ? "1" : "0");
+        formData.append("marquee_row", String(formRow));
         if (formDate) formData.append("event_date", formDate);
         if (photoFile) formData.append("photo", photoFile);
         await testimonialsAPI.create(formData);
@@ -200,6 +220,9 @@ export default function TestimonialsPage() {
                   <p className="text-[12px] text-muted-foreground">{t.event_type}{t.city ? ` · ${t.city}` : ""}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-[10px] font-bold uppercase bg-primary/10 text-primary px-2 py-0.5 rounded-full" title={`Marquee row ${Number(t.marquee_row) || 1} (${rowDirection(Number(t.marquee_row) || 1)})`}>
+                    Row {Number(t.marquee_row) || 1}
+                  </span>
                   {t.show_on_weddings ? <span className="text-[10px] font-bold uppercase bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full">Weddings</span> : null}
                   {t.is_featured ? <span className="text-[10px] font-bold uppercase bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full">Featured</span> : null}
                 </div>
@@ -252,6 +275,24 @@ export default function TestimonialsPage() {
               <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)}
                 className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
             </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Testimonials-Page Row</label>
+            <select value={formRow} onChange={(e) => setFormRow(Number(e.target.value))}
+              className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50">
+              {rowOptions.map(row => (
+                <option key={row} value={row}>
+                  Row {row} — {rowDirection(row)} ({rowCount(row)} testimonial{rowCount(row) === 1 ? "" : "s"})
+                </option>
+              ))}
+              <option value={highestRow + 1}>
+                + Start Row {highestRow + 1} — {rowDirection(highestRow + 1)} (new row)
+              </option>
+            </select>
+            <p className="text-[11px] text-muted-foreground mt-1.5">
+              Rows scroll in alternating directions automatically (row 1 left, row 2 right, …),
+              so adding a row never breaks the pattern. New rows can only be opened in order.
+            </p>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={formFeatured} onChange={(e) => setFormFeatured(e.target.checked)} className="rounded border-border" />
