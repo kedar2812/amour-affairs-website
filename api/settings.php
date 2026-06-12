@@ -66,6 +66,7 @@ switch ($method) {
             elseif (str_starts_with($key, 'social_')) $group = 'social';
             elseif (str_starts_with($key, 'hero_')) $group = 'hero';
             elseif (str_starts_with($key, 'seo_')) $group = 'seo';
+            elseif (str_starts_with($key, 'site_')) $group = 'site_content'; // dashboard-editable page copy
 
             $stmt->execute([$key, $value, $group]);
             $updated++;

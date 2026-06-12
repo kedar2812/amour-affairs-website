@@ -140,6 +140,9 @@ CREATE TABLE IF NOT EXISTS `testimonials` (
   `city` VARCHAR(100) DEFAULT NULL,
   `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
   `show_on_weddings` TINYINT(1) NOT NULL DEFAULT 0,
+  -- Testimonials-page marquee row (1, 2, 3, ...). 0 = not yet assigned;
+  -- scroll direction is derived from row position, never stored.
+  `marquee_row` TINYINT UNSIGNED NOT NULL DEFAULT 0,
   `is_active` TINYINT(1) NOT NULL DEFAULT 1,
   `sort_order` INT NOT NULL DEFAULT 0,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -505,3 +508,24 @@ DEALLOCATE PREPARE migrate_testi_idx;
 
 -- Seed: surface a handful of the strongest reviews in the weddings marquee by default
 UPDATE `testimonials` SET `show_on_weddings` = 1 WHERE `is_active` = 1;
+
+-- testimonials.marquee_row — which testimonials-page marquee row a review sits on
+SET @stmt := (
+  SELECT IF(
+    COUNT(*) = 0,
+    'ALTER TABLE `testimonials` ADD COLUMN `marquee_row` TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER `show_on_weddings`',
+    'DO 0'
+  )
+  FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND COLUMN_NAME = 'marquee_row'
+);
+PREPARE migrate_testi_row FROM @stmt;
+EXECUTE migrate_testi_row;
+DEALLOCATE PREPARE migrate_testi_row;
+
+-- Seed: spread unassigned reviews evenly across the three marquee rows.
+-- Idempotent (0 = unassigned), so re-runs never reshuffle curated rows.
+UPDATE `testimonials` SET `marquee_row` = ((`id` - 1) % 3) + 1 WHERE `marquee_row` = 0;
+
+-- Commit the post-schema migration DML (the script ran with AUTOCOMMIT = 0)
+COMMIT;
