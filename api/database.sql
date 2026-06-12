@@ -1,6 +1,12 @@
 -- ============================================================
 -- AMOUR AFFAIRS — Complete Database Schema
 -- MySQL 5.7+ / MariaDB 10.3+
+--
+-- FRESH INSTALLS ONLY. The seed INSERTs below are not
+-- idempotent — re-running this file on an existing database
+-- fails on duplicate keys (and would duplicate testimonials).
+-- To upgrade an existing database, run api/migrations.sql,
+-- which is guarded and safe to run any number of times.
 -- ============================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -453,79 +459,17 @@ INSERT INTO `testimonials` (`client_name`, `event_type`, `review_text`, `city`, 
 ('Sejal & Anniket', 'Pre-Wedding', 'We had the idea of a pre-wedding video ever since we got engaged but never got the time to make one till only a few days were left for the sangeet. To Taher and his team we are truly thankful for capturing our moments in an amazing video that was made with only one day of filming. This video has become a part of our new life together and will always be a reminder of our beginning.', 'Nasik', 0, 29),
 ('Deepika & Karan', 'Wedding', 'Thank you Amour Affairs for making our wedding so beautiful through your lens. It was great working with you and we would definitely be giving your reference to all our friends and family. We appreciate all your insights and you being able to make it to the function despite your booked schedule. Everyone loved your work!', 'New Delhi', 0, 30);
 
-COMMIT;
+-- ────────────────────────────────────────────────────────────
+-- POST-SEED DEFAULTS
+-- The seed INSERTs above leave the curation flags at their
+-- column defaults — give a fresh install sensible starting values.
+-- ────────────────────────────────────────────────────────────
 
-
--- ============================================================
--- MIGRATIONS — safe to re-run on an existing database
--- ------------------------------------------------------------
--- These add the columns introduced after the initial schema
--- without erroring if they already exist. Works on MySQL 5.7+
--- and MariaDB 10.2+ (information_schema-guarded dynamic ALTER).
--- ============================================================
-
--- albums.film_youtube_id — wedding film attached to a folder
-SET @stmt := (
-  SELECT IF(
-    COUNT(*) = 0,
-    'ALTER TABLE `albums` ADD COLUMN `film_youtube_id` VARCHAR(20) DEFAULT NULL AFTER `description`',
-    'DO 0'
-  )
-  FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'albums' AND COLUMN_NAME = 'film_youtube_id'
-);
-PREPARE migrate_albums_film FROM @stmt;
-EXECUTE migrate_albums_film;
-DEALLOCATE PREPARE migrate_albums_film;
-
--- testimonials.show_on_weddings — surface this review in the weddings-page marquee
-SET @stmt := (
-  SELECT IF(
-    COUNT(*) = 0,
-    'ALTER TABLE `testimonials` ADD COLUMN `show_on_weddings` TINYINT(1) NOT NULL DEFAULT 0 AFTER `is_featured`',
-    'DO 0'
-  )
-  FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND COLUMN_NAME = 'show_on_weddings'
-);
-PREPARE migrate_testi_weddings FROM @stmt;
-EXECUTE migrate_testi_weddings;
-DEALLOCATE PREPARE migrate_testi_weddings;
-
--- Index for the weddings-marquee query (guarded the same way)
-SET @stmt := (
-  SELECT IF(
-    COUNT(*) = 0,
-    'ALTER TABLE `testimonials` ADD KEY `idx_weddings` (`show_on_weddings`, `is_active`)',
-    'DO 0'
-  )
-  FROM information_schema.STATISTICS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND INDEX_NAME = 'idx_weddings'
-);
-PREPARE migrate_testi_idx FROM @stmt;
-EXECUTE migrate_testi_idx;
-DEALLOCATE PREPARE migrate_testi_idx;
-
--- Seed: surface a handful of the strongest reviews in the weddings marquee by default
+-- Surface the seeded reviews in the weddings-page marquee by default
 UPDATE `testimonials` SET `show_on_weddings` = 1 WHERE `is_active` = 1;
 
--- testimonials.marquee_row — which testimonials-page marquee row a review sits on
-SET @stmt := (
-  SELECT IF(
-    COUNT(*) = 0,
-    'ALTER TABLE `testimonials` ADD COLUMN `marquee_row` TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER `show_on_weddings`',
-    'DO 0'
-  )
-  FROM information_schema.COLUMNS
-  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'testimonials' AND COLUMN_NAME = 'marquee_row'
-);
-PREPARE migrate_testi_row FROM @stmt;
-EXECUTE migrate_testi_row;
-DEALLOCATE PREPARE migrate_testi_row;
-
--- Seed: spread unassigned reviews evenly across the three marquee rows.
--- Idempotent (0 = unassigned), so re-runs never reshuffle curated rows.
+-- Spread unassigned reviews evenly across the three testimonials-page
+-- marquee rows (0 = unassigned, so curated rows are never reshuffled)
 UPDATE `testimonials` SET `marquee_row` = ((`id` - 1) % 3) + 1 WHERE `marquee_row` = 0;
 
--- Commit the post-schema migration DML (the script ran with AUTOCOMMIT = 0)
 COMMIT;
