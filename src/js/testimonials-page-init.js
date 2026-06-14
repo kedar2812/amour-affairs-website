@@ -11,6 +11,7 @@ import '../styles/typography.css';
 import '../styles/components.css';
 import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
+import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/testimonials-page.css';
 
@@ -22,6 +23,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // ── Modules ──
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { initLeadForm } from './lead-form.js';
 import { marqueeRowHTML } from './testimonial-cards.js';
 import { fallbackTestimonialRows } from './testimonials-page-data.js';
 import { loadTestimonialRows } from './api.js';
@@ -143,6 +145,7 @@ async function init() {
   initPageNav();
   initHeroReveal();
   initCtaReveal();
+  initLeadForm();
 
   ScrollTrigger.refresh();
 }

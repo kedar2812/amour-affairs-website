@@ -69,15 +69,10 @@
   <!-- ═══════════════ 2. SPLIT EDITORIAL ”” FOUNDER SECTION ═══════════════ -->
   <!-- ===== 1. INTRO HERO - ENTERING TEXT ON LOAD ===== -->
   <section class="about-hero" id="aboutHero">
-    <span class="about-hero__numeral" aria-hidden="true">est. 2011</span>
     <div class="about-hero__content">
       <h1 class="about-hero__title" id="heroTitle">The Quiet Truth<br><em>In Human Connection</em></h1>
       <span class="about-hero__line" id="heroLine" aria-hidden="true"></span>
       <p class="about-hero__sub" id="heroSub">The more you give, the happier you live &mdash; a philosophy lived through every frame we leave behind.</p>
-    </div>
-    <div class="about-hero__scroll" id="heroScroll" aria-hidden="true">
-      <span class="about-hero__scroll-label">Scroll</span>
-      <span class="about-hero__scroll-line"></span>
     </div>
   </section>
 
@@ -415,12 +410,82 @@
 
 
   <!-- ═══════════════ 5. CTA SECTION ═══════════════ -->
-  <section class="about-cta" id="aboutCta">
-    <span class="about-cta__label">Begin your story</span>
-    <h2 class="about-cta__heading">Let's Create Something Eternal</h2>
-    <div class="about-cta__buttons">
-      <a href="/#contact" class="about-cta__btn about-cta__btn--primary">Book a Consultation</a>
-      <a href="/" class="about-cta__btn about-cta__btn--secondary">Back to Home</a>
+  <!-- ENQUIRY / LEAD CAPTURE -->
+  <section class="inquiry" id="enquire">
+    <div class="container">
+      <div class="inquiry__inner">
+
+        <div class="inquiry__info">
+          <span class="inquiry__label">Begin Your Story</span>
+          <h2 class="inquiry__title">Let's Plan <em>Your Day</em></h2>
+          <p class="inquiry__text">Tell us a little about your celebration and we&rsquo;ll get back to you within 24 hours &mdash; with ideas, availability and a fair quote.</p>
+          <div class="inquiry__contacts">
+            <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="inquiry__contact-link">+91 9921000052</a>
+            <a href="mailto:info@amouraffairs.in" class="inquiry__contact-link">info@amouraffairs.in</a>
+          </div>
+        </div>
+
+        <form class="inquiry__form" id="inquiryForm" novalidate>
+          <!-- Honeypot — humans never see or fill this -->
+          <div class="inquiry__hp" aria-hidden="true">
+            <label>Website
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqName">Your Name *</label>
+              <input class="inquiry__input" type="text" id="inqName" name="client_name" autocomplete="name" maxlength="200" required>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqPhone">Phone *</label>
+              <input class="inquiry__input" type="tel" id="inqPhone" name="phone" autocomplete="tel" maxlength="20" placeholder="+91">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqEmail">Email</label>
+              <input class="inquiry__input" type="email" id="inqEmail" name="email" autocomplete="email" maxlength="255">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqEventType">Occasion</label>
+              <select class="inquiry__input inquiry__select" id="inqEventType" name="event_type">
+                <option value="Wedding">Wedding</option>
+                <option value="Pre-Wedding">Pre-Wedding</option>
+                <option value="Couple Shoot">Couple Shoot</option>
+                <option value="Engagement">Engagement</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__field">
+            <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+            <input class="inquiry__input" type="date" id="inqDate" name="event_date">
+            <span class="inquiry__field-error" aria-live="polite"></span>
+          </div>
+
+          <div class="inquiry__field">
+            <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(venue, plans, anything)</span></label>
+            <textarea class="inquiry__input inquiry__textarea" id="inqMessage" name="message" rows="4" maxlength="2000"></textarea>
+            <span class="inquiry__field-error" aria-live="polite"></span>
+          </div>
+
+          <button type="submit" class="inquiry__submit" id="inquirySubmit">
+            Send Inquiry <span class="inquiry__submit-arrow" aria-hidden="true">&#8594;</span>
+          </button>
+
+          <p class="inquiry__status" id="inquiryStatus" role="status" aria-live="polite"></p>
+        </form>
+
+      </div>
     </div>
   </section>
 

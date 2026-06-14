@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from "react";
 import { Search, Plus, Upload, Trash2, Star, GripVertical, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { galleryAPI } from "@/lib/api";
+import { galleryAPI, assetUrl } from "@/lib/api";
 
 const CATEGORIES = [
   { value: "", label: "All" },
@@ -191,7 +191,7 @@ export default function GalleryPage() {
           {filteredImages.map(img => (
             <div key={img.id} className={`dash-card overflow-hidden group relative ${!img.is_active ? "opacity-50" : ""}`}>
               <div className="aspect-[4/3] bg-muted overflow-hidden relative">
-                <img src={img.thumbnail_path || img.file_path} alt={img.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                <img src={assetUrl(img.thumbnail_path || img.file_path)} alt={img.title || ""} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                 {/* Overlay controls */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                   <button onClick={() => toggleFeatured(img)}

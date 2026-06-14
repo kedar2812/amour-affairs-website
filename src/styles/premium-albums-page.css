@@ -713,7 +713,7 @@
   white-space: nowrap;
   padding: 10px 28px;
   border-radius: 50px;
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
   border: none;
   cursor: pointer;
@@ -723,7 +723,7 @@
 
 .ppage-cta__btn:hover {
   transform: scale(1.03);
-  background: var(--color-accent-light);
+  background: var(--color-btn-hover);
 }
 
 .ppage-cta__btn-arrow {

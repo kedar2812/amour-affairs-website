@@ -16,6 +16,7 @@ import {
   Settings,
   Image,
   FolderOpen,
+  BookOpen,
   Film,
   MessageSquareQuote,
   Globe,
@@ -31,6 +32,7 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
   { name: "Packages", href: "/packages", icon: Package },
   { name: "Gallery", href: "/gallery", icon: Image },
   { name: "Albums", href: "/albums", icon: FolderOpen },
+  { name: "Premium Albums", href: "/premium-albums", icon: BookOpen },
   { name: "Films", href: "/films", icon: Film },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Website", href: "/website", icon: Globe },
@@ -41,6 +43,17 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
 const GENERAL_ITEMS = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
+
+// `trailingSlash: true` in next.config makes usePathname() return
+// "/albums/", while the hrefs are written without the trailing slash
+// ("/albums"). Strip it so the active tab actually matches, and treat
+// nested routes (e.g. /albums/123) as keeping their parent active.
+const stripSlash = (p: string) => (p !== "/" && p.endsWith("/") ? p.slice(0, -1) : p);
+const matchActive = (pathname: string, href: string) => {
+  const current = stripSlash(pathname || "/");
+  if (href === "/") return current === "/";
+  return current === href || current.startsWith(href + "/");
+};
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -64,7 +77,7 @@ export function Sidebar() {
         <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-[0.12em] px-3 mb-2">Menu</p>
         <div className="space-y-0.5">
           {MENU_ITEMS.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = matchActive(pathname, item.href);
             return (
               <Link
                 key={item.name}
@@ -107,16 +120,30 @@ export function Sidebar() {
         {/* General Section */}
         <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-[0.12em] px-3 mt-6 mb-2">General</p>
         <div className="space-y-0.5">
-          {GENERAL_ITEMS.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground transition-colors"
-            >
-              <item.icon className="h-[18px] w-[18px] text-muted-foreground" strokeWidth={1.7} />
-              <span>{item.name}</span>
-            </Link>
-          ))}
+          {GENERAL_ITEMS.map((item) => {
+            const isActive = matchActive(pathname, item.href);
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[15px] font-medium transition-colors z-0 ${
+                  isActive
+                    ? "text-sidebar-accent-foreground font-semibold"
+                    : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-foreground"
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="sidebar-active-bubble"
+                    className="absolute inset-0 bg-sidebar-accent rounded-xl -z-10 border-l-[3px] border-primary"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <item.icon className={`h-[18px] w-[18px] ${isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground"}`} strokeWidth={1.7} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
 

@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+/* An <input type="number"> registered with `valueAsNumber` yields `NaN`
+   when the field is left empty. Plain `z.number()` REJECTS NaN, so a single
+   untouched optional number (custom price, guest count, advance…) silently
+   failed the whole-form validation that runs on the final "Create Booking"
+   click — the button appeared dead. These helpers coerce empty/NaN to a
+   sensible value before validating. */
+const optionalNumber = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined || (typeof v === "number" && Number.isNaN(v)) ? undefined : v),
+  z.number().optional()
+);
+const requiredAmount = z.preprocess(
+  (v) => (v === "" || v === null || v === undefined || (typeof v === "number" && Number.isNaN(v)) ? undefined : v),
+  z.number({ message: "Total amount is required" }).min(1, "Total amount is required")
+);
+
 export const bookingSchema = z.object({
   // Step 1 — Client Info
   clientType: z.enum(["existing", "new"]),
@@ -22,20 +37,20 @@ export const bookingSchema = z.object({
   venueName: z.string().min(2, "Venue name is required"),
   venueCity: z.string().optional(),
   venueAddress: z.string().optional(),
-  guestCount: z.number().min(1).optional(),
+  guestCount: optionalNumber,
   eventNotes: z.string().optional(),
 
   // Step 3 — Package & Team
   packageId: z.string().min(1, "Please select a package"),
-  customAmount: z.number().optional(), // Override package price
+  customAmount: optionalNumber, // Override package price
   assignedPhotographers: z.array(z.string()).min(1, "Assign at least one photographer"),
   assignedVideographers: z.array(z.string()).optional(),
   assignedEditors: z.array(z.string()).optional(),
   addOns: z.array(z.string()).optional(), // Selected add-on IDs
 
   // Step 4 — Payment & Notes
-  totalAmount: z.number().min(1, "Total amount is required"),
-  advanceAmount: z.number().min(0).optional(),
+  totalAmount: requiredAmount,
+  advanceAmount: optionalNumber,
   advancePaid: z.boolean().optional(),
   paymentMode: z.enum(["UPI", "Bank Transfer", "Cash", "Card", "Cheque"]).optional(),
   balanceDueDate: z.string().optional(),

@@ -1,0 +1,76 @@
+<?php
+/* ============================================================
+   LOCAL DEV ROUTER — single-origin static site + PHP API
+   Mirrors the production server: the built website (dist/) is the
+   web root, the PHP API lives at /api, and uploaded media at
+   /uploads — all on one origin, served like Apache would.
+
+   Run from the repo root:
+     php -S localhost:8080 scripts/serve-router.php
+
+   NOT used in production (Apache serves these files directly).
+   ============================================================ */
+
+$root = dirname(__DIR__);
+$uri  = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+
+// API + uploaded media: serve straight from the repo (PHP executes api/*.php)
+if ($uri === '/api' || strncmp($uri, '/api/', 5) === 0 || strncmp($uri, '/uploads/', 9) === 0) {
+    return false;
+}
+
+// Everything else is the built static website under dist/
+$base = $root . '/dist';
+$path = $base . $uri;
+
+if ($uri === '/' || $uri === '') {
+    $path = $base . '/index.html';
+} elseif (is_dir($path)) {
+    $path = rtrim($path, '/') . '/index.html';
+} elseif (!is_file($path) && is_file($path . '/index.html')) {
+    $path = $path . '/index.html';
+}
+
+return serve_static_file($path);
+
+function serve_static_file(string $path): bool
+{
+    $real = realpath($path);
+    $root = realpath(dirname(__DIR__) . '/dist');
+    // Guard against path traversal outside dist/
+    if ($real === false || strncmp($real, $root, strlen($root)) !== 0 || !is_file($real)) {
+        http_response_code(404);
+        header('Content-Type: text/plain');
+        echo 'Not found';
+        return true;
+    }
+
+    static $types = [
+        'html' => 'text/html; charset=utf-8',
+        'js'   => 'text/javascript; charset=utf-8',
+        'mjs'  => 'text/javascript; charset=utf-8',
+        'css'  => 'text/css; charset=utf-8',
+        'json' => 'application/json',
+        'svg'  => 'image/svg+xml',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'gif'  => 'image/gif',
+        'ico'  => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2'=> 'font/woff2',
+        'ttf'  => 'font/ttf',
+        'eot'  => 'application/vnd.ms-fontobject',
+        'map'  => 'application/json',
+        'txt'  => 'text/plain; charset=utf-8',
+        'mp4'  => 'video/mp4',
+        'webmanifest' => 'application/manifest+json',
+    ];
+    $ext = strtolower(pathinfo($real, PATHINFO_EXTENSION));
+    if (isset($types[$ext])) {
+        header('Content-Type: ' . $types[$ext]);
+    }
+    readfile($real);
+    return true;
+}

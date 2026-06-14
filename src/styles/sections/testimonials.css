@@ -329,7 +329,7 @@
   white-space: nowrap;
   padding: 10px 24px;
   border-radius: 50px;
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
   border: none;
   cursor: pointer;

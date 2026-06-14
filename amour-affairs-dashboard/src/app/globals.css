@@ -131,6 +131,24 @@
   html {
     @apply font-sans;
   }
+  /* Premium feel: any interactive control shows the hand cursor.
+     Native <button> defaults to the arrow cursor, which made the
+     dashboard feel flat — opt every clickable element into pointer,
+     while disabled controls correctly fall back to not-allowed. */
+  button,
+  [role="button"],
+  a[href],
+  label[for],
+  summary,
+  select,
+  .cursor-pointer {
+    cursor: pointer;
+  }
+  button:disabled,
+  [role="button"][aria-disabled="true"],
+  .disabled\:cursor-not-allowed:disabled {
+    cursor: not-allowed;
+  }
 }
 
 /* Custom scrollbar — Donezo-style minimal */

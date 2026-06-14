@@ -11,11 +11,13 @@ import '../styles/typography.css';
 import '../styles/components.css';
 import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
+import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/premium-albums-page.css';
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
+import { initLeadForm } from './lead-form.js';
 import { albums as fallbackAlbums } from './premium-albums-data.js';
 import { loadArchiveAlbums } from './api.js';
 
@@ -26,6 +28,9 @@ loadArchiveAlbums('premium_album', fallbackAlbums).then((albums) => initArchiveP
   folderWord: 'Collection',
   openWord: 'View Collection',
   onReady({ gsap }) {
+    // Standing enquiry form before the footer — same lead pipeline
+    initLeadForm();
+
     // Craftsmanship steps reveal (section unique to this page)
     if (document.querySelector('.ppage-craft')) {
       gsap.from('.ppage-craft__inner > *', {

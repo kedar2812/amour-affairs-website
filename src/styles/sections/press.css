@@ -131,33 +131,26 @@
   to   { transform: translateX(-50%); }
 }
 
-/* Individual brand name */
-.press__brand {
-  font-family: var(--font-display);
-  font-size: clamp(1.03rem, 2.05vw, 1.7rem);
-  font-weight: 400;
-  font-style: normal;
-  letter-spacing: 0.04em;
-  color: rgba(44, 36, 32, 0.22);
-  white-space: nowrap;
-  transition: color 0.4s ease, opacity 0.4s ease;
-  cursor: default;
+/* Press / publication logos.
+   The source logos are mixed colours on white — multiply drops the white
+   ground so nothing reads as a hard rectangle, and grayscale + reduced
+   opacity unify them into the page's muted, warm palette. Each lifts to
+   full colour on hover (the track also pauses), keeping it tactile. */
+.press__logo {
+  height: clamp(52px, 6vw, 82px);
+  width: auto;
+  max-width: clamp(180px, 24vw, 300px);
+  object-fit: contain;
   flex-shrink: 0;
-  position: relative;
+  mix-blend-mode: multiply;
+  filter: grayscale(100%);
+  opacity: 0.78;
+  transition: opacity 0.4s ease, filter 0.4s ease;
 }
 
-.press__brand:hover {
-  color: var(--color-accent);
-}
-
-/* Decorative separator between brands */
-.press__separator {
-  color: var(--color-accent);
-  opacity: 0.3;
-  font-size: 0.5rem;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
+.press__logo:hover {
+  opacity: 1;
+  filter: grayscale(0%);
 }
 
 /* ── Gift A Shoot Section ── */

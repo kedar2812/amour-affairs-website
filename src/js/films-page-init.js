@@ -11,6 +11,7 @@ import '../styles/typography.css';
 import '../styles/components.css';
 import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
+import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/films-page.css';
 
@@ -23,6 +24,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
 import { initFooterTyping } from './footer-typing.js';
+import { initLeadForm } from './lead-form.js';
 import { loadFilms } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -277,6 +279,7 @@ async function init() {
   initGalleryReveal();
   initCtaReveal();
   initFooterTyping();
+  initLeadForm();
 
   ScrollTrigger.refresh();
 }

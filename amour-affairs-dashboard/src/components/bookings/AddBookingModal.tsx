@@ -26,7 +26,7 @@ const Venues = [
   "Client's Residence - Baner", "Outdoor Location - Sinhagad Fort"
 ];
 
-const EventTypes = ["Wedding", "Pre-Wedding", "Corporate", "Portrait", "Maternity", "Engagement", "Family"] as const;
+const EventTypes = ["Wedding", "Pre-Wedding", "Corporate", "Portrait", "Maternity", "Engagement", "Family", "Other"] as const;
 
 interface AddBookingModalProps {
   isOpen: boolean;
@@ -310,7 +310,13 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
             ) : <div />}
 
             <button
-              onClick={currentStep < 4 ? goNext : handleSubmit(executeFinalSubmit)}
+              onClick={currentStep < 4 ? goNext : handleSubmit(executeFinalSubmit, (formErrors) => {
+                // Surface why the final submit didn't go through instead of
+                // letting the button appear dead (react-hook-form swallows
+                // invalid submits silently by default).
+                const first = Object.values(formErrors)[0] as { message?: string } | undefined;
+                showToast(first?.message || "Please complete all required fields before creating the booking.", "error");
+              })}
               disabled={isSubmittingForm}
               className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm tracking-wide hover:bg-primary/90 transition shadow-lg shadow-primary/20 disabled:opacity-70 flex items-center gap-2"
             >
@@ -519,19 +525,23 @@ function Step2_EventDetails({ formData, register, errors, setValue, venueSearch,
             {...register("venueName")}
             onChange={(e) => { setValue("venueName", e.target.value); setVenueSearch(e.target.value); setShowVenueDropdown(true); }}
             onFocus={() => setShowVenueDropdown(true)}
-            placeholder="Search venue..." 
-            className={`${InputClass} pl-10 ${errors.venueName ? '!border-red-500 ring-2 ring-red-500/20' : ''}`} 
+            onBlur={() => setTimeout(() => setShowVenueDropdown(false), 150)}
+            placeholder="Type any venue name…"
+            autoComplete="off"
+            className={`${InputClass} pl-10 ${errors.venueName ? '!border-red-500 ring-2 ring-red-500/20' : ''}`}
           />
-          {showVenueDropdown && venueSearch.length > 0 && (
+          {showVenueDropdown && venueSearch.length > 0 && Venues.filter(v => v.toLowerCase().includes(venueSearch.toLowerCase())).length > 0 && (
             <div className="absolute top-12 left-0 w-full bg-card border border-border shadow-xl rounded-lg z-50 max-h-48 overflow-y-auto py-1">
+              <p className="px-4 py-1.5 text-[11px] text-muted-foreground/70 font-medium">Suggestions — or just type your own</p>
               {Venues.filter(v => v.toLowerCase().includes(venueSearch.toLowerCase())).map(v => (
-                <div key={v} onClick={() => { setValue("venueName", v); setVenueSearch(v); setShowVenueDropdown(false); }} className="px-4 py-2 hover:bg-muted cursor-pointer text-sm text-foreground">
+                <div key={v} onMouseDown={() => { setValue("venueName", v); setVenueSearch(v); setShowVenueDropdown(false); }} className="px-4 py-2 hover:bg-muted cursor-pointer text-sm text-foreground">
                   {v}
                 </div>
               ))}
             </div>
           )}
         </div>
+        <p className="text-[11px] text-muted-foreground mt-1.5">Free text — type any venue. The list is just quick suggestions.</p>
         {errors.venueName && <ErrorText>{errors.venueName.message as string}</ErrorText>}
       </div>
 

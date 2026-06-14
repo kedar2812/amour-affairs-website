@@ -11,6 +11,7 @@ import '../styles/typography.css';
 import '../styles/components.css';
 import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
+import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/about-page.css';
 
@@ -23,6 +24,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { initLeadForm } from './lead-form.js';
 import { loadTeam } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -91,37 +93,6 @@ function initHeroReveal() {
     ease: 'power3.out',
   }, '-=0.5');
 
-  // Oversized "est. 2011" watermark settles in
-  tl.to('.about-hero__numeral', {
-    opacity: 0.06,
-    duration: 1.6,
-    ease: 'power2.out',
-  }, '-=1.1');
-
-  // Scroll cue appears last
-  tl.to('#heroScroll', {
-    opacity: 1,
-    duration: 0.8,
-    ease: 'power2.out',
-  }, '-=0.6');
-}
-
-
-/* ── 1b. Fade the scroll cue out once the user starts scrolling ── */
-function initHeroScrollCue() {
-  const cue = document.getElementById('heroScroll');
-  if (!cue) return;
-
-  gsap.to(cue, {
-    opacity: 0,
-    ease: 'none',
-    scrollTrigger: {
-      trigger: '.about-hero',
-      start: 'top top',
-      end: '30% top',
-      scrub: true,
-    },
-  });
 }
 
 
@@ -340,11 +311,11 @@ async function init() {
   initNav(lenis);
   initAboutNav();
   initHeroReveal();
-  initHeroScrollCue();
   initFounderReveals();
   initPhilosophyReveals();
   initParallax();
   initCtaReveal();
+  initLeadForm();
 
   ScrollTrigger.refresh();
 }

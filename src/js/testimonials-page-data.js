@@ -10,7 +10,7 @@
    stored, so it cannot be broken by content edits.
    ============================================================ */
 
-export const fallbackTestimonialRows = [
+const archive = [
   // ── Row 1 ──
   [
     {
@@ -338,4 +338,14 @@ export const fallbackTestimonialRows = [
       src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80&auto=format&fit=crop',
     },
   ],
+];
+
+// The testimonials page now runs two marquee rows (row 1 left, row 2 right).
+// Flatten the archive and split it evenly so every unique review still shows,
+// just redistributed across the two rows.
+const _flat = archive.flat();
+const _half = Math.ceil(_flat.length / 2);
+export const fallbackTestimonialRows = [
+  _flat.slice(0, _half),
+  _flat.slice(_half),
 ];

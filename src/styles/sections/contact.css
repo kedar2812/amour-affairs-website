@@ -172,7 +172,7 @@ footer.footer {
   font-weight: 400;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--color-accent-light);
+  color: var(--color-btn-hover);
   border: 1px solid rgba(201, 169, 124, 0.35);
   padding: 16px 48px;
   transition: var(--transition-default);
@@ -184,7 +184,7 @@ footer.footer {
   content: '';
   position: absolute;
   inset: 0;
-  background: var(--color-accent);
+  background: var(--color-btn);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -193,7 +193,7 @@ footer.footer {
 
 .footer__cta:hover {
   color: #FAF7F4;
-  border-color: var(--color-accent);
+  border-color: var(--color-btn);
 }
 
 .footer__cta:hover::before {

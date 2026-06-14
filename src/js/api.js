@@ -186,7 +186,8 @@ export async function loadTestimonialRows(stockPhotos = []) {
 
   const byRow = new Map();
   data.testimonials.forEach((t, i) => {
-    const row = Math.max(1, parseInt(t.marquee_row, 10) || 1);
+    // The page renders two marquee rows — fold any higher row back in.
+    const row = Math.min(2, Math.max(1, parseInt(t.marquee_row, 10) || 1));
     if (!byRow.has(row)) byRow.set(row, []);
     byRow.get(row).push({
       quote: decodeEntities(t.review_text),

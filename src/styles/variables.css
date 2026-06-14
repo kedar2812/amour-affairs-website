@@ -13,6 +13,8 @@
   --color-text-dim:     #7A6A5A;          /* warm taupe */
   --color-accent:       #9E7A4E;          /* rich warm gold */
   --color-accent-light: #C9A97C;          /* lighter champagne gold */
+  --color-btn:          #C19A57;          /* button gold — client reference */
+  --color-btn-hover:    #A6803F;          /* darker press state for buttons */
   --color-white:        #2C2420;          /* repurposed: dark for text over light */
   --color-overlay:      rgba(245, 237, 226, 0.55);
   --color-overlay-heavy: rgba(245, 237, 226, 0.75);

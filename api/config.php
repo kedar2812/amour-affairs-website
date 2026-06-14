@@ -54,6 +54,8 @@ define('RATE_LIMIT_API_WINDOW', 60);     // 1-minute window
 define('ALLOWED_ORIGINS', [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:8080', // local: static site served by PHP
+    'http://localhost:8081', // local: static dashboard export served by PHP
     'https://www.amouraffairs.in',
     'https://amouraffairs.in',
     'https://admin.amouraffairs.in',

@@ -353,7 +353,7 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   padding: 17px 42px;
-  background: #C9A96E;
+  background: var(--color-btn);
   color: #fff;
   text-decoration: none;
   border: none;
@@ -362,7 +362,7 @@
 }
 
 .btn--champagne:hover {
-  background: #b8944f;
+  background: var(--color-btn-hover);
   transform: translateY(-2px);
 }
 

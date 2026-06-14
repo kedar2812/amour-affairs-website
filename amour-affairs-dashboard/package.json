@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "preview": "next build && node scripts/serve-static.mjs out 8081",
+    "serve": "node scripts/serve-static.mjs out 8081",
     "start": "next start",
     "lint": "eslint"
   },

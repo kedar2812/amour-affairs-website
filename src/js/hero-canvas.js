@@ -99,7 +99,11 @@ function drawModelFrame(idx, scale) {
   // feels carved from the same stone — shadows provide the 3D pop.
   modelCtx.save();
   modelCtx.globalCompositeOperation = 'source-atop';
-  modelCtx.fillStyle = 'rgba(223, 203, 170, 0.32)';
+  modelCtx.fillStyle = 'rgba(223, 203, 170, 0.24)';
+  modelCtx.fillRect(0, 0, cw, ch);
+  // Deepen the stone a couple of shades so the model reads richer and
+  // stands out from the light hero background — warm brown keeps it realistic.
+  modelCtx.fillStyle = 'rgba(74, 48, 22, 0.12)';
   modelCtx.fillRect(0, 0, cw, ch);
   modelCtx.restore();
 }

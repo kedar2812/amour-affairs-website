@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(40px, 5vw, 90px);
+  gap: clamp(64px, 8vw, 150px);
   z-index: var(--z-nav);
   transition: background 0.5s ease, padding 0.4s ease, box-shadow 0.5s ease, backdrop-filter 0.5s ease;
 }
@@ -137,7 +137,7 @@
   white-space: nowrap;
   padding: 10px 24px;
   border-radius: 50px;
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
   border: none;
   cursor: pointer;
@@ -146,7 +146,7 @@
 
 .btn--nav-book:hover {
   transform: scale(1.03);
-  background: var(--color-accent-light);
+  background: var(--color-btn-hover);
 }
 
 .nav__hamburger {
@@ -363,7 +363,7 @@
   letter-spacing: 0.03em;
   padding: 14px 44px;
   border-radius: 50px;
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
   border: none;
   cursor: pointer;
@@ -376,7 +376,7 @@
 
 .hero__cta:hover {
   transform: scale(1.04);
-  background: var(--color-accent-light);
+  background: var(--color-btn-hover);
   box-shadow: 0 20px 60px rgba(158, 122, 78, 0.28);
 }
 

@@ -109,13 +109,20 @@
 .about-hero {
   position: relative;
   width: 100%;
-  min-height: 100vh;
-  min-height: 100svh;
+  /* Compact top-padded hero — matches the Testimonials page height
+     so the title sits slightly down from the nav, not screen-centred. */
+  padding: clamp(140px, 18vh, 200px) var(--container-gutter) clamp(48px, 7vw, 80px);
   display: flex;
   align-items: center;
   justify-content: center;
   background: #F5EDE2;
   overflow: hidden;
+}
+
+/* The full-screen-only flourishes don't belong on a compact hero. */
+.about-hero__numeral,
+.about-hero__scroll {
+  display: none;
 }
 
 /* Oversized "est. 2011" watermark, gold and barely-there */

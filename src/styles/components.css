@@ -43,8 +43,8 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   padding: 16px 40px;
-  border: 1px solid var(--color-accent);
-  color: var(--color-accent);
+  border: 1px solid var(--color-btn);
+  color: var(--color-btn);
   background: transparent;
   cursor: pointer;
   position: relative;
@@ -59,7 +59,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--color-accent);
+  background: var(--color-btn);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -68,7 +68,7 @@
 
 .btn:hover {
   color: #FAF7F4;
-  border-color: var(--color-accent);
+  border-color: var(--color-btn);
 }
 
 .btn:hover::before {
@@ -87,12 +87,12 @@
 }
 
 .btn--solid {
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
 }
 
 .btn--solid::before {
-  background: #7A5A30;
+  background: var(--color-btn-hover);
 }
 
 /* Button on photo/dark backgrounds — stays light outline */

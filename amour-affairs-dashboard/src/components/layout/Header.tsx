@@ -1,11 +1,12 @@
 "use client";
 
-import { Search, Bell, Plus, Download, Mail } from "lucide-react";
+import { Plus, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ExportMenu } from "@/components/ui/ExportMenu";
 import { AddBookingModal } from "@/components/bookings/AddBookingModal";
 import { GlobalSearch } from "./GlobalSearch";
+import { NotificationBell } from "./NotificationBell";
 import { bookings, leads, clients, teamMembers, packages } from "@/data/mockData";
 import type { Booking } from "@/data/mockData";
 import {
@@ -16,7 +17,7 @@ import {
   flattenPackages,
 } from "@/lib/exportUtils";
 import { useState, useEffect, useMemo } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 const ROUTE_CONTENT: Record<string, { title: string; subtitle: string }> = {
@@ -27,7 +28,11 @@ const ROUTE_CONTENT: Record<string, { title: string; subtitle: string }> = {
   "/team": { title: "Team", subtitle: "Manage photography crew, roles, and current schedules." },
   "/packages": { title: "Packages", subtitle: "Design and optimize shoot bundles and service offerings." },
   "/gallery": { title: "Gallery", subtitle: "Manage client media deliveries and download activities." },
-  "/testimonials": { title: "Testimonials", subtitle: "Review client stories, ratings, and publish quotes." },
+  "/albums": { title: "Albums", subtitle: "Curate the wedding & couple-shoot folders shown on your website." },
+  "/premium-albums": { title: "Premium Albums", subtitle: "Showcase your handcrafted album & print collections." },
+  "/films": { title: "Films", subtitle: "Manage the wedding films featured across your website." },
+  "/website": { title: "Website Content", subtitle: "Edit enquiry copy, session packages, and page text." },
+  "/testimonials": { title: "Testimonials", subtitle: "Review client stories and publish quotes." },
   "/payments": { title: "Payments", subtitle: "Track invoices, payments status, and gross revenues." },
   "/analytics": { title: "Analytics", subtitle: "Analyze funnel rates, performance, and key metrics." },
   "/settings": { title: "Settings", subtitle: "Configure CRM details, permissions, and app preferences." },
@@ -35,11 +40,14 @@ const ROUTE_CONTENT: Record<string, { title: string; subtitle: string }> = {
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bookingToEdit, setBookingToEdit] = useState<Booking | null>(null);
 
-  // Get active route content, default to fallback
-  const content = ROUTE_CONTENT[pathname] || {
+  // `trailingSlash: true` makes pathname "/gallery/" — strip it so the
+  // exact-match lookup actually hits (otherwise every page fell back).
+  const routeKey = pathname !== "/" && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const content = ROUTE_CONTENT[routeKey] || {
     title: "Amour Affairs",
     subtitle: "Wedding Photography & Studio management CRM."
   };
@@ -105,16 +113,19 @@ export function Header() {
           variant="header"
         />
 
-        {/* Mail (Donezo-style) */}
-        <button className="h-10 w-10 flex items-center justify-center rounded-xl border border-border/50 bg-card/10 hover:bg-card/20 backdrop-blur-md transition-colors">
+        {/* Mail — jumps to the leads inbox */}
+        <button
+          onClick={() => router.push("/leads")}
+          title="Leads inbox"
+          className="h-10 w-10 flex items-center justify-center rounded-xl border border-border/50 bg-card/10 hover:bg-card/20 backdrop-blur-md transition-colors"
+        >
           <Mail className="h-[18px] w-[18px] text-foreground" strokeWidth={1.7} />
         </button>
 
-        {/* Notification Bell */}
-        <button className="h-10 w-10 relative flex items-center justify-center rounded-xl border border-border/50 bg-card/10 hover:bg-card/20 backdrop-blur-md transition-colors mr-1">
-          <Bell className="h-[18px] w-[18px] text-foreground" strokeWidth={1.7} />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card pulse-glow" />
-        </button>
+        {/* Notification Bell — live lead/enquiry feed */}
+        <div className="mr-1">
+          <NotificationBell />
+        </div>
 
         {/* Theme Toggle replaces User Avatar */}
         <div className="flex items-center pl-3 border-l border-border/50">

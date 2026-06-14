@@ -1,9 +1,21 @@
 "use client";
 
+/* ============================================================
+   PREMIUM ALBUMS — dedicated dashboard tab
+   ------------------------------------------------------------
+   Premium Albums are the studio's physical, handcrafted product
+   collections (12×12 / 15×15 albums, canvas prints) shown on the
+   /premium-albums website page. They reuse the `premium_album`
+   album type in the API but are a different *thing* from the
+   wedding / couple-shoot event folders, so they get their own tab
+   with product-appropriate labels (Collection Name, Format,
+   Material & Finish) and NO film field.
+   ============================================================ */
+
 import React, { useState, useCallback } from "react";
 import {
   Search, Plus, Upload, Trash2, X, Loader2, ArrowLeft,
-  Pencil, ImagePlus, FolderOpen, GripVertical,
+  Pencil, ImagePlus, BookOpen, GripVertical,
 } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -17,14 +29,7 @@ import { Button } from "@/components/ui/button";
 import { albumsAPI, galleryAPI, assetUrl } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
 
-// Premium Albums are a different product (handcrafted physical
-// albums/prints) and live in their own dedicated tab — this tab is
-// just the event folders shown on /weddings and /couple-shoots.
-const ALBUM_TYPES = [
-  { value: "wedding", label: "Weddings" },
-  { value: "couple_shoot", label: "Couple Shoots" },
-];
-
+const ALBUM_TYPE = "premium_album";
 const MAX_FILE_SIZE = 15 * 1024 * 1024;
 
 interface AlbumPhoto {
@@ -36,14 +41,13 @@ interface AlbumPhoto {
   is_active: number;
 }
 
-interface Album {
+interface Collection {
   id: number;
   type: string;
-  couple: string;
-  location: string;
-  date_label: string;
+  couple: string;        // → Collection Name
+  location: string;      // → Format (spec line 1)
+  date_label: string;    // → Material & Finish (spec line 2)
   description: string;
-  film_youtube_id: string | null;
   cover: string | null;
   cover_thumb: string | null;
   photo_count: number;
@@ -53,22 +57,18 @@ interface Album {
   photos?: AlbumPhoto[];
 }
 
-interface AlbumFormState {
-  type: string;
+interface CollectionForm {
   couple: string;
   location: string;
   date_label: string;
   description: string;
-  film_youtube_id: string;
 }
 
-const EMPTY_FORM: AlbumFormState = { type: "wedding", couple: "", location: "", date_label: "", description: "", film_youtube_id: "" };
-
-const getTypeLabel = (val: string) => ALBUM_TYPES.find(t => t.value === val)?.label || val;
+const EMPTY_FORM: CollectionForm = { couple: "", location: "", date_label: "", description: "" };
 
 // Decode once on load — text displays correctly and edit-save cycles
 // re-encode to the same stored value (no double-encoding)
-const decodeAlbum = (a: Album): Album => ({
+const decodeCollection = (a: Collection): Collection => ({
   ...a,
   couple: decodeEntities(a.couple),
   location: decodeEntities(a.location),
@@ -76,25 +76,25 @@ const decodeAlbum = (a: Album): Album => ({
   description: decodeEntities(a.description),
 });
 
-export default function AlbumsPage() {
-  const [albums, setAlbums] = useState<Album[]>([]);
-  const [activeType, setActiveType] = useState("wedding");
+const specLine = (c: Collection) =>
+  [c.location, c.date_label].filter(Boolean).join(" · ");
+
+export default function PremiumAlbumsPage() {
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Detail view — the album currently opened for photo management
-  const [openAlbum, setOpenAlbum] = useState<Album | null>(null);
+  // Detail view — the collection currently opened for photo management
+  const [openCollection, setOpenCollection] = useState<Collection | null>(null);
   const [photos, setPhotos] = useState<AlbumPhoto[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
-
-  // Sequential photo upload queue
   const [uploadQueue, setUploadQueue] = useState<{ done: number; total: number } | null>(null);
 
   // Create / edit modal
   const [showModal, setShowModal] = useState(false);
-  const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
-  const [form, setForm] = useState<AlbumFormState>(EMPTY_FORM);
+  const [editing, setEditing] = useState<Collection | null>(null);
+  const [form, setForm] = useState<CollectionForm>(EMPTY_FORM);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -103,99 +103,101 @@ export default function AlbumsPage() {
 
   // ── Data loading ──
 
-  const fetchAlbums = useCallback(async () => {
+  const fetchCollections = useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = await albumsAPI.list({ type: activeType, all: true });
-      setAlbums(((res as { albums: Album[] }).albums || []).map(decodeAlbum));
+      const res = await albumsAPI.list({ type: ALBUM_TYPE, all: true });
+      setCollections(((res as { albums: Collection[] }).albums || []).map(decodeCollection));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load albums");
+      setError(err instanceof Error ? err.message : "Failed to load collections");
     } finally {
       setIsLoading(false);
     }
-  }, [activeType]);
+  }, []);
 
-  React.useEffect(() => { fetchAlbums(); }, [fetchAlbums]);
+  React.useEffect(() => { fetchCollections(); }, [fetchCollections]);
 
-  const openAlbumDetail = async (album: Album) => {
-    setOpenAlbum(album);
+  const openDetail = async (collection: Collection) => {
+    setOpenCollection(collection);
     setIsLoadingPhotos(true);
     try {
-      const fresh = decodeAlbum(await albumsAPI.get(album.id) as Album);
-      setOpenAlbum(fresh);
+      const fresh = decodeCollection(await albumsAPI.get(collection.id) as Collection);
+      setOpenCollection(fresh);
       setPhotos(fresh.photos || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load album");
+      setError(err instanceof Error ? err.message : "Failed to load collection");
     } finally {
       setIsLoadingPhotos(false);
     }
   };
 
-  const refreshOpenAlbum = async (albumId: number) => {
-    const fresh = decodeAlbum(await albumsAPI.get(albumId) as Album);
-    setOpenAlbum(fresh);
+  const refreshOpen = async (id: number) => {
+    const fresh = decodeCollection(await albumsAPI.get(id) as Collection);
+    setOpenCollection(fresh);
     setPhotos(fresh.photos || []);
   };
 
-  const filteredAlbums = albums.filter(a =>
-    a.couple.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (a.location || "").toLowerCase().includes(searchQuery.toLowerCase())
+  const filtered = collections.filter(c =>
+    c.couple.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    specLine(c).toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // ── Create / edit ──
 
-  const openCreateModal = () => {
-    setEditingAlbum(null);
-    setForm({ ...EMPTY_FORM, type: activeType });
+  const openCreate = () => {
+    setEditing(null);
+    setForm(EMPTY_FORM);
     setCoverFile(null);
     setCoverPreview("");
     setShowModal(true);
   };
 
-  const openEditModal = (album: Album) => {
-    setEditingAlbum(album);
+  const openEdit = (c: Collection) => {
+    setEditing(c);
     setForm({
-      type: album.type,
-      couple: album.couple,
-      location: album.location || "",
-      date_label: album.date_label || "",
-      description: album.description || "",
-      film_youtube_id: album.film_youtube_id ? `https://youtu.be/${album.film_youtube_id}` : "",
+      couple: c.couple,
+      location: c.location || "",
+      date_label: c.date_label || "",
+      description: c.description || "",
     });
     setCoverFile(null);
-    setCoverPreview(album.cover_thumb ? assetUrl(album.cover_thumb) : "");
+    setCoverPreview(c.cover_thumb ? assetUrl(c.cover_thumb) : "");
     setShowModal(true);
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > MAX_FILE_SIZE) { setError("Cover must be under 15MB"); return; }
+    if (file.size > MAX_FILE_SIZE) { setError("Thumbnail must be under 15MB"); return; }
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
   };
 
   const handleSave = async () => {
-    if (!form.couple.trim()) { setError("Album title is required"); return; }
+    if (!form.couple.trim()) { setError("Collection name is required"); return; }
     setIsSaving(true);
     setError("");
     try {
-      if (editingAlbum) {
-        await albumsAPI.update(editingAlbum.id, { ...form });
+      if (editing) {
+        await albumsAPI.update(editing.id, { ...form, type: ALBUM_TYPE });
         if (coverFile) {
           const fd = new FormData();
           fd.append("cover", coverFile);
-          await albumsAPI.setCover(editingAlbum.id, fd);
+          await albumsAPI.setCover(editing.id, fd);
         }
-        if (openAlbum?.id === editingAlbum.id) await refreshOpenAlbum(editingAlbum.id);
+        if (openCollection?.id === editing.id) await refreshOpen(editing.id);
       } else {
         const fd = new FormData();
-        Object.entries(form).forEach(([key, value]) => fd.append(key, value));
+        fd.append("type", ALBUM_TYPE);
+        fd.append("couple", form.couple);
+        fd.append("location", form.location);
+        fd.append("date_label", form.date_label);
+        fd.append("description", form.description);
         if (coverFile) fd.append("cover", coverFile);
         await albumsAPI.create(fd);
       }
       setShowModal(false);
-      fetchAlbums();
+      fetchCollections();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
     } finally {
@@ -203,51 +205,47 @@ export default function AlbumsPage() {
     }
   };
 
-  // ── Album actions ──
+  // ── Collection actions ──
 
-  const toggleActive = async (album: Album) => {
+  const toggleActive = async (c: Collection) => {
     try {
-      await albumsAPI.update(album.id, { is_active: album.is_active ? 0 : 1 });
-      setAlbums(prev => prev.map(a => a.id === album.id ? { ...a, is_active: a.is_active ? 0 : 1 } : a));
+      await albumsAPI.update(c.id, { is_active: c.is_active ? 0 : 1 });
+      setCollections(prev => prev.map(a => a.id === c.id ? { ...a, is_active: a.is_active ? 0 : 1 } : a));
     } catch (err) { setError(err instanceof Error ? err.message : "Update failed"); }
   };
 
-  const handleDeleteAlbum = async (album: Album) => {
-    if (!confirm(`Delete "${album.couple}" and all ${album.photo_count} of its photos? This cannot be undone.`)) return;
+  const handleDelete = async (c: Collection) => {
+    if (!confirm(`Delete the "${c.couple}" collection and all ${c.photo_count} of its photos? This cannot be undone.`)) return;
     try {
-      await albumsAPI.delete(album.id);
-      setAlbums(prev => prev.filter(a => a.id !== album.id));
-      if (openAlbum?.id === album.id) setOpenAlbum(null);
+      await albumsAPI.delete(c.id);
+      setCollections(prev => prev.filter(a => a.id !== c.id));
+      if (openCollection?.id === c.id) setOpenCollection(null);
     } catch (err) { setError(err instanceof Error ? err.message : "Delete failed"); }
   };
 
-  const handleAlbumDragEnd = async (event: DragEndEvent) => {
+  const handleCollectionDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    // Reorder over the full fetched list, not the search-filtered view,
-    // so items hidden by the filter are never dropped from state.
-    const oldIndex = albums.findIndex(a => a.id === active.id);
-    const newIndex = albums.findIndex(a => a.id === over.id);
+    const oldIndex = collections.findIndex(a => a.id === active.id);
+    const newIndex = collections.findIndex(a => a.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
 
-    const reordered = arrayMove(albums, oldIndex, newIndex);
-    setAlbums(reordered);
+    const reordered = arrayMove(collections, oldIndex, newIndex);
+    setCollections(reordered);
     try {
       await albumsAPI.reorder(reordered.map((a, i) => ({ id: a.id, sort_order: i + 1 })));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Reorder failed");
-      fetchAlbums();
+      fetchCollections();
     }
   };
 
-  // ── Photo actions (detail view) ──
+  // ── Photo actions ──
 
-  // Upload one file per request: keeps each request small (shared-hosting
-  // post limits), gives real progress, and lets one bad file fail alone.
   const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     e.target.value = "";
-    if (!files.length || !openAlbum) return;
+    if (!files.length || !openCollection) return;
 
     const oversized = files.filter(f => f.size > MAX_FILE_SIZE);
     if (oversized.length) {
@@ -263,7 +261,7 @@ export default function AlbumsPage() {
       try {
         const fd = new FormData();
         fd.append("photos[]", file);
-        await albumsAPI.addPhotos(openAlbum.id, fd);
+        await albumsAPI.addPhotos(openCollection.id, fd);
       } catch (err) {
         failures.push(`${file.name}: ${err instanceof Error ? err.message : "upload failed"}`);
       }
@@ -271,8 +269,8 @@ export default function AlbumsPage() {
     }
 
     setUploadQueue(null);
-    try { await refreshOpenAlbum(openAlbum.id); } catch { /* list refresh below still runs */ }
-    fetchAlbums();
+    try { await refreshOpen(openCollection.id); } catch { /* list refresh below still runs */ }
+    fetchCollections();
     if (failures.length) {
       setError(`${failures.length} of ${files.length} photos failed — ${failures.join("; ")}`);
     }
@@ -283,7 +281,7 @@ export default function AlbumsPage() {
     try {
       await galleryAPI.delete(photo.id);
       setPhotos(prev => prev.filter(p => p.id !== photo.id));
-      fetchAlbums();
+      fetchCollections();
     } catch (err) { setError(err instanceof Error ? err.message : "Delete failed"); }
   };
 
@@ -300,7 +298,7 @@ export default function AlbumsPage() {
       await galleryAPI.reorder(reordered.map((p, i) => ({ id: p.id, sort_order: i + 1 })));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Reorder failed");
-      if (openAlbum) refreshOpenAlbum(openAlbum.id);
+      if (openCollection) refreshOpen(openCollection.id);
     }
   };
 
@@ -311,27 +309,27 @@ export default function AlbumsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          {openAlbum ? (
+          {openCollection ? (
             <>
-              <button onClick={() => setOpenAlbum(null)} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-2">
-                <ArrowLeft className="h-4 w-4" /> All {getTypeLabel(openAlbum.type)}
+              <button onClick={() => setOpenCollection(null)} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-2">
+                <ArrowLeft className="h-4 w-4" /> All Premium Albums
               </button>
-              <h1 className="text-3xl font-bold text-foreground">{openAlbum.couple}</h1>
+              <h1 className="text-3xl font-bold text-foreground">{openCollection.couple}</h1>
               <p className="text-[14px] text-muted-foreground mt-1">
-                {[openAlbum.location, openAlbum.date_label].filter(Boolean).join(" · ") || "Manage this album's photos."}
+                {specLine(openCollection) || "Manage this collection's photos."}
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-foreground">Albums</h1>
-              <p className="text-[14px] text-muted-foreground mt-1">Wedding, couple shoot and premium album archives shown on the website.</p>
+              <h1 className="text-3xl font-bold text-foreground">Premium Albums</h1>
+              <p className="text-[14px] text-muted-foreground mt-1">Your handcrafted album &amp; print collections shown on the Premium Albums page.</p>
             </>
           )}
         </div>
         <div className="flex items-center gap-3">
-          {openAlbum ? (
+          {openCollection ? (
             <>
-              <Button onClick={() => openEditModal(openAlbum)} variant="outline" className="h-10 px-4 rounded-xl">
+              <Button onClick={() => openEdit(openCollection)} variant="outline" className="h-10 px-4 rounded-xl">
                 <Pencil className="h-4 w-4 mr-2" /> Edit Details
               </Button>
               <label className={`inline-flex items-center h-10 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-medium shadow-sm ${uploadQueue ? "opacity-60 pointer-events-none" : "cursor-pointer hover:opacity-90"}`}>
@@ -343,11 +341,11 @@ export default function AlbumsPage() {
             <>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input type="text" placeholder="Search albums..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                <input type="text" placeholder="Search collections..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-10 w-[220px] pl-9 pr-4 bg-card border border-border/50 rounded-xl text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20" />
               </div>
-              <Button onClick={openCreateModal} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none shadow-sm">
-                <Plus className="h-4 w-4 mr-2" /> New Album
+              <Button onClick={openCreate} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none shadow-sm">
+                <Plus className="h-4 w-4 mr-2" /> New Collection
               </Button>
             </>
           )}
@@ -378,19 +376,17 @@ export default function AlbumsPage() {
         </div>
       )}
 
-      {openAlbum ? (
+      {openCollection ? (
         /* ═══════════ DETAIL VIEW — photo grid ═══════════ */
         isLoadingPhotos ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-6 w-6 text-primary animate-spin" />
-          </div>
+          <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 text-primary animate-spin" /></div>
         ) : photos.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
               <ImagePlus className="h-8 w-8 text-muted-foreground" />
             </div>
-            <p className="text-lg font-semibold text-foreground">No photos in this album yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Add photos — the first one becomes the cover automatically.</p>
+            <p className="text-lg font-semibold text-foreground">No photos in this collection yet</p>
+            <p className="text-sm text-muted-foreground mt-1">Add photos of the finished pieces — the first one becomes the thumbnail automatically.</p>
             <label className="mt-4 inline-flex items-center h-10 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-medium cursor-pointer hover:opacity-90">
               <ImagePlus className="h-4 w-4 mr-2" /> Add Photos
               <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddPhotos} />
@@ -413,51 +409,38 @@ export default function AlbumsPage() {
           </>
         )
       ) : (
-        /* ═══════════ LIST VIEW — album grid ═══════════ */
-        <>
-          <div className="flex items-center gap-1 bg-card/50 border border-border/50 p-1 rounded-xl w-max">
-            {ALBUM_TYPES.map(t => (
-              <button key={t.value} onClick={() => setActiveType(t.value)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeType === t.value ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}>
-                {t.label}
-              </button>
-            ))}
+        /* ═══════════ LIST VIEW — collection grid ═══════════ */
+        isLoading ? (
+          <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 text-primary animate-spin" /></div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <BookOpen className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <p className="text-lg font-semibold text-foreground">No premium album collections yet</p>
+            <p className="text-sm text-muted-foreground mt-1">Create a collection (e.g. 12 × 12 Albums), then fill it with photos of finished pieces.</p>
+            <Button onClick={openCreate} className="mt-4 rounded-xl bg-primary text-primary-foreground">
+              <Plus className="h-4 w-4 mr-2" /> New Collection
+            </Button>
           </div>
-
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 text-primary animate-spin" />
-            </div>
-          ) : filteredAlbums.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                <FolderOpen className="h-8 w-8 text-muted-foreground" />
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleCollectionDragEnd}>
+            <SortableContext items={filtered.map(a => a.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-12">
+                {filtered.map(collection => (
+                  <SortableCollectionCard
+                    key={collection.id}
+                    collection={collection}
+                    onOpen={() => openDetail(collection)}
+                    onEdit={() => openEdit(collection)}
+                    onDelete={() => handleDelete(collection)}
+                    onToggleActive={() => toggleActive(collection)}
+                  />
+                ))}
               </div>
-              <p className="text-lg font-semibold text-foreground">No {getTypeLabel(activeType).toLowerCase()} albums yet</p>
-              <p className="text-sm text-muted-foreground mt-1">Create an album, then fill it with photos.</p>
-              <Button onClick={openCreateModal} className="mt-4 rounded-xl bg-primary text-primary-foreground">
-                <Plus className="h-4 w-4 mr-2" /> New Album
-              </Button>
-            </div>
-          ) : (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAlbumDragEnd}>
-              <SortableContext items={filteredAlbums.map(a => a.id)} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pb-12">
-                  {filteredAlbums.map(album => (
-                    <SortableAlbumCard
-                      key={album.id}
-                      album={album}
-                      onOpen={() => openAlbumDetail(album)}
-                      onEdit={() => openEditModal(album)}
-                      onDelete={() => handleDeleteAlbum(album)}
-                      onToggleActive={() => toggleActive(album)}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </>
+            </SortableContext>
+          </DndContext>
+        )
       )}
 
       {/* Create / Edit Modal */}
@@ -466,63 +449,43 @@ export default function AlbumsPage() {
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-[560px] border border-border/50 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-border/50 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-foreground">{editingAlbum ? "Edit Album" : "New Album"}</h2>
+              <h2 className="text-xl font-bold text-foreground">{editing ? "Edit Collection" : "New Collection"}</h2>
               <button onClick={() => setShowModal(false)} className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center"><X className="h-4 w-4" /></button>
             </div>
             <div className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Collection</label>
-                  <select value={form.type} onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-                    className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50">
-                    {ALBUM_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Album Title *</label>
-                  <input type="text" value={form.couple} onChange={(e) => setForm(f => ({ ...f, couple: e.target.value }))} placeholder="Aarohi & Vedant"
-                    className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-                </div>
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Collection Name *</label>
+                <input type="text" value={form.couple} onChange={(e) => setForm(f => ({ ...f, couple: e.target.value }))} placeholder="12 × 12 Albums"
+                  className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Location</label>
-                  <input type="text" value={form.location} onChange={(e) => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Pune"
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Format</label>
+                  <input type="text" value={form.location} onChange={(e) => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Lay-Flat Spreads"
                     className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+                  <p className="text-[11px] text-muted-foreground mt-1.5">First spec line on the card.</p>
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Date Label</label>
-                  <input type="text" value={form.date_label} onChange={(e) => setForm(f => ({ ...f, date_label: e.target.value }))} placeholder="December 2025"
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Material &amp; Finish</label>
+                  <input type="text" value={form.date_label} onChange={(e) => setForm(f => ({ ...f, date_label: e.target.value }))} placeholder="Leather &amp; Linen"
                     className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+                  <p className="text-[11px] text-muted-foreground mt-1.5">Second spec line on the card.</p>
                 </div>
               </div>
               <div>
                 <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Description</label>
-                <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={3}
-                  placeholder="A two-day celebration at a heritage wada…"
+                <textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} rows={4}
+                  placeholder="Our most-loved heirloom format — twelve by twelve inches of lay-flat, edge-to-edge spreads…"
                   className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none" />
               </div>
-              {(form.type === "wedding" || form.type === "couple_shoot") && (
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
-                    {form.type === "wedding" ? "Wedding Film (optional)" : "Couple Film (optional)"}
-                  </label>
-                  <input type="text" value={form.film_youtube_id} onChange={(e) => setForm(f => ({ ...f, film_youtube_id: e.target.value }))}
-                    placeholder="Paste a YouTube link, e.g. https://youtu.be/abc123…"
-                    className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-                  <p className="text-[11px] text-muted-foreground mt-1.5">
-                    Shown inside this folder, below the photographs, on the {form.type === "wedding" ? "Weddings" : "Couple Shoots"} page. Paste a YouTube link or video ID — leave blank for no film.
-                  </p>
-                </div>
-              )}
               <div>
                 <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
-                  Cover Image {editingAlbum ? "(replace)" : "(optional — first photo is used if empty)"}
+                  Thumbnail {editing ? "(replace)" : "(optional — first photo is used if empty)"}
                 </label>
                 <label className="block cursor-pointer">
                   <div className={`border-2 border-dashed rounded-xl p-4 text-center transition-colors ${coverPreview ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/30 hover:bg-muted/30"}`}>
                     {coverPreview ? (
-                      <img src={coverPreview} alt="Cover preview" className="max-h-[160px] mx-auto rounded-lg object-contain" />
+                      <img src={coverPreview} alt="Thumbnail preview" className="max-h-[160px] mx-auto rounded-lg object-contain" />
                     ) : (
                       <>
                         <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
@@ -534,7 +497,7 @@ export default function AlbumsPage() {
                 </label>
               </div>
               <Button onClick={handleSave} disabled={isSaving || !form.couple.trim()} className="w-full h-10 rounded-xl bg-primary text-primary-foreground font-bold">
-                {isSaving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : editingAlbum ? "Save Changes" : "Create Album"}
+                {isSaving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : editing ? "Save Changes" : "Create Collection"}
               </Button>
             </div>
           </div>
@@ -545,40 +508,39 @@ export default function AlbumsPage() {
 }
 
 
-/* ── Sortable album card ── */
-function SortableAlbumCard({ album, onOpen, onEdit, onDelete, onToggleActive }: {
-  album: Album;
+/* ── Sortable collection card ── */
+function SortableCollectionCard({ collection, onOpen, onEdit, onDelete, onToggleActive }: {
+  collection: Collection;
   onOpen: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onToggleActive: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: album.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: collection.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
+  const spec = [collection.location, collection.date_label].filter(Boolean).join(" · ");
 
   return (
     <div ref={setNodeRef} style={style}
-      className={`dash-card overflow-hidden group ${isDragging ? "z-10 shadow-2xl opacity-90" : ""} ${!album.is_active ? "opacity-50" : ""}`}>
+      className={`dash-card overflow-hidden group ${isDragging ? "z-10 shadow-2xl opacity-90" : ""} ${!collection.is_active ? "opacity-50" : ""}`}>
       <button onClick={onOpen} className="block w-full aspect-[3/2] bg-muted overflow-hidden relative cursor-pointer text-left">
-        {album.cover_thumb || album.cover ? (
-          <img src={assetUrl(album.cover_thumb || album.cover)} alt={album.couple}
+        {collection.cover_thumb || collection.cover ? (
+          <img src={assetUrl(collection.cover_thumb || collection.cover)} alt={collection.couple}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <FolderOpen className="h-10 w-10 text-muted-foreground/40" />
+            <BookOpen className="h-10 w-10 text-muted-foreground/40" />
           </div>
         )}
         <span className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-[11px] font-semibold">
-          {album.photo_count} photo{album.photo_count === 1 ? "" : "s"}
+          {collection.photo_count} photo{collection.photo_count === 1 ? "" : "s"}
         </span>
       </button>
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <button onClick={onOpen} className="min-w-0 text-left cursor-pointer">
-            <p className="text-[15px] font-bold text-foreground truncate">{album.couple}</p>
-            <p className="text-[12px] text-muted-foreground truncate mt-0.5">
-              {[album.location, album.date_label].filter(Boolean).join(" · ") || "—"}
-            </p>
+            <p className="text-[15px] font-bold text-foreground truncate">{collection.couple}</p>
+            <p className="text-[12px] text-muted-foreground truncate mt-0.5">{spec || "—"}</p>
           </button>
           <span {...attributes} {...listeners} className="shrink-0 h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted cursor-grab active:cursor-grabbing" title="Drag to reorder">
             <GripVertical className="h-4 w-4" />
@@ -586,14 +548,14 @@ function SortableAlbumCard({ album, onOpen, onEdit, onDelete, onToggleActive }: 
         </div>
         <div className="flex items-center justify-between mt-3">
           <button onClick={onToggleActive}
-            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${album.is_active ? "bg-emerald-500/10 text-emerald-500" : "bg-slate-500/10 text-slate-400"}`}>
-            {album.is_active ? "Live" : "Hidden"}
+            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${collection.is_active ? "bg-emerald-500/10 text-emerald-500" : "bg-slate-500/10 text-slate-400"}`}>
+            {collection.is_active ? "Live" : "Hidden"}
           </button>
           <div className="flex items-center gap-1">
-            <button onClick={onEdit} className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground" title="Edit album">
+            <button onClick={onEdit} className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground" title="Edit collection">
               <Pencil className="h-3.5 w-3.5" />
             </button>
-            <button onClick={onDelete} className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500" title="Delete album">
+            <button onClick={onDelete} className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500" title="Delete collection">
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>

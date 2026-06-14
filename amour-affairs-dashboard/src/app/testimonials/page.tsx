@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Search, Plus, Trash2, Star, X, Loader2, Edit3, Upload } from "lucide-react";
+import { Search, Plus, Trash2, Star, X, Loader2, Edit3, Upload, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/Drawer";
 import { testimonialsAPI, assetUrl } from "@/lib/api";
@@ -45,7 +45,6 @@ export default function TestimonialsPage() {
   const [formText, setFormText] = useState("");
   const [formType, setFormType] = useState("Wedding");
   const [formCity, setFormCity] = useState("");
-  const [formRating, setFormRating] = useState(5);
   const [formFeatured, setFormFeatured] = useState(false);
   const [formWeddings, setFormWeddings] = useState(false);
   const [formRow, setFormRow] = useState(1);
@@ -79,10 +78,12 @@ export default function TestimonialsPage() {
     t.review_text.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  /* Marquee rows currently in use. A new testimonial may join any
-     existing row, or open exactly the NEXT row (highest + 1) — rows
-     stay contiguous, so the alternating scroll pattern stays intact. */
-  const highestRow = Math.max(1, ...testimonials.map(t => Number(t.marquee_row) || 1));
+  /* The testimonials page renders exactly two marquee rows (row 1 left,
+     row 2 right). A testimonial may join either existing row, or open the
+     NEXT row up to that limit — rows stay contiguous so the alternating
+     scroll pattern stays intact. */
+  const MAX_ROWS = 2;
+  const highestRow = Math.min(MAX_ROWS, Math.max(1, ...testimonials.map(t => Number(t.marquee_row) || 1)));
   const rowOptions = Array.from({ length: highestRow }, (_, i) => i + 1);
   const rowCount = (row: number) =>
     testimonials.filter(t => (Number(t.marquee_row) || 1) === row && t.id !== editingId).length;
@@ -90,7 +91,7 @@ export default function TestimonialsPage() {
   const openCreate = () => {
     setEditingId(null);
     setFormName(""); setFormText(""); setFormType("Wedding");
-    setFormCity(""); setFormRating(5); setFormFeatured(false); setFormWeddings(false); setFormDate("");
+    setFormCity(""); setFormFeatured(false); setFormWeddings(false); setFormDate("");
     setFormRow(1);
     setPhotoFile(null); setPhotoPreview("");
     setShowForm(true);
@@ -99,7 +100,7 @@ export default function TestimonialsPage() {
   const openEdit = (t: Testimonial) => {
     setEditingId(t.id);
     setFormName(t.client_name); setFormText(t.review_text); setFormType(t.event_type);
-    setFormCity(t.city || ""); setFormRating(t.rating); setFormFeatured(!!t.is_featured);
+    setFormCity(t.city || ""); setFormFeatured(!!t.is_featured);
     setFormWeddings(!!t.show_on_weddings);
     setFormRow(Number(t.marquee_row) || 1);
     setFormDate(t.event_date || "");
@@ -124,7 +125,7 @@ export default function TestimonialsPage() {
       if (editingId) {
         await testimonialsAPI.update(editingId, {
           client_name: formName, review_text: formText, event_type: formType,
-          city: formCity, rating: formRating, is_featured: formFeatured ? 1 : 0,
+          city: formCity, is_featured: formFeatured ? 1 : 0,
           show_on_weddings: formWeddings ? 1 : 0,
           marquee_row: formRow,
           event_date: formDate || null,
@@ -141,7 +142,6 @@ export default function TestimonialsPage() {
         formData.append("review_text", formText);
         formData.append("event_type", formType);
         formData.append("city", formCity);
-        formData.append("rating", String(formRating));
         formData.append("is_featured", formFeatured ? "1" : "0");
         formData.append("show_on_weddings", formWeddings ? "1" : "0");
         formData.append("marquee_row", String(formRow));
@@ -206,11 +206,7 @@ export default function TestimonialsPage() {
           {filtered.map(t => (
             <div key={t.id} className="dash-card p-6 flex flex-col h-full group">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`h-3.5 w-3.5 ${i < t.rating ? "text-amber-500" : "text-border"}`} fill={i < t.rating ? "currentColor" : "none"} />
-                  ))}
-                </div>
+                <Quote className="h-5 w-5 text-primary/30" />
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => toggleFeatured(t)} className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${t.is_featured ? "bg-amber-500/10 text-amber-500" : "hover:bg-muted text-muted-foreground"}`}>
                     <Star className="h-3.5 w-3.5" fill={t.is_featured ? "currentColor" : "none"} />
@@ -269,22 +265,10 @@ export default function TestimonialsPage() {
                 className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Rating</label>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <button key={i} onClick={() => setFormRating(i + 1)} className="p-1">
-                    <Star className={`h-5 w-5 ${i < formRating ? "text-amber-500" : "text-border"}`} fill={i < formRating ? "currentColor" : "none"} />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Event Date</label>
-              <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-            </div>
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Event Date</label>
+            <input type="date" value={formDate} onChange={(e) => setFormDate(e.target.value)}
+              className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
           </div>
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Testimonials-Page Row</label>
@@ -295,13 +279,15 @@ export default function TestimonialsPage() {
                   Row {row} — {rowDirection(row)} ({rowCount(row)} testimonial{rowCount(row) === 1 ? "" : "s"})
                 </option>
               ))}
-              <option value={highestRow + 1}>
-                + Start Row {highestRow + 1} — {rowDirection(highestRow + 1)} (new row)
-              </option>
+              {highestRow < MAX_ROWS && (
+                <option value={highestRow + 1}>
+                  + Start Row {highestRow + 1} — {rowDirection(highestRow + 1)} (new row)
+                </option>
+              )}
             </select>
             <p className="text-[11px] text-muted-foreground mt-1.5">
-              Rows scroll in alternating directions automatically (row 1 left, row 2 right, …),
-              so adding a row never breaks the pattern. New rows can only be opened in order.
+              The page runs two marquee rows — row 1 scrolls left, row 2 scrolls right.
+              Assign each testimonial to whichever row keeps them balanced.
             </p>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">

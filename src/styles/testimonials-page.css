@@ -295,13 +295,19 @@
 
 .tpage-cta {
   text-align: center;
-  padding: clamp(40px, 5vw, 72px) var(--container-gutter) clamp(80px, 10vw, 130px);
+  padding: clamp(40px, 5vw, 72px) var(--container-gutter) clamp(32px, 4vw, 52px);
   background: var(--color-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0;
+}
+
+/* The enquiry form follows the CTA directly on this page — pull it up
+   so the two read as one continuous "begin your story" moment. */
+.tpage .inquiry {
+  padding-top: clamp(28px, 3.5vw, 56px);
 }
 
 .tpage-cta__label {
@@ -336,7 +342,7 @@
   white-space: nowrap;
   padding: 10px 28px;
   border-radius: 50px;
-  background: var(--color-accent);
+  background: var(--color-btn);
   color: #FAF7F4;
   border: none;
   cursor: pointer;
@@ -346,7 +352,7 @@
 
 .tpage-cta__btn:hover {
   transform: scale(1.03);
-  background: var(--color-accent-light);
+  background: var(--color-btn-hover);
 }
 
 .tpage-cta__btn-arrow {
