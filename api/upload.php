@@ -73,8 +73,15 @@ function validateImageFile(array $file): ?string {
     }
 
     // Double-check with getimagesize (prevents disguised files)
-    if (@getimagesize($file['tmp_name']) === false) {
+    $info = @getimagesize($file['tmp_name']);
+    if ($info === false) {
         return 'File is not a valid image';
+    }
+
+    // Reject decompression bombs before the expensive decode — getimagesize reads
+    // only the header, so this is cheap and runs before any imagecreatefrom* call.
+    if (((int)$info[0] * (int)$info[1]) > MAX_IMAGE_PIXELS) {
+        return 'Image resolution is too large (max ' . (int)(MAX_IMAGE_PIXELS / 1000000) . ' megapixels)';
     }
 
     return null;
@@ -149,6 +156,22 @@ function processSingleImageFile(array $file, string $subdir): array|false {
                     break;
             }
         }
+    }
+
+    // Downscale oversized images to MAX_IMAGE_DIMENSION on the longest edge.
+    // Keeps stored files web-sized — big savings in disk, CPU and bandwidth.
+    $scale = min(MAX_IMAGE_DIMENSION / $width, MAX_IMAGE_DIMENSION / $height);
+    if ($scale < 1) {
+        $scaledWidth = max(1, (int)round($width * $scale));
+        $scaledHeight = max(1, (int)round($height * $scale));
+        $scaledImage = imagecreatetruecolor($scaledWidth, $scaledHeight);
+        imagealphablending($scaledImage, false);
+        imagesavealpha($scaledImage, true);
+        imagecopyresampled($scaledImage, $srcImage, 0, 0, 0, 0, $scaledWidth, $scaledHeight, $width, $height);
+        imagedestroy($srcImage);
+        $srcImage = $scaledImage;
+        $width = $scaledWidth;
+        $height = $scaledHeight;
     }
 
     // Save as WebP (main image)

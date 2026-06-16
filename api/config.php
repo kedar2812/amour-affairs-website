@@ -55,6 +55,12 @@ define('MAX_UPLOAD_SIZE', 64 * 1024 * 1024); // 64MB — accommodates large full
 define('WEBP_QUALITY', 82);
 define('THUMBNAIL_MAX_WIDTH', 400);
 define('THUMBNAIL_MAX_HEIGHT', 400);
+// Reject absurdly large pixel grids before decoding (decompression-bomb / OOM guard).
+// 80 MP comfortably covers any real camera while blocking malicious tiny-but-huge files.
+define('MAX_IMAGE_PIXELS', 80 * 1000 * 1000);
+// Downscale the stored image to this longest edge. The web never needs more, and it
+// slashes per-upload CPU, memory and disk on shared hosting. Originals aren't kept.
+define('MAX_IMAGE_DIMENSION', 3500);
 define('ALLOWED_MIME_TYPES', [
     'image/jpeg',
     'image/png',
