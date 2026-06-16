@@ -16,6 +16,15 @@ ini_set('log_errors', '1');
 // ── Timezone ──
 date_default_timezone_set('Asia/Kolkata');
 
+// ── Server secrets (gitignored, created once on the host) ──
+// On shared hosting where setting real environment variables is awkward,
+// create api/config.secrets.php (copy config.secrets.example.php) and have it
+// putenv() AA_JWT_SECRET and AA_DB_*. It loads here so the getenv() lookups
+// below resolve to the real values. The file is never committed.
+if (is_file(__DIR__ . '/config.secrets.php')) {
+    require __DIR__ . '/config.secrets.php';
+}
+
 // ── Database Configuration ──
 // Prefer environment variables (set these in StackCP / hosting panel or a
 // .env loaded by the host). The literals are local-dev fallbacks only.

@@ -2,6 +2,7 @@ node_modules/
 .DS_Store
 dist/
 .env
+api/config.secrets.php
 .vite/
 3d model/
 *.mp4
