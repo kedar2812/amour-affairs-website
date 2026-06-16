@@ -68,7 +68,7 @@ export default function GalleryPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 15 * 1024 * 1024) { setError("File must be under 15MB"); return; }
+    if (file.size > 64 * 1024 * 1024) { setError("File must be under 64MB"); return; }
     setUploadFile(file);
     setUploadPreview(URL.createObjectURL(file));
   };
@@ -238,7 +238,7 @@ export default function GalleryPage() {
                     <>
                       <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                       <p className="text-sm font-semibold text-foreground">Click to upload</p>
-                      <p className="text-[12px] text-muted-foreground mt-1">JPEG, PNG, WebP, GIF — max 15MB</p>
+                      <p className="text-[12px] text-muted-foreground mt-1">JPEG, PNG, WebP, GIF — max 64MB</p>
                     </>
                   )}
                 </div>

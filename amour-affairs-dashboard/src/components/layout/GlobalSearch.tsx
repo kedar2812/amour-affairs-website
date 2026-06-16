@@ -1,24 +1,32 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, MapPin, Phone, Briefcase, User, Calendar, Loader2 } from "lucide-react";
+import { Search, Phone, Briefcase, User, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { bookings, clients, leads } from "@/data/mockData";
+import { useRouter } from "next/navigation";
+import { useBookings, useClients, useLeads } from "@/lib/useData";
 
 type SearchResultItem = {
   id: string;
   title: string;
   subtitle: string;
   type: "Booking" | "Client" | "Lead";
+  route: string;
   icon: any;
 };
 
 export function GlobalSearch() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isSimulatingLoad, setIsSimulatingLoad] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Live data (real API when authenticated, mock fallback otherwise)
+  const { data: bookings } = useBookings();
+  const { data: clients } = useClients();
+  const { data: leads } = useLeads();
 
   // Focus shortcuts (Cmd+F / Ctrl+F)
   useEffect(() => {
@@ -79,6 +87,7 @@ export function GlobalSearch() {
       title: `${b.clientName} - ${b.eventType}`,
       subtitle: `${b.id} • ${b.venue}, ${b.city}`,
       type: "Booking" as const,
+      route: "/bookings",
       icon: Briefcase
     }));
     
@@ -92,6 +101,7 @@ export function GlobalSearch() {
       title: c.name,
       subtitle: `${c.phone} • ${c.email}`,
       type: "Client" as const,
+      route: "/clients",
       icon: User
     }));
 
@@ -105,12 +115,13 @@ export function GlobalSearch() {
       title: l.clientName,
       subtitle: `Stage: ${l.stage} • ${l.phone}`,
       type: "Lead" as const,
+      route: "/leads",
       icon: Phone
     }));
 
     matched = [...matchedBookings, ...matchedClients, ...matchedLeads];
     return matched;
-  }, [query]);
+  }, [query, bookings, clients, leads]);
 
   return (
     <div ref={rootRef} className="relative hidden md:block z-50">
@@ -176,9 +187,9 @@ export function GlobalSearch() {
                               <button 
                                 key={item.id}
                                 onClick={() => {
-                                  console.log("Navigating to item:", item.id);
                                   setIsOpen(false);
                                   setQuery("");
+                                  router.push(item.route);
                                 }}
                                 className="w-full text-left flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-muted/50 transition-colors group"
                               >

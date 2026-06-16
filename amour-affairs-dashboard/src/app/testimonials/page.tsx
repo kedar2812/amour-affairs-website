@@ -7,7 +7,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { testimonialsAPI, assetUrl } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
 
-const MAX_PHOTO_SIZE = 15 * 1024 * 1024;
+const MAX_PHOTO_SIZE = 64 * 1024 * 1024; // 64MB
 
 interface Testimonial {
   id: number;
@@ -112,7 +112,7 @@ export default function TestimonialsPage() {
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > MAX_PHOTO_SIZE) { setError("Photo must be under 15MB"); return; }
+    if (file.size > MAX_PHOTO_SIZE) { setError("Photo must be under 64MB"); return; }
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
   };
@@ -307,7 +307,7 @@ export default function TestimonialsPage() {
                 ) : (
                   <>
                     <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
-                    <p className="text-[12px] text-muted-foreground">JPEG, PNG, WebP — max 15MB</p>
+                    <p className="text-[12px] text-muted-foreground">JPEG, PNG, WebP — max 64MB</p>
                   </>
                 )}
               </div>

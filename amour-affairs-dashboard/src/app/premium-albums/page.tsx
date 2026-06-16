@@ -30,7 +30,7 @@ import { albumsAPI, galleryAPI, assetUrl } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
 
 const ALBUM_TYPE = "premium_album";
-const MAX_FILE_SIZE = 15 * 1024 * 1024;
+const MAX_FILE_SIZE = 64 * 1024 * 1024; // 64MB — full-res wedding photos
 
 interface AlbumPhoto {
   id: number;
@@ -168,7 +168,7 @@ export default function PremiumAlbumsPage() {
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > MAX_FILE_SIZE) { setError("Thumbnail must be under 15MB"); return; }
+    if (file.size > MAX_FILE_SIZE) { setError("Thumbnail must be under 64MB"); return; }
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
   };
@@ -249,7 +249,7 @@ export default function PremiumAlbumsPage() {
 
     const oversized = files.filter(f => f.size > MAX_FILE_SIZE);
     if (oversized.length) {
-      setError(`These files exceed 15MB: ${oversized.map(f => f.name).join(", ")}`);
+      setError(`These files exceed 64MB: ${oversized.map(f => f.name).join(", ")}`);
       return;
     }
 
@@ -489,7 +489,7 @@ export default function PremiumAlbumsPage() {
                     ) : (
                       <>
                         <Upload className="h-6 w-6 text-muted-foreground mx-auto mb-1" />
-                        <p className="text-[12px] text-muted-foreground">JPEG, PNG, WebP — max 15MB</p>
+                        <p className="text-[12px] text-muted-foreground">JPEG, PNG, WebP — max 64MB</p>
                       </>
                     )}
                   </div>

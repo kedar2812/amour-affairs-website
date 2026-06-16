@@ -11,6 +11,7 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/upload.php';
 
 handleCORS();
 setJSONHeaders();
@@ -18,6 +19,24 @@ setJSONHeaders();
 $method = getMethod();
 
 switch ($method) {
+
+    case 'POST':
+        // Image upload for settings-backed content (e.g. the About-page
+        // founder photo). Stores the file and returns its path so the
+        // caller can persist it as a `site_*` setting value via PUT.
+        $auth = requireAuth();
+        if (($_GET['action'] ?? '') !== 'upload') {
+            sendError('Unknown action', 400);
+        }
+        $photo = processImageUpload('photo', 'site/');
+        if (empty($photo)) {
+            sendError('No file uploaded', 400);
+        }
+        sendJSON([
+            'file_path'      => $photo['file_path'],
+            'thumbnail_path' => $photo['thumbnail_path'] ?? null,
+        ], 201);
+        break;
 
     case 'GET':
         $db = getDB();

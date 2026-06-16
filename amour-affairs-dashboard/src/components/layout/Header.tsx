@@ -7,8 +7,9 @@ import { ExportMenu } from "@/components/ui/ExportMenu";
 import { AddBookingModal } from "@/components/bookings/AddBookingModal";
 import { GlobalSearch } from "./GlobalSearch";
 import { NotificationBell } from "./NotificationBell";
-import { bookings, leads, clients, teamMembers, packages } from "@/data/mockData";
+import { bookings } from "@/data/mockData";
 import type { Booking } from "@/data/mockData";
+import { useBookings, useLeads, useClients, useTeam, usePackages } from "@/lib/useData";
 import {
   flattenBookings,
   flattenLeads,
@@ -61,16 +62,23 @@ export function Header() {
     return () => window.removeEventListener('open-add-booking', handleOpen);
   }, []);
 
-  // Build the full dashboard export payload
+  // Live data for the export (real API when authenticated, mock fallback otherwise)
+  const { data: bookingsData } = useBookings();
+  const { data: leadsData } = useLeads();
+  const { data: clientsData } = useClients();
+  const { data: teamData } = useTeam(true);
+  const { data: packagesData } = usePackages();
+
+  // Build the full dashboard export payload from whatever data is live
   const allDatasets = useMemo(
     () => [
-      flattenBookings(bookings),
-      flattenLeads(leads),
-      flattenClients(clients),
-      flattenTeam(teamMembers),
-      flattenPackages(packages),
+      flattenBookings(bookingsData),
+      flattenLeads(leadsData),
+      flattenClients(clientsData),
+      flattenTeam(teamData),
+      flattenPackages(packagesData),
     ],
-    []
+    [bookingsData, leadsData, clientsData, teamData, packagesData]
   );
 
   return (

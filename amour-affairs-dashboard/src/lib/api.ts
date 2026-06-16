@@ -319,6 +319,10 @@ export const settingsAPI = {
   getAll: () => api.get<{ settings: Record<string, string> }>('settings.php', false),
   getGroup: (group: string) => api.get<{ settings: Record<string, string> }>(`settings.php?group=${group}`, false),
   update: (settings: Record<string, string>) => api.put('settings.php', { settings }),
+  // Upload an image for settings-backed content (e.g. the About-page founder
+  // photo). Returns the stored path to persist as a `site_*` setting value.
+  uploadImage: (formData: FormData) =>
+    api.post<{ file_path: string; thumbnail_path: string | null }>('settings.php?action=upload', formData),
 };
 
 export const bookingsAPI = {

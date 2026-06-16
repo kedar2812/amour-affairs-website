@@ -17,22 +17,41 @@ ini_set('log_errors', '1');
 date_default_timezone_set('Asia/Kolkata');
 
 // ── Database Configuration ──
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'amour_affairs_db');
-define('DB_USER', 'root');           // Change for production
-define('DB_PASS', '');               // Change for production
+// Prefer environment variables (set these in StackCP / hosting panel or a
+// .env loaded by the host). The literals are local-dev fallbacks only.
+define('DB_HOST', getenv('AA_DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('AA_DB_NAME') ?: 'amour_affairs_db');
+define('DB_USER', getenv('AA_DB_USER') ?: 'root');           // Change for production
+define('DB_PASS', getenv('AA_DB_PASS') !== false ? getenv('AA_DB_PASS') : ''); // Change for production
 define('DB_CHARSET', 'utf8mb4');
 
 // ── JWT Configuration ──
-// IMPORTANT: Change this to a long random string in production (64+ chars)
-define('JWT_SECRET', 'CHANGE_THIS_TO_A_SECURE_RANDOM_STRING_IN_PRODUCTION_64_CHARS_MINIMUM');
+// IMPORTANT: set AA_JWT_SECRET (64+ random chars) in the hosting environment.
+// The placeholder below is a local-dev fallback and is REFUSED on live hosts
+// by the guard further down — a known secret lets anyone forge admin tokens.
+define('JWT_DEFAULT_SECRET', 'CHANGE_THIS_TO_A_SECURE_RANDOM_STRING_IN_PRODUCTION_64_CHARS_MINIMUM');
+define('JWT_SECRET', getenv('AA_JWT_SECRET') ?: JWT_DEFAULT_SECRET);
 define('JWT_ACCESS_EXPIRY', 900);       // 15 minutes
 define('JWT_REFRESH_EXPIRY', 604800);   // 7 days
+
+// Fail closed: never serve real requests with the default secret on a live host.
+// CLI (seeding) and localhost dev are exempt so local work keeps running.
+if (
+    JWT_SECRET === JWT_DEFAULT_SECRET
+    && PHP_SAPI !== 'cli'
+    && !preg_match('/^(localhost|127\.0\.0\.1)(:\d+)?$/', $_SERVER['HTTP_HOST'] ?? '')
+) {
+    error_log('SECURITY: AA_JWT_SECRET is not set; refusing to run with the default secret.');
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Server authentication is not configured.']);
+    exit;
+}
 
 // ── Upload Configuration ──
 define('UPLOAD_DIR', __DIR__ . '/../uploads/');
 define('UPLOAD_URL_PREFIX', '/uploads/');
-define('MAX_UPLOAD_SIZE', 15 * 1024 * 1024); // 15MB
+define('MAX_UPLOAD_SIZE', 64 * 1024 * 1024); // 64MB — accommodates large full-res wedding photos
 define('WEBP_QUALITY', 82);
 define('THUMBNAIL_MAX_WIDTH', 400);
 define('THUMBNAIL_MAX_HEIGHT', 400);

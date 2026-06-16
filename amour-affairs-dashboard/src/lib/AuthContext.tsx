@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             token === "mock_development_access_token_jwt" || 
             (err && err.message && (err.message.includes("Failed to fetch") || err.message.includes("API Error")))
           ) {
-            console.log("Using local mock session or backend offline. Keeping session active.");
+            // Mock dev session or backend briefly offline — keep the session active.
             return;
           }
           clearAuth();

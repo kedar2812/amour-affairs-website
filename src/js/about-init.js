@@ -26,12 +26,13 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
 import { initLeadForm } from './lead-form.js';
-import { loadTeam } from './api.js';
+import { loadTeam, loadSiteContent, assetUrl } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Start loading CMS team members immediately — awaited during boot
+// Start loading CMS content immediately — awaited during boot
 const teamPromise = loadTeam();
+const siteContentPromise = loadSiteContent();
 
 // ── Lenis Smooth Scroll ──
 const lenis = new Lenis({
@@ -285,6 +286,37 @@ function renderTeamMarquee(members) {
 }
 
 
+/* ── Founder block from the CMS ──
+   Overrides the bundled founder photo + copy when the dashboard has
+   published values (settings group `site_content`, keys `site_founder_*`).
+   Any missing key keeps the static markup, so the page never breaks. */
+function renderFounder(content) {
+  if (!content) return;
+
+  const setText = (selector, value, index = 0) => {
+    if (!value) return;
+    const el = document.querySelectorAll(selector)[index];
+    if (el) el.textContent = value;
+  };
+
+  setText('.founder__name', content.site_founder_name);
+  setText('.founder__role', content.site_founder_role);
+  setText('.founder__pullquote', content.site_founder_pullquote);
+  setText('.founder__body', content.site_founder_body1, 0);
+  setText('.founder__body', content.site_founder_body2, 1);
+  setText('.founder__philosophy-quote', content.site_founder_philosophy);
+  setText('.founder__photo-caption', content.site_founder_caption);
+
+  if (content.site_founder_photo) {
+    const img = document.querySelector('#founderPhoto img');
+    if (img) {
+      img.src = assetUrl(content.site_founder_photo);
+      if (content.site_founder_name) img.alt = content.site_founder_name;
+    }
+  }
+}
+
+
 /* ── Nav scroll behavior for about page ── */
 function initAboutNav() {
   const nav = document.querySelector('.nav');
@@ -307,6 +339,9 @@ function initAboutNav() {
 async function init() {
   // CMS team, or null to keep the static placeholder cards
   renderTeamMarquee(await teamPromise);
+
+  // CMS founder photo + copy, applied before the reveal animations run
+  renderFounder(await siteContentPromise);
 
   await initPreloader();
   initNav(lenis);
