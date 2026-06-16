@@ -13,6 +13,7 @@ import '../styles/components.css';
 import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
 import '../styles/info-page.css';
+import '../styles/buttons.css'; // unified button identity — must load last
 
 // ── Libraries ──
 import Lenis from '@studio-freight/lenis';

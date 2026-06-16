@@ -14,6 +14,7 @@ import '../styles/sections/contact.css';
 import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/premium-albums-page.css';
+import '../styles/buttons.css'; // unified button identity — must load last
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';

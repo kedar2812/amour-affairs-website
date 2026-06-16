@@ -1,0 +1,95 @@
+/* ============================================================
+   BUTTONS.CSS — Unified Button Identity
+   Amour Affairs · Premium Wedding Photography
+
+   One textured-gold pill for every button on the site, matching
+   the client reference (Book Now / Begin Your Story). This file is
+   imported LAST on every page so it overrides the per-page button
+   styles that were defined before it in the cascade.
+
+   Surface  → soft satin-gold gradient + inset sheen (var tokens)
+   Shape    → fully rounded pill, cream text, no border
+   Hover    → lift + scale, deepened gradient, soft gold glow
+              (the exact feel of the hero "Book Now" hover)
+   ============================================================ */
+
+.btn,
+.btn--solid,
+.btn--pill,
+.btn--small,
+.btn--on-photo,
+.btn--champagne,
+.btn--nav-book,
+.hero__cta,
+.about-cta__btn,
+.about-cta__btn--primary,
+.about-cta__btn--secondary,
+.ipage-cta__btn,
+.wpage-cta__btn,
+.fpage-cta__btn,
+.cpage-cta__btn,
+.tpage-cta__btn,
+.ppage-cta__btn,
+.testi__read-more,
+.inquiry__submit,
+.footer__cta {
+  /* !important so this single identity wins regardless of bundle/cascade
+     order — Vite hoists this shared file ahead of per-page CSS. */
+  background: var(--btn-grad) !important;
+  color: #FAF7F4 !important;
+  border: none !important;
+  border-radius: 999px !important;
+  box-shadow: var(--btn-sheen), var(--btn-shadow) !important;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.4s ease,
+              background 0.35s ease;
+}
+
+/* Hover — identical lift + glow across every button.
+   (.inquiry__submit keeps :not(:disabled) so disabled stays inert.) */
+.btn:hover,
+.btn--solid:hover,
+.btn--pill:hover,
+.btn--small:hover,
+.btn--on-photo:hover,
+.btn--champagne:hover,
+.btn--nav-book:hover,
+.hero__cta:hover,
+.about-cta__btn:hover,
+.about-cta__btn--primary:hover,
+.about-cta__btn--secondary:hover,
+.ipage-cta__btn:hover,
+.wpage-cta__btn:hover,
+.fpage-cta__btn:hover,
+.cpage-cta__btn:hover,
+.tpage-cta__btn:hover,
+.ppage-cta__btn:hover,
+.testi__read-more:hover,
+.footer__cta:hover,
+.inquiry__submit:hover:not(:disabled) {
+  transform: scale(1.04) !important;
+  background: var(--btn-grad-hover) !important;
+  box-shadow: var(--btn-sheen), var(--btn-shadow-hover) !important;
+  color: #FAF7F4 !important;
+}
+
+/* Disabled submit stays flat and inert */
+.inquiry__submit:disabled {
+  box-shadow: var(--btn-sheen), var(--btn-shadow) !important;
+  transform: none !important;
+}
+
+/* Arrow glyphs nudge forward on hover (consistent with the reference) */
+.btn:hover .btn-arrow,
+.hero__cta:hover .hero__cta-arrow,
+.ipage-cta__btn:hover .ipage-cta__btn-arrow,
+.wpage-cta__btn:hover .wpage-cta__btn-arrow,
+.fpage-cta__btn:hover .fpage-cta__btn-arrow,
+.cpage-cta__btn:hover .cpage-cta__btn-arrow,
+.tpage-cta__btn:hover .tpage-cta__btn-arrow,
+.ppage-cta__btn:hover .ppage-cta__btn-arrow,
+.testi__read-more:hover .testi__read-more-arrow,
+.footer__cta:hover .footer__cta-arrow,
+.inquiry__submit:hover:not(:disabled) .inquiry__submit-arrow {
+  transform: translateX(5px);
+}
