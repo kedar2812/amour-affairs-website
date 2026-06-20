@@ -71,15 +71,8 @@ function drawModelFrame(idx, scale) {
 
   modelCtx.clearRect(0, 0, cw, ch);
 
-  // ── Mobile: lightweight single-image draw (no blur/gradient/composite) ──
+  // ── Mobile: lightweight single-image draw (no shadow/blur/gradient/composite) ──
   if (IS_MOBILE) {
-    modelCtx.save();
-    modelCtx.globalAlpha = 0.20;
-    modelCtx.fillStyle = 'rgba(90, 55, 20, 1)';
-    modelCtx.beginPath();
-    modelCtx.ellipse(cx, feetY, dw * 0.22, dh * 0.022, 0, 0, Math.PI * 2);
-    modelCtx.fill();
-    modelCtx.restore();
     modelCtx.drawImage(img, dx, dy, dw, dh);
     return;
   }

@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useState } from "react";
 import { TrendingUp, ChevronDown } from "lucide-react";
-import { trafficBreakdownData, trafficKPIs, TimeRange } from "@/data/mockChartData";
+import { TimeRange } from "@/data/mockChartData";
+import { useLeads } from "@/lib/useData";
+import { buildSources, withinRange } from "@/lib/analytics";
 
 /*
  * Sparklink "Traffic Breakdown" donut chart adapted for lead sources.
@@ -29,8 +31,13 @@ export function TrafficBreakdown() {
   const [activeToggle, setActiveToggle] = useState<TimeRange>("Month");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const currentData = trafficBreakdownData[activeToggle];
-  const currentKPI = trafficKPIs[activeToggle];
+  const { data: leads } = useLeads();
+  const leadList = (leads as Array<{ created_at?: string }>) || [];
+  const currentData = buildSources(leadList, activeToggle);
+  const currentKPI = {
+    count: leadList.filter((l) => withinRange(l.created_at, activeToggle)).length,
+    trend: "—",
+  };
 
   return (
     <motion.div

@@ -2,18 +2,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import { funnelDataConfig, TimeRange } from "@/data/mockChartData";
+import { TimeRange } from "@/data/mockChartData";
+import { useLeads } from "@/lib/useData";
+import { buildFunnel } from "@/lib/analytics";
 
 /*
- * Zentra-style waterfall/funnel:
- * Clean horizontal bars with step numbers, drop-off indicators.
+ * Lead pipeline funnel — live counts of leads at each stage (from the API).
  */
 
 export function FunnelChart() {
   const [activeToggle, setActiveToggle] = useState<TimeRange>("Month");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { data: leads } = useLeads();
 
-  const currentData = funnelDataConfig[activeToggle];
+  const currentData = buildFunnel((leads as any[]) || [], activeToggle);
   const maxCount = currentData[0]?.count || 0;
   const totalConversion = maxCount ? ((currentData[currentData.length - 1].count / maxCount) * 100).toFixed(1) : "0";
 

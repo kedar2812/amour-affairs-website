@@ -3,7 +3,17 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bar, BarChart, LineChart, Line, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { TrendingUp, BarChart3, LineChart as LineChartIcon } from "lucide-react";
-import { revenueForecastData, revenueKPIs, TimeRange } from "@/data/mockChartData";
+import { TimeRange } from "@/data/mockChartData";
+import { usePaymentStats } from "@/lib/useData";
+import { buildRevenueBars } from "@/lib/analytics";
+
+function fmtRevenue(n: number): string {
+  n = Number(n) || 0;
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
+  return `₹${n}`;
+}
 
 /*
  * Sparklink-style Revenue Forecast:
@@ -35,8 +45,16 @@ export function RevenueChart() {
   const [activeToggle, setActiveToggle] = useState<TimeRange>("Month");
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
   
-  const currentData = revenueForecastData[activeToggle];
-  const currentKPIs = revenueKPIs[activeToggle];
+  const { data: payStats } = usePaymentStats();
+  const monthly = (((payStats || {}) as any).monthly_revenue || []) as Array<{ month: string; total: number | string }>;
+  const currentData = buildRevenueBars(monthly);
+  const totalRealised = currentData.reduce((s, d) => s + d.realised, 0);
+  const currentKPIs = {
+    total: fmtRevenue(totalRealised),
+    trend: "—",
+    avg: fmtRevenue(currentData.length ? totalRealised / currentData.length : 0),
+    increaseText: "collected over the last 12 months",
+  };
 
   return (
     <motion.div

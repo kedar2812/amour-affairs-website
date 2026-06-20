@@ -8,8 +8,19 @@ import {
   ResponsiveContainer, BarChart, Bar, LineChart as RechartsLineChart, Line, ComposedChart, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   PieChart, Pie, Cell
 } from 'recharts';
-import { analyticsYearCompData, analyticsBookingTypesData, trafficBreakdownData, funnelDataConfig, TimeRange } from '@/data/mockChartData';
-import { useBookingStats } from '@/lib/useData';
+import { TimeRange } from '@/data/mockChartData';
+import { useBookingStats, useLeads, useBookings, usePaymentStats } from '@/lib/useData';
+import { buildFunnel, buildSources, buildBookingTypes, buildRevenueSeries } from '@/lib/analytics';
+
+// Shown inside a chart card when there's no real data to plot yet.
+function ChartEmpty({ label }: { label: string }) {
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center text-center gap-1 py-8">
+      <p className="text-[13px] font-semibold text-foreground">No data yet</p>
+      <p className="text-[12px] text-muted-foreground max-w-[220px]">{label}</p>
+    </div>
+  );
+}
 
 function fmtMoney(n: number): string {
   n = Number(n) || 0;
@@ -53,19 +64,18 @@ function AnalyticsDropdown({ active, options, onChange }: { active: string, opti
   );
 }
 
-function RevenueCompChart() {
-  const [range, setRange] = useState<TimeRange>("Year");
+function RevenueCompChart({ monthly }: { monthly: Array<{ month: string; total: number | string }> }) {
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
-  const data = analyticsYearCompData[range];
+  const data = buildRevenueSeries(monthly);
+  const hasData = data.some((d) => d.thisPeriod > 0 || d.lastPeriod > 0);
   return (
     <div className="dash-card p-6 xl:col-span-2 flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-bold text-foreground">Revenue Trends</h2>
-          <p className="text-[13px] text-muted-foreground">Actual vs previous period.</p>
+          <p className="text-[13px] text-muted-foreground">Monthly collected revenue.</p>
         </div>
         <div className="flex items-center gap-3">
-          <AnalyticsDropdown active={range} options={["Week", "Month", "Year", "Max"]} onChange={setRange} />
           {/* Chart Type Toggle */}
           <div className="flex items-center bg-muted/50 border border-border/50 rounded-lg p-0.5">
             <button 
@@ -86,6 +96,7 @@ function RevenueCompChart() {
         </div>
       </div>
       <div className="h-[300px] w-full flex-1">
+        {!hasData ? <ChartEmpty label="Revenue appears here once payments are recorded." /> : (
         <ResponsiveContainer>
           {chartType === "bar" ? (
             <ComposedChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -117,14 +128,15 @@ function RevenueCompChart() {
             </RechartsLineChart>
           )}
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
 }
 
-function BookingTypesPie() {
+function BookingTypesPie({ bookings }: { bookings: any[] }) {
   const [range, setRange] = useState<TimeRange>("Year");
-  const data = analyticsBookingTypesData[range];
+  const data = buildBookingTypes(bookings, range);
   const total = data.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
@@ -137,6 +149,7 @@ function BookingTypesPie() {
         <AnalyticsDropdown active={range} options={["Week", "Month", "Year", "Max"]} onChange={setRange} />
       </div>
       <div className="h-[250px] w-full relative flex-1">
+        {total === 0 ? <ChartEmpty label="Booking types appear here as you add bookings." /> : (<>
         <ResponsiveContainer>
           <PieChart>
             <Pie data={data} innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none" animationDuration={800}>
@@ -157,14 +170,16 @@ function BookingTypesPie() {
           </AnimatePresence>
           <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Bookings</span>
         </div>
+        </>)}
       </div>
     </div>
   );
 }
 
-function ConversionFunnelChart() {
+function ConversionFunnelChart({ leads }: { leads: any[] }) {
   const [range, setRange] = useState<TimeRange>("Month");
-  const data = funnelDataConfig[range];
+  const data = buildFunnel(leads, range);
+  const hasData = data.some((d) => d.count > 0);
   return (
     <div className="dash-card p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -174,11 +189,12 @@ function ConversionFunnelChart() {
         <AnalyticsDropdown active={range} options={["Week", "Month", "Year", "Max"]} onChange={setRange} />
       </div>
       <div className="h-[220px] w-full">
+        {!hasData ? <ChartEmpty label="Your lead pipeline appears here as inquiries come in." /> : (
          <ResponsiveContainer>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 20, left: 20, bottom: 0 }}>
             <YAxis dataKey="stage" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 13, fill: 'var(--foreground)', fontWeight: 600 }} />
             <XAxis type="number" hide />
-            <Tooltip 
+            <Tooltip
               cursor={{ fill: 'var(--border)', opacity: 0.2 }}
               contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
             />
@@ -189,14 +205,16 @@ function ConversionFunnelChart() {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
 }
 
-function LeadSourcesChart() {
+function LeadSourcesChart({ leads }: { leads: any[] }) {
   const [range, setRange] = useState<TimeRange>("Month");
-  const data = trafficBreakdownData[range];
+  const data = buildSources(leads, range);
+  const hasData = data.length > 0;
   return (
     <div className="dash-card p-6 space-y-4">
       <div className="flex items-center justify-between">
@@ -206,17 +224,19 @@ function LeadSourcesChart() {
         <AnalyticsDropdown active={range} options={["Week", "Month", "Year", "Max"]} onChange={setRange} />
       </div>
       <div className="h-[220px] w-full">
+        {!hasData ? <ChartEmpty label="Lead sources appear here as inquiries are tagged." /> : (
         <ResponsiveContainer>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
             <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }} />
             <XAxis type="number" hide />
-            <Tooltip 
+            <Tooltip
               cursor={{ fill: 'var(--border)', opacity: 0.2 }}
               contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
             />
             <Bar dataKey="value" fill="#3b82f6" barSize={16} radius={[0, 4, 4, 0]} label={{ position: 'right', fill: 'var(--foreground)', fontSize: 13, fontWeight: 'bold', formatter: (val: any) => `${val}%` }} animationDuration={800} />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </div>
   );
@@ -224,7 +244,11 @@ function LeadSourcesChart() {
 
 export default function AnalyticsPage() {
   const { data: bStats } = useBookingStats();
+  const { data: leads } = useLeads();
+  const { data: bookings } = useBookings();
+  const { data: payStats } = usePaymentStats();
   const bs = (bStats || {}) as Record<string, number>;
+  const monthly = (((payStats || {}) as any).monthly_revenue || []) as Array<{ month: string; total: number | string }>;
   const avgBooking = (bs.total_bookings ?? 0) > 0 ? (bs.total_revenue ?? 0) / bs.total_bookings : 0;
   return (
     <div className="flex flex-col gap-6 max-w-[1540px] mx-auto w-full h-full pb-12">
@@ -260,13 +284,13 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <RevenueCompChart />
-        <BookingTypesPie />
+        <RevenueCompChart monthly={monthly} />
+        <BookingTypesPie bookings={bookings as any[]} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-        <ConversionFunnelChart />
-        <LeadSourcesChart />
+        <ConversionFunnelChart leads={leads as any[]} />
+        <LeadSourcesChart leads={leads as any[]} />
       </div>
     </div>
   );
