@@ -14,3 +14,9 @@ amouraffairs_details_IMP.txt
 hero section background video frames/
 services cover photos/
 2nd section photos/
+
+# Local-only: server backups (contain real secrets) and hosting credentials.
+# Never commit these — config.secrets.php.live + handover_report.md hold live
+# JWT/DB/FTP secrets.
+_deploy/
+hosting details (ignore in github)/
