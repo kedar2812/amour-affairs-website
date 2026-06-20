@@ -229,6 +229,23 @@ export async function loadSiteContent() {
 }
 
 /**
+ * Load the studio profile (settings group `profile`: studio_name, studio_email,
+ * studio_phone, studio_whatsapp, studio_address, studio_map_embed), or null.
+ * Drives the footer/contact details + map across every page so the client can
+ * edit them once in the dashboard Settings and have the site update.
+ */
+export async function loadStudioProfile() {
+  const data = await fetchFromAPI('settings.php?group=profile');
+  if (!data || !data.settings || typeof data.settings !== 'object') return null;
+  const p = {};
+  for (const [key, raw] of Object.entries(data.settings)) {
+    const value = decodeEntities(raw);
+    if (value !== '') p[key] = value;
+  }
+  return Object.keys(p).length > 0 ? p : null;
+}
+
+/**
  * Load active team members (with photos) for the about-page marquee, or null.
  */
 export async function loadTeam() {

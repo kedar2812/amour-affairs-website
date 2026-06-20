@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { useSettings } from '@/lib/useData';
 import { settingsAPI } from '@/lib/api';
 
-const FIELDS: { key: string; label: string; type?: string; full?: boolean }[] = [
+const FIELDS: { key: string; label: string; type?: string; full?: boolean; multiline?: boolean; hint?: string }[] = [
   { key: "studio_name", label: "Studio Name" },
   { key: "studio_tagline", label: "Tagline" },
   { key: "studio_email", label: "Email", type: "email" },
   { key: "studio_phone", label: "Phone" },
-  { key: "studio_whatsapp", label: "WhatsApp Number" },
-  { key: "studio_address", label: "Address", full: true },
+  { key: "studio_whatsapp", label: "WhatsApp Number", hint: "Digits only or with country code — used for every WhatsApp / Book Now button on the website." },
+  { key: "studio_address", label: "Address", full: true, multiline: true, hint: "Shown in the website footer. Put each line on its own line (or separate with commas)." },
+  { key: "studio_map_embed", label: "Google Maps embed", full: true, multiline: true, hint: "On Google Maps: Share → Embed a map → Copy HTML, and paste it here. Updates the map in the website footer." },
 ];
 
 export default function SettingsPage() {
@@ -61,12 +62,22 @@ export default function SettingsPage() {
           {FIELDS.map((f) => (
             <div key={f.key} className={f.full ? "md:col-span-2" : ""}>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">{f.label}</label>
-              <input
-                type={f.type || "text"}
-                value={form[f.key] ?? ""}
-                onChange={(e) => set(f.key, e.target.value)}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50"
-              />
+              {f.multiline ? (
+                <textarea
+                  value={form[f.key] ?? ""}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  rows={f.key === "studio_map_embed" ? 4 : 3}
+                  className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50 resize-none"
+                />
+              ) : (
+                <input
+                  type={f.type || "text"}
+                  value={form[f.key] ?? ""}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50"
+                />
+              )}
+              {f.hint && <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">{f.hint}</p>}
             </div>
           ))}
         </div>

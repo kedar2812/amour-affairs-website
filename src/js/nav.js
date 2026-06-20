@@ -3,8 +3,16 @@
    Amour Affairs · Premium Wedding Photography
    ============================================================ */
 
+import { loadStudioProfile } from './api.js';
+import { applyStudioProfile } from './site-content.js';
+
 export function initNav(lenisInstance) {
   const nav = document.querySelector('.nav');
+
+  // Studio profile (contact details + map) is editable from the dashboard
+  // Settings → apply it to the footer/contact on every page. Non-blocking.
+  loadStudioProfile().then(applyStudioProfile).catch(() => {});
+
   const hamburger = document.querySelector('.nav__hamburger');
   const mobileMenu = document.querySelector('.nav__mobile-menu');
   const mobileLinks = document.querySelectorAll('.nav__mobile-link');

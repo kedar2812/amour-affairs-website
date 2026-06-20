@@ -21,6 +21,53 @@ import { escapeHTML } from './testimonial-cards.js';
 export const emphasize = (value) =>
   escapeHTML(value).replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
+/* ── Studio profile (settings group `profile`) → footer/contact + map ──
+   Applied on every page so the studio edits contact details + the map embed
+   once in the dashboard Settings and the whole site reflects it. */
+export function applyStudioProfile(p) {
+  if (!p) return;
+
+  // WhatsApp links (Book Now / CTAs / footer) → wa.me/<number>
+  if (p.studio_whatsapp) {
+    const num = String(p.studio_whatsapp).replace(/[^0-9]/g, '');
+    if (num) document.querySelectorAll('a[href*="wa.me"]').forEach((a) => { a.href = `https://wa.me/${num}`; });
+  }
+
+  // Email links → mailto + visible text where it shows an address
+  if (p.studio_email) {
+    document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
+      a.href = `mailto:${p.studio_email}`;
+      if (a.textContent && a.textContent.includes('@')) a.textContent = p.studio_email;
+    });
+  }
+
+  // Phone: tel: links + the footer/inquiry phone-number link text
+  if (p.studio_phone) {
+    document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
+      a.href = `tel:${String(p.studio_phone).replace(/\s/g, '')}`;
+      a.textContent = p.studio_phone;
+    });
+    document.querySelectorAll('.footer__contact-links a[href*="wa.me"], .inquiry__contact-link[href*="wa.me"]')
+      .forEach((a) => { a.textContent = p.studio_phone; });
+  }
+
+  // Address (one string, comma/newline separated) → footer address block
+  if (p.studio_address) {
+    const addr = document.querySelector('.footer__address');
+    if (addr) {
+      addr.innerHTML = escapeHTML(p.studio_address)
+        .split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean).join(',<br>');
+    }
+  }
+
+  // Google Maps embed — accepts a raw embed URL or a pasted <iframe …> snippet
+  if (p.studio_map_embed) {
+    const m = String(p.studio_map_embed).match(/src=["']([^"']+)["']/);
+    const src = m ? m[1] : (/^https?:\/\//.test(String(p.studio_map_embed).trim()) ? String(p.studio_map_embed).trim() : '');
+    if (src) document.querySelectorAll('iframe[src*="google.com/maps"], .footer__map iframe').forEach((f) => { f.src = src; });
+  }
+}
+
 /* ── Defaults (mirrors the seed values in api/database.sql) ── */
 
 export const SITE_CONTENT_DEFAULTS = {
