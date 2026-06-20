@@ -40,8 +40,11 @@ define('DB_CHARSET', 'utf8mb4');
 // by the guard further down — a known secret lets anyone forge admin tokens.
 define('JWT_DEFAULT_SECRET', 'CHANGE_THIS_TO_A_SECURE_RANDOM_STRING_IN_PRODUCTION_64_CHARS_MINIMUM');
 define('JWT_SECRET', getenv('AA_JWT_SECRET') ?: JWT_DEFAULT_SECRET);
-define('JWT_ACCESS_EXPIRY', 900);       // 15 minutes
-define('JWT_REFRESH_EXPIRY', 604800);   // 7 days
+// Long-lived session by request — the studio doesn't want to be logged out
+// while working. The access token effectively never expires during normal use,
+// so we don't depend on the refresh-token flow mid-session.
+define('JWT_ACCESS_EXPIRY', 2592000);    // 30 days
+define('JWT_REFRESH_EXPIRY', 7776000);   // 90 days
 
 // Fail closed: never serve real requests with the default secret on a live host.
 // CLI (seeding) and localhost dev are exempt so local work keeps running.
@@ -93,6 +96,7 @@ define('ALLOWED_ORIGINS', [
     'https://www.amouraffairs.in',
     'https://amouraffairs.in',
     'https://admin.amouraffairs.in',
+    'https://www.admin.amouraffairs.in',
 ]);
 
 // ── Security ──
@@ -189,7 +193,7 @@ function getJSONBody(): array {
 /**
  * Send a JSON success response
  */
-function sendJSON(mixed $data, int $status = 200): void {
+function sendJSON($data, int $status = 200): void {
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
@@ -209,7 +213,7 @@ function sendError(string $message, int $status = 400): void {
 /**
  * Sanitize a string input (trim + strip tags)
  */
-function sanitize(mixed $value): string {
+function sanitize($value): string {
     if ($value === null) return '';
     return htmlspecialchars(trim((string)$value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }

@@ -6,7 +6,7 @@
 # ============================================================
 
 # Deny access to config and internal files
-<FilesMatch "\.(sql|md|txt|log)$">
+<FilesMatch "\.(sql|md|txt|log|ini)$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
@@ -16,6 +16,20 @@
 #     Order Allow,Deny
 #     Deny from all
 # </Files>
+
+# ── Pass the HTTP Authorization header through to PHP ──
+# Under FastCGI/CGI (this host) Apache does NOT expose the Authorization header
+# to PHP by default, so JWT Bearer-token auth silently fails with 401 and the
+# dashboard bounces back to the login screen. Republish it as an env var that
+# getBearerToken() reads ($_SERVER['HTTP_AUTHORIZATION'] / REDIRECT_*).
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
 
 # Block directory listing
 Options -Indexes

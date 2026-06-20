@@ -81,11 +81,11 @@ switch ($method) {
             $value = sanitize($value);
             // Determine group from key prefix
             $group = 'general';
-            if (str_starts_with($key, 'studio_')) $group = 'profile';
-            elseif (str_starts_with($key, 'social_')) $group = 'social';
-            elseif (str_starts_with($key, 'hero_')) $group = 'hero';
-            elseif (str_starts_with($key, 'seo_')) $group = 'seo';
-            elseif (str_starts_with($key, 'site_')) $group = 'site_content'; // dashboard-editable page copy
+            if (strpos($key, 'studio_') === 0) $group = 'profile';
+            elseif (strpos($key, 'social_') === 0) $group = 'social';
+            elseif (strpos($key, 'hero_') === 0) $group = 'hero';
+            elseif (strpos($key, 'seo_') === 0) $group = 'seo';
+            elseif (strpos($key, 'site_') === 0) $group = 'site_content'; // dashboard-editable page copy
 
             $stmt->execute([$key, $value, $group]);
             $updated++;

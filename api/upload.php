@@ -93,7 +93,7 @@ function validateImageFile(array $file): ?string {
  * Returns the stored file metadata, or false on processing failure.
  * Call validateImageFile() first — this assumes the file is valid.
  */
-function processSingleImageFile(array $file, string $subdir): array|false {
+function processSingleImageFile(array $file, string $subdir) {
     $imageInfo = @getimagesize($file['tmp_name']);
     if ($imageInfo === false) return false;
 
