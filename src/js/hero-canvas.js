@@ -20,6 +20,12 @@ gsap.registerPlugin(ScrollTrigger);
 /* ─── Constants ─────────────────────────────────────────── */
 const TOTAL_FRAMES = 120;
 
+// Phones can't afford the per-frame canvas shadows/tints below while scrubbing
+// 120 frames — it makes the scroll stutter. On touch/small screens we draw a
+// single lightweight image per tick (and cap DPR) so the scrub stays smooth.
+const IS_MOBILE = (typeof window !== 'undefined') &&
+  (window.matchMedia('(max-width: 768px)').matches || window.matchMedia('(pointer: coarse)').matches);
+
 /* ─── Shared scroll state ────────────────────────────────── */
 const scrollObj = { frame: 0, scale: 1.20 };
 
@@ -31,7 +37,7 @@ let modelEl       = null;
 /* ─── Helpers ────────────────────────────────────────────── */
 function pad(n) { return String(n).padStart(4, '0'); }
 
-function getDpr() { return Math.min(window.devicePixelRatio || 1, 2); }
+function getDpr() { return Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2); }
 
 function sizeCanvas(el, ctx) {
   const dpr  = getDpr();
@@ -64,6 +70,19 @@ function drawModelFrame(idx, scale) {
   const cx    = cw / 2;
 
   modelCtx.clearRect(0, 0, cw, ch);
+
+  // ── Mobile: lightweight single-image draw (no blur/gradient/composite) ──
+  if (IS_MOBILE) {
+    modelCtx.save();
+    modelCtx.globalAlpha = 0.20;
+    modelCtx.fillStyle = 'rgba(90, 55, 20, 1)';
+    modelCtx.beginPath();
+    modelCtx.ellipse(cx, feetY, dw * 0.22, dh * 0.022, 0, 0, Math.PI * 2);
+    modelCtx.fill();
+    modelCtx.restore();
+    modelCtx.drawImage(img, dx, dy, dw, dh);
+    return;
+  }
 
   // ── 1. Ground shadow ellipse — warm brown, anchors model to landscape ──
   const shadowRadX = dw * 0.26;

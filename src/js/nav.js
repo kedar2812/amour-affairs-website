@@ -98,6 +98,20 @@ export function initNav(lenisInstance) {
 
   let isOpen = false;
 
+  // Remove the social links from the mobile overlay (they live in the footer).
+  mobileMenu.querySelector('.nav__mobile-footer')?.remove();
+
+  // Inject a dedicated X close button into the overlay.
+  let closeBtn = mobileMenu.querySelector('.nav__mobile-close');
+  if (!closeBtn) {
+    closeBtn = document.createElement('button');
+    closeBtn.className = 'nav__mobile-close';
+    closeBtn.setAttribute('aria-label', 'Close menu');
+    closeBtn.innerHTML = '<span></span><span></span>';
+    mobileMenu.appendChild(closeBtn);
+  }
+  closeBtn.addEventListener('click', () => { isOpen = false; toggleMobileMenu(false); });
+
   hamburger.addEventListener('click', () => {
     isOpen = !isOpen;
     toggleMobileMenu(isOpen);
