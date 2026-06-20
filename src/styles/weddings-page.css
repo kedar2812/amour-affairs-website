@@ -622,6 +622,9 @@
   color: var(--color-accent);
 }
 
+/* Surface, colour and hover (lift + glow) are owned entirely by the shared
+   buttons.css identity — only layout lives here so the two stylesheets can't
+   fight over the hover transform and cause the jittery animation. */
 .wpage-cta__btn {
   display: inline-flex;
   align-items: center;
@@ -633,23 +636,15 @@
   text-transform: none;
   white-space: nowrap;
   padding: 10px 28px;
-  border-radius: 50px;
-  background: var(--color-btn);
-  color: #FAF7F4;
-  border: none;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.wpage-cta__btn:hover {
-  transform: scale(1.03);
-  background: var(--color-btn-hover);
+  transform-origin: center;
+  backface-visibility: hidden;
 }
 
 .wpage-cta__btn-arrow {
   display: inline-block;
-  transition: transform 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .wpage-cta__btn:hover .wpage-cta__btn-arrow {

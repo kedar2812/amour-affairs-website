@@ -261,7 +261,13 @@ function renderTeamMarquee(members) {
   const track = document.querySelector('.team-marquee__track');
   if (!track || !members) return;
 
-  const cardSet = (hidden) => members
+  // Repeat a small roster so the strip is wide enough for the translateX(-50%)
+  // loop to stay seamless (a 1–3 person team would otherwise leave a gap).
+  const MIN_CARDS = 6;
+  const reps = Math.max(1, Math.ceil(MIN_CARDS / members.length));
+  const filled = Array.from({ length: reps }, () => members).flat();
+
+  const cardSet = (hidden) => filled
     .map((m) => `
       <div class="team-card"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="team-card__img-wrap">
@@ -279,7 +285,7 @@ function renderTeamMarquee(members) {
 
   // Names/roles as text — avoids HTML injection through CMS fields
   track.querySelectorAll('.team-card').forEach((card, i) => {
-    const m = members[i % members.length];
+    const m = filled[i % filled.length];
     card.querySelector('.team-card__name').textContent = m.name;
     card.querySelector('.team-card__role').textContent = m.role;
   });

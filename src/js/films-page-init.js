@@ -161,10 +161,15 @@ function initFeaturedReveal() {
   });
 }
 
-/* Gallery cards stagger */
+/* Gallery cards stagger.
+   Opacity-only (no y-transform): a `from` tween that moves `y` can leave an
+   un-cleared translateY on individual cards after ScrollTrigger.refresh(),
+   which knocks the 2-column grid cards out of vertical alignment. Fading in
+   keeps the reveal without ever shifting layout. */
 function initGalleryReveal() {
   gsap.from('.fpage-card', {
-    opacity: 0, y: 60, duration: 0.9, ease: 'power3.out', stagger: 0.12,
+    opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12,
+    clearProps: 'opacity',
     scrollTrigger: {
       trigger: '.fpage-gallery__grid',
       start: 'top 82%',

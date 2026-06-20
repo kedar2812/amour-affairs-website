@@ -243,6 +243,8 @@ export async function loadTeam() {
       photo: assetUrl(m.photo_path),
     }));
 
-  // The marquee needs enough cards to scroll seamlessly
-  return members.length >= 4 ? members : null;
+  // Show whatever the studio has added — the marquee renderer repeats a small
+  // roster to keep the scroll seamless, so even 1–3 members display instead of
+  // silently falling back to the bundled placeholder cards.
+  return members.length >= 1 ? members : null;
 }
