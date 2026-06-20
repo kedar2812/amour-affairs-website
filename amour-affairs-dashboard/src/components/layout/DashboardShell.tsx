@@ -15,8 +15,11 @@ import { AnimatePresence } from "framer-motion";
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Login page — no shell, no auth check
-  if (pathname === "/login") {
+  // Login page — no shell, no auth check.
+  // trailingSlash:true means the static export serves "/login/", so usePathname()
+  // returns "/login/" — must match both forms or the login page gets wrapped in
+  // ProtectedRoute and rapid-redirect-loops back to itself.
+  if (pathname === "/login" || pathname === "/login/") {
     return <>{children}</>;
   }
 

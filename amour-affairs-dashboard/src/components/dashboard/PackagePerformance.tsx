@@ -53,6 +53,12 @@ export function PackagePerformance() {
         </div>
 
         <div className="flex-1 px-6 pb-5 space-y-4">
+          {currentData.length === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-center py-10 gap-2">
+              <TrendingUp className="h-8 w-8 text-muted-foreground/40" />
+              <p className="text-[13px] text-muted-foreground">No package data yet</p>
+            </div>
+          )}
           <AnimatePresence mode="popLayout">
             {currentData.map((pkg, i) => (
               <motion.div 

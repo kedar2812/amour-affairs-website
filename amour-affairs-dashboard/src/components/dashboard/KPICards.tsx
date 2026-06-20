@@ -1,82 +1,64 @@
 "use client";
 import { motion } from "framer-motion";
-import { TrendingUp, CalendarCheck, IndianRupee, BookOpen, Eye, ArrowUpRight } from "lucide-react";
+import { CalendarCheck, IndianRupee, BookOpen, Eye, ArrowUpRight } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
+import { useBookingStats, useLeads } from "@/lib/useData";
 
 /*
- * Sparklink-style KPI cards: colored icon box on the left, 
- * large value, change indicator badge, and a subtle trend arrow button.
+ * KPI strip — live from the API (bookings stats + leads). Shows real figures
+ * (0 until there's data) instead of fabricated demo numbers.
  */
-const metrics = [
-  {
-    title: "Total Bookings",
-    value: "142",
-    change: "+12%",
-    changeLabel: "Increased from last month",
-    changeType: "positive" as const,
-    icon: BookOpen,
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
-    borderColor: "border-l-primary",
-  },
-  {
-    title: "Gross Revenue",
-    value: "₹4.2L",
-    change: "+8.3%",
-    changeLabel: "Increased from last month",
-    changeType: "positive" as const,
-    icon: IndianRupee,
-    iconBg: "bg-emerald-50 dark:bg-emerald-500/10",
-    iconColor: "text-emerald-600 dark:text-emerald-500",
-    borderColor: "border-l-emerald-500",
-  },
-  {
-    title: "Active Inquiries",
-    value: "28",
-    change: "+4",
-    changeLabel: "Increased from last month",
-    changeType: "positive" as const,
-    icon: Eye,
-    iconBg: "bg-blue-50 dark:bg-blue-500/10",
-    iconColor: "text-blue-600 dark:text-blue-500",
-    borderColor: "border-l-blue-500",
-  },
-  {
-    title: "Shoots This Week",
-    value: "6",
-    change: "2",
-    changeLabel: "On Discuss",
-    changeType: "neutral" as const,
-    icon: CalendarCheck,
-    iconBg: "bg-amber-50 dark:bg-amber-500/10",
-    iconColor: "text-amber-600 dark:text-amber-500",
-    borderColor: "border-l-amber-500",
-  },
-];
+function fmtMoney(n: number): string {
+  n = Number(n) || 0;
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
+  return `₹${n}`;
+}
 
 const cardVariants = {
   hidden: { opacity: 0, y: 16 },
   visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      delay: i * 0.06,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
+    opacity: 1, y: 0,
+    transition: { duration: 0.4, delay: i * 0.06, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
-  hover: {
-    y: -4,
-    scale: 1.015,
-    boxShadow: "0 12px 24px -10px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.03)",
-  },
+  hover: { y: -4, scale: 1.015, boxShadow: "0 12px 24px -10px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.03)" },
 };
-
-const iconVariants = {
-  hover: { rotate: 12, scale: 1.08, transition: { type: "spring" as const, stiffness: 300, damping: 15 } },
-};
+const iconVariants = { hover: { rotate: 12, scale: 1.08, transition: { type: "spring" as const, stiffness: 300, damping: 15 } } };
 
 export function KPICards() {
+  const { data: stats } = useBookingStats();
+  const { data: leads } = useLeads();
+
+  const s = (stats || {}) as Record<string, number>;
+  const closedStages = ["booked", "lost", "delivered", "closed", "completed"];
+  const activeInquiries = (leads as Array<{ stage?: string }> || []).filter(
+    (l) => !closedStages.includes((l.stage || "").toLowerCase())
+  ).length;
+
+  const metrics = [
+    {
+      title: "Total Bookings", value: String(s.total_bookings ?? 0),
+      label: `${s.confirmed ?? 0} confirmed · ${s.pending ?? 0} pending`,
+      icon: BookOpen, iconBg: "bg-primary/10", iconColor: "text-primary", borderColor: "border-l-primary",
+    },
+    {
+      title: "Gross Revenue", value: fmtMoney(s.total_revenue),
+      label: `${fmtMoney(s.collected)} collected`,
+      icon: IndianRupee, iconBg: "bg-emerald-50 dark:bg-emerald-500/10", iconColor: "text-emerald-600 dark:text-emerald-500", borderColor: "border-l-emerald-500",
+    },
+    {
+      title: "Active Inquiries", value: String(activeInquiries),
+      label: "Open leads in the pipeline",
+      icon: Eye, iconBg: "bg-blue-50 dark:bg-blue-500/10", iconColor: "text-blue-600 dark:text-blue-500", borderColor: "border-l-blue-500",
+    },
+    {
+      title: "Upcoming Shoots", value: String(s.upcoming_30_days ?? 0),
+      label: "Confirmed in next 30 days",
+      icon: CalendarCheck, iconBg: "bg-amber-50 dark:bg-amber-500/10", iconColor: "text-amber-600 dark:text-amber-500", borderColor: "border-l-amber-500",
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
       {metrics.map((metric, index) => (
@@ -91,18 +73,13 @@ export function KPICards() {
           className="cursor-pointer"
         >
           <div className={`dash-card p-5 flex items-start gap-4 border-l-4 ${metric.borderColor} h-full`}>
-            {/* Colored icon box — Sparklink-style */}
-            <motion.div 
-              variants={iconVariants}
-              className={`h-12 w-12 rounded-xl ${metric.iconBg} flex items-center justify-center shrink-0`}
-            >
+            <motion.div variants={iconVariants} className={`h-12 w-12 rounded-xl ${metric.iconBg} flex items-center justify-center shrink-0`}>
               <metric.icon className={`h-6 w-6 ${metric.iconColor}`} strokeWidth={1.7} />
             </motion.div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <p className="text-[14px] font-bold text-foreground">{metric.title}</p>
-                {/* Trend arrow button — Sparklink corner arrow */}
                 <button className="h-7 w-7 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/50 transition-colors -mt-0.5">
                   <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
@@ -111,16 +88,7 @@ export function KPICards() {
                 <AnimatedCounter value={metric.value} />
               </h3>
               <div className="flex items-center gap-1.5 mt-2">
-                {metric.changeType === "positive" ? (
-                  <TrendingUp className="h-3 w-3 text-emerald-600" />
-                ) : (
-                  <span className="text-[14px] text-muted-foreground">•</span>
-                )}
-                <span className={`text-[12px] font-medium ${
-                  metric.changeType === "positive" ? "text-emerald-600" : "text-muted-foreground"
-                }`}>
-                  {metric.changeLabel}
-                </span>
+                <span className="text-[12px] font-medium text-muted-foreground">{metric.label}</span>
               </div>
             </div>
           </div>

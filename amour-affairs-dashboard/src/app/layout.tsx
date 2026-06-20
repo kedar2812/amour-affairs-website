@@ -28,7 +28,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex bg-background text-foreground h-screen overflow-hidden">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        {/* Always open in light mode regardless of the device theme.
+            enableSystem={false} stops it from following the OS dark mode; the
+            header toggle still lets the user switch manually if they want. */}
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <ToastProvider>
             <AuthProvider>
               <DashboardShell>{children}</DashboardShell>

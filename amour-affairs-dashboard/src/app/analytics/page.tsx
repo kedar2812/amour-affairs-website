@@ -9,6 +9,15 @@ import {
   PieChart, Pie, Cell
 } from 'recharts';
 import { analyticsYearCompData, analyticsBookingTypesData, trafficBreakdownData, funnelDataConfig, TimeRange } from '@/data/mockChartData';
+import { useBookingStats } from '@/lib/useData';
+
+function fmtMoney(n: number): string {
+  n = Number(n) || 0;
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
+  return `₹${n}`;
+}
 
 
 const formatINR = (tickItem: number) => {
@@ -214,6 +223,9 @@ function LeadSourcesChart() {
 }
 
 export default function AnalyticsPage() {
+  const { data: bStats } = useBookingStats();
+  const bs = (bStats || {}) as Record<string, number>;
+  const avgBooking = (bs.total_bookings ?? 0) > 0 ? (bs.total_revenue ?? 0) / bs.total_bookings : 0;
   return (
     <div className="flex flex-col gap-6 max-w-[1540px] mx-auto w-full h-full pb-12">
       {/* Header */}
@@ -233,12 +245,12 @@ export default function AnalyticsPage() {
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
         {[
-          { label: "Total Revenue", val: "₹42.6L", up: true },
-          { label: "Total Bookings", val: "142", up: true },
-          { label: "Avg Booking Val", val: "₹30K", up: true },
-          { label: "Conversion Rate", val: "34.5%", up: false },
-          { label: "Repeat Client", val: "75%", up: true },
-          { label: "Avg Rating", val: "4.8", up: true },
+          { label: "Total Revenue", val: fmtMoney(bs.total_revenue), up: true },
+          { label: "Total Bookings", val: String(bs.total_bookings ?? 0), up: true },
+          { label: "Avg Booking Val", val: fmtMoney(avgBooking), up: true },
+          { label: "Collected", val: fmtMoney(bs.collected), up: true },
+          { label: "Outstanding", val: fmtMoney(bs.outstanding), up: false },
+          { label: "Upcoming (30d)", val: String(bs.upcoming_30_days ?? 0), up: true },
         ].map(kpi => (
           <div key={kpi.label} className="dash-card p-4 flex flex-col justify-center items-center text-center">
             <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block w-full">{kpi.label}</span>

@@ -310,7 +310,7 @@ export default function WebsiteContentPage() {
                 hint="Wrap a word in *asterisks* for the italic accent, e.g. Choose Your *Session*" />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {packages.map((pkg, i) => (
                 <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
                   <Field label={`Package ${i + 1} — Name`} value={pkg.name} onChange={(v) => updatePackage(i, { ...pkg, name: v })} />
@@ -322,7 +322,7 @@ export default function WebsiteContentPage() {
                       {pkg.rows.map((row, j) => (
                         <div key={j} className="flex items-center gap-2">
                           <input type="text" value={row.label} placeholder="Label" onChange={(e) => updateRow(i, j, { ...row, label: e.target.value })}
-                            className="w-[38%] h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
+                            className="w-[30%] h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
                           <input type="text" value={row.value} placeholder="Value" onChange={(e) => updateRow(i, j, { ...row, value: e.target.value })}
                             className="flex-1 h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
                           <button onClick={() => removeRow(i, j)} title="Remove row"

@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/AuthContext";
+import { useLeads } from "@/lib/useData";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -25,17 +27,17 @@ import {
 
 const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Bookings", href: "/bookings", icon: CalendarDays },
   { name: "Leads", href: "/leads", icon: Contact },
-  { name: "Clients", href: "/clients", icon: Users },
-  { name: "Team", href: "/team", icon: Camera },
-  { name: "Packages", href: "/packages", icon: Package },
-  { name: "Gallery", href: "/gallery", icon: Image },
   { name: "Albums", href: "/albums", icon: FolderOpen },
   { name: "Premium Albums", href: "/premium-albums", icon: BookOpen },
   { name: "Films", href: "/films", icon: Film },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
   { name: "Website", href: "/website", icon: Globe },
+  { name: "Team", href: "/team", icon: Camera },
+  { name: "Gallery", href: "/gallery", icon: Image },
+  { name: "Bookings", href: "/bookings", icon: CalendarDays },
+  { name: "Clients", href: "/clients", icon: Users },
+  { name: "Packages", href: "/packages", icon: Package },
   { name: "Payments", href: "/payments", icon: CircleDollarSign },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
 ];
@@ -58,6 +60,24 @@ const matchActive = (pathname: string, href: string) => {
 export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { data: leads } = useLeads();
+
+  // "New leads" badge: count leads newer than the highest lead id the user has
+  // already seen. Opening the Leads page marks everything seen → badge clears.
+  const [seenLeadId, setSeenLeadId] = useState(0);
+  useEffect(() => {
+    setSeenLeadId(Number(localStorage.getItem("leads_seen_max_id") || 0));
+  }, []);
+  const leadList = (leads as Array<{ id?: number | string }>) || [];
+  const maxLeadId = leadList.reduce((m, l) => Math.max(m, Number(l.id) || 0), 0);
+  const onLeadsPage = matchActive(pathname, "/leads");
+  useEffect(() => {
+    if (onLeadsPage && maxLeadId > 0) {
+      localStorage.setItem("leads_seen_max_id", String(maxLeadId));
+      setSeenLeadId(maxLeadId);
+    }
+  }, [onLeadsPage, maxLeadId]);
+  const newLeadCount = leadList.filter((l) => (Number(l.id) || 0) > seenLeadId).length;
 
   return (
     <aside className="w-[230px] shrink-0 bg-sidebar h-full flex flex-col border border-border/50 rounded-2xl shadow-sm">
@@ -78,6 +98,8 @@ export function Sidebar() {
         <div className="space-y-0.5">
           {MENU_ITEMS.map((item) => {
             const isActive = matchActive(pathname, item.href);
+            const isNewLeads = item.href === "/leads" && newLeadCount > 0;
+            const badge = isNewLeads ? String(newLeadCount) : item.badge;
             return (
               <Link
                 key={item.name}
@@ -103,13 +125,15 @@ export function Sidebar() {
                   />
                   <span>{item.name}</span>
                 </div>
-                {item.badge && (
+                {badge && (
                   <span className={`text-[11px] min-w-[22px] text-center px-1.5 py-0.5 rounded-full font-bold ${
-                    isActive
-                      ? "bg-primary/15 text-primary"
-                      : "bg-muted text-muted-foreground"
+                    isNewLeads
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : isActive
+                        ? "bg-primary/15 text-primary"
+                        : "bg-muted text-muted-foreground"
                   }`}>
-                    {item.badge}
+                    {badge}
                   </span>
                 )}
               </Link>

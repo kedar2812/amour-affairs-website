@@ -20,6 +20,9 @@ interface NotifLead {
 // Timestamp (ms) the user last opened the bell. New leads created after
 // this are counted as "unread" and drive the red badge.
 const LAST_SEEN_KEY = "aa_notifs_last_seen";
+// Timestamp (ms) before which notifications have been dismissed/cleared. Leads
+// older than this are hidden from the panel (the lead itself is untouched).
+const CLEARED_KEY = "aa_notifs_cleared_before";
 
 const isMockMode = () => {
   const token = getStoredToken();
@@ -63,6 +66,7 @@ export function NotificationBell() {
   const [leads, setLeads] = useState<NotifLead[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastSeen, setLastSeen] = useState(0);
+  const [clearedBefore, setClearedBefore] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
   const fetchLeads = useCallback(async () => {
@@ -82,6 +86,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     setLastSeen(Number(localStorage.getItem(LAST_SEEN_KEY) || 0));
+    setClearedBefore(Number(localStorage.getItem(CLEARED_KEY) || 0));
     fetchLeads();
     // Light polling so freshly-submitted website enquiries surface without a refresh
     const id = setInterval(fetchLeads, 60000);
@@ -103,7 +108,17 @@ export function NotificationBell() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const unread = leads.filter((l) => leadTime(l.created_at) > lastSeen).length;
+  // Hide notifications the user has cleared; the underlying lead stays intact.
+  const visibleLeads = leads.filter((l) => leadTime(l.created_at) > clearedBefore);
+  const unread = visibleLeads.filter((l) => leadTime(l.created_at) > lastSeen).length;
+
+  const clearAll = () => {
+    const now = Date.now();
+    localStorage.setItem(CLEARED_KEY, String(now));
+    localStorage.setItem(LAST_SEEN_KEY, String(now));
+    setClearedBefore(now);
+    setLastSeen(now);
+  };
 
   const togglePanel = () => {
     const next = !open;
@@ -147,9 +162,16 @@ export function NotificationBell() {
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
               <h3 className="text-[14px] font-bold text-foreground">Notifications</h3>
-              {unread > 0 && (
-                <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{unread} new</span>
-              )}
+              <div className="flex items-center gap-2.5">
+                {unread > 0 && (
+                  <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{unread} new</span>
+                )}
+                {visibleLeads.length > 0 && (
+                  <button onClick={clearAll} className="text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -157,7 +179,7 @@ export function NotificationBell() {
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="h-5 w-5 text-primary animate-spin" />
                 </div>
-              ) : leads.length === 0 ? (
+              ) : visibleLeads.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                   <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mb-3">
                     <Inbox className="h-6 w-6 text-muted-foreground" />
@@ -169,7 +191,7 @@ export function NotificationBell() {
                 </div>
               ) : (
                 <ul className="divide-y divide-border/40">
-                  {leads.slice(0, 12).map((lead) => {
+                  {visibleLeads.slice(0, 12).map((lead) => {
                     const isUnread = leadTime(lead.created_at) > lastSeen;
                     return (
                       <li key={lead.id}>

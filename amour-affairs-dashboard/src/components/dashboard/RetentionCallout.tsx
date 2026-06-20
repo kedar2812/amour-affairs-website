@@ -56,6 +56,10 @@ export function RetentionCallout() {
   const pkgs = packagePerformanceData[activeToggle];
   const topPackage = [...pkgs].sort((a, b) => b.revShare - a.revShare)[0];
 
+  // Insights aren't wired to a live pipeline yet, so until there's real funnel
+  // data we show an encouraging placeholder instead of computed demo numbers.
+  const hasData = funnel.reduce((sum, f) => sum + f.count, 0) > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -150,6 +154,15 @@ export function RetentionCallout() {
               </div>
             </div>
             
+            {!hasData ? (
+              <div className="flex flex-col items-center justify-center text-center py-12 gap-3">
+                <Lightbulb className="h-9 w-9 text-[#C8956C]/70" />
+                <p className="text-[16px] font-semibold text-white/90">No insights yet</p>
+                <p className="text-[13px] text-white/55 leading-relaxed max-w-[240px]">
+                  Keep using the dashboard for your daily work — add bookings, leads and payments, and insights on conversions, lead sources and client retention will appear here automatically.
+                </p>
+              </div>
+            ) : (
             <AnimatePresence mode="wait">
               <motion.div
                 key={`content-${activeToggle}`}
@@ -179,9 +192,10 @@ export function RetentionCallout() {
                 </div>
               </motion.div>
             </AnimatePresence>
+            )}
           </div>
 
-          {/* Secondary Calculated Insights List */}
+          {hasData && (
           <div className="mt-6 pt-5 border-t border-white/10 flex flex-col gap-3.5 relative overflow-hidden">
              <AnimatePresence mode="wait">
                 <motion.div
@@ -218,12 +232,13 @@ export function RetentionCallout() {
                       <TrendingUp className="h-3.5 w-3.5" />
                     </div>
                     <p className="text-[13px] text-white/60 leading-snug">
-                      <strong className="text-white/95">{topPackage.revShare}% revenue reliance</strong> on {topPackage.title}. Cross-sell opportunities exist.
+                      <strong className="text-white/95">{topPackage?.revShare ?? 0}% revenue reliance</strong> on {topPackage?.title ?? "your top package"}. Cross-sell opportunities exist.
                     </p>
                   </div>
                 </motion.div>
              </AnimatePresence>
           </div>
+          )}
         </div>
       </motion.div>
     </motion.div>

@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
-import { MapPin, Clock, ChevronRight } from "lucide-react";
+import { MapPin, Clock, ChevronRight, CalendarDays } from "lucide-react";
+
+type Shoot = { id: number; day: string; weekday: string; title: string; category: string; time: string; venue: string; photographer: { name: string; avatar: string } };
 
 /*
  * Donezo Calendar-style upcoming shoots list with 
@@ -13,12 +15,8 @@ const categoryStyles: Record<string, { bg: string; text: string }> = {
   Portrait: { bg: "bg-amber-50 dark:bg-amber-500/10", text: "text-amber-600 dark:text-amber-400" },
 };
 
-const shoots = [
-  { id: 1, day: "16", weekday: "Wed", title: "Sagar & Shruti Wedding", category: "Wedding", time: "09:00 AM – 11:00 PM", venue: "The Ritz-Carlton, Pune", photographer: { name: "Kedar G.", avatar: "https://i.pravatar.cc/150?u=kedar" } },
-  { id: 2, day: "17", weekday: "Thu", title: "TechCorp Annual Meet", category: "Corporate", time: "10:00 AM – 04:00 PM", venue: "JW Marriott, Hinjawadi", photographer: { name: "Rajat K.", avatar: "https://i.pravatar.cc/150?u=rajat" } },
-  { id: 3, day: "18", weekday: "Fri", title: "Aman & Neha Pre-Wedding", category: "Pre-Wedding", time: "06:00 AM – 10:00 AM", venue: "Lavasa City", photographer: { name: "Nikhil T.", avatar: "https://i.pravatar.cc/150?u=nikhil" } },
-  { id: 4, day: "19", weekday: "Sat", title: "Priya Maternity Shoot", category: "Portrait", time: "04:00 PM – 06:00 PM", venue: "Empress Garden", photographer: { name: "Sunil M.", avatar: "https://i.pravatar.cc/150?u=sunil" } },
-];
+// Not yet wired to live bookings — intentionally empty until real data flows in.
+const shoots: Shoot[] = [];
 
 export function UpcomingShoots() {
   return (
@@ -40,6 +38,12 @@ export function UpcomingShoots() {
         </div>
 
         <div className="flex-1 px-4 pb-4 space-y-1 overflow-y-auto">
+          {shoots.length === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-center py-10 gap-2">
+              <CalendarDays className="h-8 w-8 text-muted-foreground/40" />
+              <p className="text-[13px] text-muted-foreground">No upcoming shoots yet</p>
+            </div>
+          )}
           {shoots.map((shoot, i) => {
             const style = categoryStyles[shoot.category];
             return (

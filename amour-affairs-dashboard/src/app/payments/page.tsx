@@ -4,25 +4,37 @@ import React, { useState } from 'react';
 import { Search, Plus, Download, MoreHorizontal, DownloadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useInvoices, useTransactions } from '@/lib/useData';
+import { useInvoices, useTransactions, usePaymentStats } from '@/lib/useData';
 import { Invoice, Transaction } from '@/data/mockData';
 
 type TabView = "Invoices" | "Transactions" | "Advance Tracker";
+
+// ₹ formatter shared by the summary strip
+function fmtMoney(n: number): string {
+  n = Number(n) || 0;
+  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
+  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
+  return `₹${n.toLocaleString('en-IN')}`;
+}
 
 export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState<TabView>("Invoices");
   const [searchQuery, setSearchQuery] = useState("");
   const { data: invoices } = useInvoices();
   const { data: transactions } = useTransactions();
+  const { data: payStats } = usePaymentStats();
+  const ps = (payStats || {}) as Record<string, number>;
 
-  const filteredInvoices = invoices.filter(inv => 
-    inv.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    inv.id.toLowerCase().includes(searchQuery.toLowerCase())
+  const sq = searchQuery.toLowerCase();
+  const filteredInvoices = (invoices as any[]).filter(inv =>
+    String(inv.clientName ?? inv.client_name ?? "").toLowerCase().includes(sq) ||
+    String(inv.id ?? "").toLowerCase().includes(sq)
   );
 
-  const filteredTransactions = transactions.filter(tx => 
-    tx.clientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    tx.bookingId.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTransactions = (transactions as any[]).filter(tx =>
+    String(tx.clientName ?? tx.client_name ?? "").toLowerCase().includes(sq) ||
+    String(tx.bookingId ?? tx.booking_id ?? "").toLowerCase().includes(sq)
   );
 
   const getStatusColor = (status: Invoice['status']) => {
@@ -67,10 +79,10 @@ export default function PaymentsPage() {
       {/* Summary Stats */}
       <div className="grid grid-cols-4 gap-4 shrink-0">
         {[
-          { label: "Total Revenue (This Month)", val: "₹8,40,000" },
-          { label: "Pending Dues", val: "₹1,35,000", alert: false },
-          { label: "Overdue", val: "₹45,000", alert: true },
-          { label: "Advance Collected", val: "₹3,20,000" }
+          { label: "Total Invoiced", val: fmtMoney(ps.total_invoiced) },
+          { label: "Collected", val: fmtMoney(ps.total_collected) },
+          { label: "Outstanding", val: fmtMoney(ps.total_outstanding), alert: (ps.total_outstanding || 0) > 0 },
+          { label: "Overdue Invoices", val: String(ps.overdue_count ?? 0), alert: (ps.overdue_count || 0) > 0 }
         ].map(stat => (
           <div key={stat.label} className="dash-card p-4 flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">{stat.label}</span>

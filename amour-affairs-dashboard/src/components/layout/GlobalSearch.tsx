@@ -69,58 +69,68 @@ export function GlobalSearch() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Command Palette Multi-Dataset Search Engine
+  // Command Palette Multi-Dataset Search Engine.
+  // The live API returns snake_case fields while the mock data is camelCase, and
+  // any field can be null — so read every field defensively (`s()` coerces
+  // null/undefined to "") and accept either casing. This is what was crashing
+  // the whole page ("This page couldn't load") on a real keystroke.
   const results = useMemo(() => {
     const q = query.toLowerCase().trim();
     if (!q) return [];
 
-    let matched: SearchResultItem[] = [];
+    const s = (v: unknown) => (v == null ? "" : String(v)).toLowerCase();
+    const pick = (o: any, ...keys: string[]) => {
+      for (const k of keys) if (o?.[k] != null && o[k] !== "") return o[k];
+      return "";
+    };
 
     // Search Bookings (Limit 4)
-    const matchedBookings = bookings.filter(b => 
-      b.clientName.toLowerCase().includes(q) || 
-      b.id.toLowerCase().includes(q) || 
-      b.venue.toLowerCase().includes(q) ||
-      b.city.toLowerCase().includes(q)
+    const matchedBookings = (bookings as any[]).map(b => ({
+      id: String(pick(b, "id", "booking_ref", "ref")),
+      name: pick(b, "clientName", "client_name"),
+      event: pick(b, "eventType", "event_type"),
+      venue: pick(b, "venue"),
+      city: pick(b, "city"),
+    })).filter(b =>
+      s(b.name).includes(q) || s(b.id).includes(q) || s(b.venue).includes(q) || s(b.city).includes(q)
     ).slice(0, 4).map(b => ({
-      id: b.id,
-      title: `${b.clientName} - ${b.eventType}`,
-      subtitle: `${b.id} • ${b.venue}, ${b.city}`,
-      type: "Booking" as const,
-      route: "/bookings",
-      icon: Briefcase
+      id: `b-${b.id}`,
+      title: `${b.name}${b.event ? " - " + b.event : ""}`,
+      subtitle: [b.id, [b.venue, b.city].filter(Boolean).join(", ")].filter(Boolean).join(" • "),
+      type: "Booking" as const, route: "/bookings", icon: Briefcase
     }));
-    
+
     // Search Clients (Limit 3)
-    const matchedClients = clients.filter(c => 
-      c.name.toLowerCase().includes(q) || 
-      c.email.toLowerCase().includes(q) || 
-      c.phone.includes(q)
+    const matchedClients = (clients as any[]).map(c => ({
+      id: String(pick(c, "id")),
+      name: pick(c, "name"),
+      email: pick(c, "email"),
+      phone: pick(c, "phone"),
+    })).filter(c =>
+      s(c.name).includes(q) || s(c.email).includes(q) || s(c.phone).includes(q)
     ).slice(0, 3).map(c => ({
-      id: c.id,
-      title: c.name,
-      subtitle: `${c.phone} • ${c.email}`,
-      type: "Client" as const,
-      route: "/clients",
-      icon: User
+      id: `c-${c.id}`,
+      title: c.name || "Unnamed client",
+      subtitle: [c.phone, c.email].filter(Boolean).join(" • ") || "—",
+      type: "Client" as const, route: "/clients", icon: User
     }));
 
     // Search Leads (Limit 3)
-    const matchedLeads = leads.filter(l => 
-      l.clientName.toLowerCase().includes(q) || 
-      l.phone.includes(q) ||
-      l.stage.toLowerCase().includes(q)
+    const matchedLeads = (leads as any[]).map(l => ({
+      id: String(pick(l, "id", "lead_ref")),
+      name: pick(l, "clientName", "client_name"),
+      phone: pick(l, "phone"),
+      stage: pick(l, "stage"),
+    })).filter(l =>
+      s(l.name).includes(q) || s(l.phone).includes(q) || s(l.stage).includes(q)
     ).slice(0, 3).map(l => ({
-      id: l.id,
-      title: l.clientName,
-      subtitle: `Stage: ${l.stage} • ${l.phone}`,
-      type: "Lead" as const,
-      route: "/leads",
-      icon: Phone
+      id: `l-${l.id}`,
+      title: l.name || "New inquiry",
+      subtitle: [l.stage ? `Stage: ${l.stage}` : "", l.phone].filter(Boolean).join(" • "),
+      type: "Lead" as const, route: "/leads", icon: Phone
     }));
 
-    matched = [...matchedBookings, ...matchedClients, ...matchedLeads];
-    return matched;
+    return [...matchedBookings, ...matchedClients, ...matchedLeads];
   }, [query, bookings, clients, leads]);
 
   return (

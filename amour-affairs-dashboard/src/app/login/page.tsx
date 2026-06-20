@@ -111,7 +111,7 @@ export default function LoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="info@amouraffairs.in"
+                placeholder="Enter your email"
                 required
                 autoComplete="email"
                 className="w-full h-12 px-4 bg-muted/40 border border-border rounded-xl text-foreground text-[14px] placeholder:text-muted-foreground/50 focus:outline-none focus:ring-4 focus:ring-primary/15 focus:border-primary transition-all"

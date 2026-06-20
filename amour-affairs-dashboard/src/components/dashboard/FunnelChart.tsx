@@ -14,8 +14,8 @@ export function FunnelChart() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const currentData = funnelDataConfig[activeToggle];
-  const maxCount = currentData[0].count;
-  const totalConversion = ((currentData[currentData.length - 1].count / currentData[0].count) * 100).toFixed(1);
+  const maxCount = currentData[0]?.count || 0;
+  const totalConversion = maxCount ? ((currentData[currentData.length - 1].count / maxCount) * 100).toFixed(1) : "0";
 
   return (
     <motion.div
@@ -70,7 +70,7 @@ export function FunnelChart() {
         <div className="flex-1 px-6 pb-6 flex flex-col justify-center gap-3">
           <AnimatePresence mode="popLayout">
             {currentData.map((step, index) => {
-              const widthPct = (step.count / maxCount) * 100;
+              const widthPct = maxCount ? (step.count / maxCount) * 100 : 0;
               const prevCount = index > 0 ? currentData[index - 1].count : null;
               const dropOff = prevCount ? ((1 - step.count / prevCount) * 100).toFixed(0) : null;
 

@@ -1,15 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
-import { AlertCircle, FileText, Image, Clock, ChevronRight } from "lucide-react";
+import { Clock, ChevronRight, CheckCircle2, type LucideIcon } from "lucide-react";
 
 /*
  * Donezo "Reminders" widget adapted as priority action items.
  */
-const actions = [
-  { title: "Unpaid Invoice #1042", desc: "Rohan & Shruti — ₹45K overdue", time: "2 days ago", icon: AlertCircle, color: "text-red-500", bg: "bg-red-50", border: "border-red-100", action: "Send Reminder" },
-  { title: "Contract Unsigned", desc: "TechCorp Annual — awaiting signature", time: "Due in 3 days", icon: FileText, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-100", action: "Resend" },
-  { title: "Gallery Delivery", desc: "Aman & Neha — 248 photos ready", time: "Due tomorrow", icon: Image, color: "text-violet-500", bg: "bg-violet-50", border: "border-violet-100", action: "Deliver" },
-];
+type ActionItem = { title: string; desc: string; time: string; icon: LucideIcon; color: string; bg: string; border: string; action: string };
+
+// Not yet wired to live data — intentionally empty until real reminders exist.
+const actions: ActionItem[] = [];
 
 export function PendingActions() {
   return (
@@ -31,6 +30,12 @@ export function PendingActions() {
         </div>
 
         <div className="flex-1 px-5 pb-5 space-y-2.5">
+          {actions.length === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-center py-10 gap-2">
+              <CheckCircle2 className="h-8 w-8 text-muted-foreground/40" />
+              <p className="text-[13px] text-muted-foreground">No pending actions</p>
+            </div>
+          )}
           {actions.map((action, i) => (
             <motion.div
               key={i}
