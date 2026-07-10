@@ -63,6 +63,7 @@ export default function FilmsPage() {
   const [films, setFilms] = useState<FilmItem[]>([]);
   const [activeFilter, setActiveFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -191,7 +192,7 @@ export default function FilmsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Films</h1>
+          <h1 className="dash-h1">Films</h1>
           <p className="text-[14px] text-muted-foreground mt-1">YouTube films shown on the website — starred films enter the &ldquo;Now Showing&rdquo; rotation.</p>
         </div>
         <div className="flex items-center gap-3">

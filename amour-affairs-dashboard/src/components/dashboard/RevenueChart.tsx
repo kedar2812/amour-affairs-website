@@ -1,26 +1,25 @@
 "use client";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Bar, BarChart, LineChart, Line, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { TrendingUp, BarChart3, LineChart as LineChartIcon } from "lucide-react";
-import { TimeRange } from "@/data/mockChartData";
+import { BarChart3, LineChart as LineChartIcon } from "lucide-react";
 import { usePaymentStats } from "@/lib/useData";
 import { buildRevenueBars } from "@/lib/analytics";
+import { formatINRCompact } from "@/lib/utils";
 
-function fmtRevenue(n: number): string {
-  n = Number(n) || 0;
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
-  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
-  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
-  return `₹${n}`;
+const fmtRevenue = formatINRCompact;
+
+// Y-axis tick: compact ₹ label for raw-rupee values.
+function fmtAxis(n: number): string {
+  if (n >= 10000000) return `${(n / 10000000).toFixed(1).replace(/\.0$/, "")}Cr`;
+  if (n >= 100000) return `${(n / 100000).toFixed(1).replace(/\.0$/, "")}L`;
+  if (n >= 1000) return `${Math.round(n / 1000)}K`;
+  return String(n);
 }
 
 /*
- * Sparklink-style Revenue Forecast:
- * - Large revenue header with trend badge
- * - Time toggle + Chart type toggle
- * - Clean visual charts
- * - Average line reference
+ * Monthly Revenue — collected revenue per month over the last 12 months,
+ * from the payments API. Bar/line toggle; empty state until payments exist.
  */
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -31,10 +30,8 @@ function CustomTooltip({ active, payload, label }: any) {
       {payload.map((entry: any, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-sm" style={{ background: entry.color }} />
-          <span className="text-muted-foreground capitalize">{entry.dataKey}:</span>
-          <span className="font-semibold text-foreground">
-            {entry.value < 10 ? `₹${entry.value.toFixed(1)}L` : `₹${entry.value.toFixed(1)}K`}
-          </span>
+          <span className="text-muted-foreground capitalize">{entry.name || entry.dataKey}:</span>
+          <span className="font-semibold text-foreground">{formatINRCompact(entry.value)}</span>
         </div>
       ))}
     </div>
@@ -42,16 +39,15 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export function RevenueChart() {
-  const [activeToggle, setActiveToggle] = useState<TimeRange>("Month");
   const [chartType, setChartType] = useState<"bar" | "line">("bar");
-  
+
   const { data: payStats } = usePaymentStats();
   const monthly = (((payStats || {}) as any).monthly_revenue || []) as Array<{ month: string; total: number | string }>;
   const currentData = buildRevenueBars(monthly);
   const totalRealised = currentData.reduce((s, d) => s + d.realised, 0);
+  const hasData = currentData.some((d) => d.realised > 0);
   const currentKPIs = {
     total: fmtRevenue(totalRealised),
-    trend: "—",
     avg: fmtRevenue(currentData.length ? totalRealised / currentData.length : 0),
     increaseText: "collected over the last 12 months",
   };
@@ -64,46 +60,17 @@ export function RevenueChart() {
       className="h-full"
     >
       <div className="dash-card h-full flex flex-col">
-        {/* Header — Sparklink Revenue Forecast style */}
+        {/* Header */}
         <div className="flex items-start justify-between p-6 pb-3">
           <div className="min-w-[200px]">
-            <h3 className="text-[18px] font-bold text-foreground">Revenue Forecast</h3>
-            <AnimatePresence mode="popLayout">
-              <motion.div 
-                key={activeToggle}
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 4 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex items-baseline gap-2 mt-1.5">
-                  <span className="text-3xl font-bold text-foreground tracking-tight">{currentKPIs.total}</span>
-                  <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                    <TrendingUp className="h-3 w-3" /> {currentKPIs.trend}
-                  </span>
-                </div>
-                <p className="text-[12px] text-muted-foreground mt-1">{currentKPIs.increaseText}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          
-          <div className="flex flex-col items-end gap-3 shrink-0">
-            {/* Toggle tabs */}
-            <div className="flex bg-muted p-0.5 rounded-lg">
-              {(["Week", "Month", "Year", "Max"] as TimeRange[]).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setActiveToggle(t)}
-                  className={`px-3 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
-                    activeToggle === t
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
+            <h3 className="dash-card-title">Monthly Revenue</h3>
+            <div className="flex items-baseline gap-2 mt-1.5">
+              <span className="text-3xl font-bold text-foreground tracking-tight">{currentKPIs.total}</span>
             </div>
+            <p className="text-[12px] text-muted-foreground mt-1">{currentKPIs.increaseText}</p>
+          </div>
+
+          <div className="flex flex-col items-end gap-3 shrink-0">
             {/* Chart Type Toggle */}
             <div className="flex items-center bg-muted/50 border border-border/50 rounded-lg p-0.5">
               <button 
@@ -126,41 +93,42 @@ export function RevenueChart() {
 
         {/* Chart */}
         <div className="flex-1 px-4 pb-3 min-h-[260px]">
+          {!hasData ? (
+            <div className="h-full w-full flex flex-col items-center justify-center text-center gap-1 py-8">
+              <p className="text-[13px] font-semibold text-foreground">No revenue yet</p>
+              <p className="text-[12px] text-muted-foreground max-w-[240px]">Monthly collected revenue appears here as you record payments.</p>
+            </div>
+          ) : (
           <ResponsiveContainer width="100%" height="100%">
             {chartType === "bar" ? (
               <BarChart data={currentData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barGap={3} barSize={20}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} tickFormatter={(val) => val < 10 ? `${val}L` : `${val}K`} dx={-4} domain={[0, 'dataMax + 0.5']} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} tickFormatter={fmtAxis} dx={-4} domain={[0, 'dataMax']} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "var(--muted)", opacity: 0.8, radius: 4 }} />
-                <Bar dataKey="realised" name="Realised" fill="var(--primary)" radius={[4, 4, 0, 0]} animationDuration={800} />
-                <Bar dataKey="projected" name="Projected" fill="var(--muted-foreground)" fillOpacity={0.25} radius={[4, 4, 0, 0]} animationDuration={800} />
+                <Bar dataKey="realised" name="Collected" fill="var(--primary)" radius={[4, 4, 0, 0]} animationDuration={800} />
               </BarChart>
             ) : (
               <LineChart data={currentData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} dy={8} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} tickFormatter={(val) => val < 10 ? `${val}L` : `${val}K`} dx={-4} domain={[0, 'dataMax + 0.5']} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#9CA3AF", fontWeight: 500 }} tickFormatter={fmtAxis} dx={-4} domain={[0, 'dataMax']} allowDecimals={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1, strokeDasharray: "4 4" }} />
-                <Line type="monotone" dataKey="realised" name="Realised" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4, fill: "var(--primary)" }} activeDot={{ r: 6 }} animationDuration={800} />
-                <Line type="monotone" dataKey="projected" name="Projected" stroke="var(--muted-foreground)" strokeWidth={3} strokeDasharray="5 5" fillOpacity={0.25} dot={{ r: 4, fill: "var(--background)", stroke: "var(--muted-foreground)" }} activeDot={{ r: 6 }} animationDuration={800} />
+                <Line type="monotone" dataKey="realised" name="Collected" stroke="var(--primary)" strokeWidth={3} dot={{ r: 4, fill: "var(--primary)" }} activeDot={{ r: 6 }} animationDuration={800} />
               </LineChart>
             )}
           </ResponsiveContainer>
+          )}
         </div>
 
         {/* Legend strip */}
         <div className="border-t border-border/50 px-6 py-3 flex items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="h-2.5 w-2.5 rounded-sm bg-primary" />
-            <span className="text-[12px] text-muted-foreground font-medium">Realised</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-sm bg-muted-foreground/30" />
-            <span className="text-[12px] text-muted-foreground font-medium">Projected</span>
+            <span className="text-[12px] text-muted-foreground font-medium">Collected</span>
           </div>
           <div className="ml-auto text-[12px] text-muted-foreground">
-            Avg: <span className="font-semibold text-foreground">{currentKPIs.avg}</span> / {activeToggle.toLowerCase()}
+            Avg: <span className="font-semibold text-foreground">{currentKPIs.avg}</span> / month
           </div>
         </div>
       </div>

@@ -2,10 +2,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { useState } from "react";
-import { TrendingUp, ChevronDown } from "lucide-react";
+import { TrendingUp, TrendingDown, ChevronDown } from "lucide-react";
 import { TimeRange } from "@/data/mockChartData";
 import { useLeads } from "@/lib/useData";
-import { buildSources, withinRange } from "@/lib/analytics";
+import { buildSources, rangeCounts } from "@/lib/analytics";
 
 /*
  * Sparklink "Traffic Breakdown" donut chart adapted for lead sources.
@@ -32,12 +32,12 @@ export function TrafficBreakdown() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { data: leads } = useLeads();
-  const leadList = (leads as Array<{ created_at?: string }>) || [];
+  const leadList = (leads as Array<{ created_at?: string; moved_to_stage_at?: string; movedToStageAt?: string }>) || [];
   const currentData = buildSources(leadList, activeToggle);
-  const currentKPI = {
-    count: leadList.filter((l) => withinRange(l.created_at, activeToggle)).length,
-    trend: "—",
-  };
+  // Real comparison against the equal-length previous window; no badge when
+  // there's nothing to compare against (previous window empty / "Max" range).
+  const { current: leadCount, previous: prevCount } = rangeCounts(leadList, activeToggle);
+  const trendPct = prevCount ? Math.round(((leadCount - prevCount) / prevCount) * 100) : null;
 
   return (
     <motion.div
@@ -49,7 +49,7 @@ export function TrafficBreakdown() {
       <div className="dash-card h-full flex flex-col">
         <div className="p-6 pb-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-[18px] font-bold text-foreground">Lead Sources</h3>
+            <h3 className="dash-card-title">Lead Sources</h3>
             <div className="relative">
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -82,11 +82,22 @@ export function TrafficBreakdown() {
                transition={{ duration: 0.2 }}
                className="flex items-baseline gap-2 mt-2"
             >
-              <span className="text-2xl font-bold text-foreground">{currentKPI.count}</span>
-              <span className="inline-flex items-center gap-0.5 text-[12px] font-semibold text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                <TrendingUp className="h-3 w-3" /> {currentKPI.trend}
-              </span>
-              <span className="text-[12px] text-muted-foreground">vs previous</span>
+              <span className="text-2xl font-bold text-foreground">{leadCount}</span>
+              {trendPct != null ? (
+                <>
+                  <span className={`inline-flex items-center gap-0.5 text-[12px] font-semibold px-1.5 py-0.5 rounded ${trendPct >= 0
+                    ? "text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10"
+                    : "text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-500/10"}`}>
+                    {trendPct >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {trendPct >= 0 ? "+" : ""}{trendPct}%
+                  </span>
+                  <span className="text-[12px] text-muted-foreground">vs previous</span>
+                </>
+              ) : (
+                <span className="text-[12px] text-muted-foreground">
+                  lead{leadCount === 1 ? "" : "s"} in this period
+                </span>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

@@ -270,12 +270,14 @@ function initVideoModal() {
    ═══════════════════════════════════════════════════════ */
 
 async function init() {
-  // CMS film library, or null to keep the static fallback markup
-  const cms = await filmsPromise;
-
+  // Hide the preloader FIRST — never gate it on the CMS API (a slow/failed
+  // request must not hold the whole page on the loading screen).
   await initPreloader();
   initNav(lenis);
   initPageNav();
+  // CMS film library, or null to keep the static fallback markup
+  let cms = null;
+  try { cms = await filmsPromise; } catch (e) { console.error('films CMS', e); }
   if (cms) renderFilmsGrid(cms.gallery);
   initFeaturedFilm(cms ? cms.featured : FEATURED_FILMS);
   initVideoModal();

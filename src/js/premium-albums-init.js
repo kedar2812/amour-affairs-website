@@ -28,6 +28,7 @@ loadArchiveAlbums('premium_album', fallbackAlbums).then((albums) => initArchiveP
   prefix: 'ppage',
   folderWord: 'Collection',
   openWord: 'View Collection',
+  photoWord: 'premium wedding album',
   onReady({ gsap }) {
     // Standing enquiry form before the footer — same lead pipeline
     initLeadForm();

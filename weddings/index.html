@@ -3,8 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Photography | Amour Affairs — Timeless Wedding Storytellers</title>
-  <meta name="description" content="Browse the Amour Affairs wedding archive — folders of real couples and the finest candid wedding photography in Pune and beyond.">
+  <title>Wedding Photography in Pune | Candid &amp; Traditional | Amour Affairs</title>
+  <meta name="description" content="Wedding photography in Pune by Amour Affairs — candid and traditional wedding photography, destination and NRI weddings. Browse real couples' folders from our archive.">
+  <link rel="canonical" href="https://www.amouraffairs.in/weddings/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Amour Affairs">
+  <meta property="og:url" content="https://www.amouraffairs.in/weddings/">
+  <meta property="og:title" content="Wedding Photography in Pune | Amour Affairs">
+  <meta property="og:description" content="Candid and traditional wedding photography in Pune, destination and NRI weddings — real couples' folders from the Amour Affairs archive.">
+  <meta property="og:image" content="https://www.amouraffairs.in/logo-full.png">
+
+  <!-- Service schema — wedding photography -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": "https://www.amouraffairs.in/weddings/#service",
+    "name": "Wedding Photography in Pune",
+    "serviceType": "Wedding Photography",
+    "description": "Candid and traditional wedding photography in Pune, plus destination and NRI wedding coverage across India and abroad.",
+    "provider": { "@id": "https://www.amouraffairs.in/#business" },
+    "areaServed": [
+      { "@type": "City", "name": "Pune" },
+      { "@type": "State", "name": "Maharashtra" },
+      { "@type": "Country", "name": "India" }
+    ],
+    "url": "https://www.amouraffairs.in/weddings/"
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +43,7 @@
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
-    <img src="/logo.svg" alt="Amour Affairs Logo" class="preloader__logo-svg" />
+    <img src="/logo-emblem.webp" alt="Amour Affairs Logo" class="preloader__logo-svg" />
     <div class="preloader__progress">
       <div class="preloader__progress-fill"></div>
     </div>
@@ -25,7 +52,7 @@
   <!-- ═══════════ NAVIGATION ═══════════ -->
   <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
-      <img src="/logo-full.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full.webp" alt="Amour Affairs" class="nav__logo-img" />
     </a>
     <div class="nav__links hide-mobile">
       <a href="/" class="nav__link">Home</a>
@@ -35,7 +62,7 @@
       <a href="/about/" class="nav__link">About</a>
       <a href="/testimonials/" class="nav__link">Testimonials</a>
       <a href="/shop/" class="nav__link">Shop</a>
-      <a href="#contact" class="nav__link">Contact</a>
+      <a href="/contact/" class="nav__link">Contact</a>
       <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
     </div>
     <div class="nav__hamburger hide-desktop" id="hamburger">
@@ -52,7 +79,7 @@
     <a href="/about/" class="nav__mobile-link">About</a>
     <a href="/testimonials/" class="nav__mobile-link">Testimonials</a>
     <a href="/shop/" class="nav__mobile-link">Shop</a>
-    <a href="#contact" class="nav__mobile-link">Contact</a>
+    <a href="/contact/" class="nav__mobile-link">Contact</a>
     <div class="nav__mobile-footer">
       <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://vimeo.com/amouraffairs" target="_blank" rel="noopener">Vimeo</a>
@@ -61,8 +88,9 @@
 
   <!-- ═══════════ HERO ═══════════ -->
   <section class="wpage-hero">
-    <span class="wpage-hero__eyebrow">The Wedding Archive &middot; Since 2011</span>
-    <h1 class="wpage-hero__title">Every Love Story,<br><em>In Its Own Folder.</em></h1>
+    <!-- Eyebrow doubles as the page h1 (primary keyword); display headline below is decorative -->
+    <h1 class="wpage-hero__eyebrow">Wedding Photography in Pune &middot; The Archive, Since 2011</h1>
+    <p class="wpage-hero__title">Every Love Story,<br><em>In Its Own Folder.</em></p>
     <p class="wpage-hero__sub">Each wedding we shoot lives in a folder named after the couple it belongs to &mdash; holding only the keepers. Open one and step into someone's best day.</p>
   </section>
 
@@ -75,6 +103,34 @@
       </div>
       <div class="wpage-archive__grid" id="archiveGrid">
         <!-- Folder cards rendered by weddings-init.js from weddings-albums-data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ WHAT WE COVER — wedding photography styles ═══════════ -->
+  <section class="wpage-types" aria-label="Wedding photography services">
+    <div class="wpage-types__inner">
+      <div class="wpage-types__header">
+        <span class="wpage-types__eyebrow">How We Shoot</span>
+        <h2 class="wpage-types__heading">One Studio, <em>Every Kind of Wedding</em></h2>
+      </div>
+      <div class="wpage-types__grid">
+        <div class="wpage-types__item">
+          <h3 class="wpage-types__title">Candid Wedding Photography</h3>
+          <p class="wpage-types__text">Unposed and unhurried — our candid wedding photographers move quietly through your day, catching the glances, tears and laughter you didn't know were being kept.</p>
+        </div>
+        <div class="wpage-types__item">
+          <h3 class="wpage-types__title">Traditional Wedding Photography</h3>
+          <p class="wpage-types__text">The rituals, the family portraits, the moments your grandparents will ask for — traditional wedding photography done with care, so no one and nothing is missed.</p>
+        </div>
+        <div class="wpage-types__item">
+          <h3 class="wpage-types__title">Destination Weddings</h3>
+          <p class="wpage-types__text">From Goa's beaches to Udaipur's palaces, we travel as your destination wedding photographer — one team, familiar faces, the same eye wherever you celebrate.</p>
+        </div>
+        <div class="wpage-types__item">
+          <h3 class="wpage-types__title">NRI Weddings</h3>
+          <p class="wpage-types__text">Planning from abroad? Our NRI wedding photography couples plan everything over video calls and WhatsApp, then deliver galleries and films to wherever home is.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -131,7 +187,7 @@
             </div>
           </div>
 
-          <form class="inquiry__form" id="inquiryForm" novalidate>
+          <form class="inquiry__form" id="inquiryForm" data-source="Website (Weddings)" novalidate>
             <!-- Honeypot — humans never see or fill this -->
             <div class="inquiry__hp" aria-hidden="true">
               <label>Website
@@ -161,7 +217,7 @@
               <div class="inquiry__field">
                 <label class="inquiry__field-label" for="inqEventType">Occasion</label>
                 <select class="inquiry__input inquiry__select" id="inqEventType" name="event_type">
-                  <option value="Wedding" selected>Wedding</option>
+                  <option value="Wedding">Wedding</option>
                   <option value="Pre-Wedding">Pre-Wedding</option>
                   <option value="Couple Shoot">Couple Shoot</option>
                   <option value="Engagement">Engagement</option>
@@ -172,20 +228,54 @@
               </div>
             </div>
 
-            <div class="inquiry__field">
-              <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
-              <input class="inquiry__input" type="date" id="inqDate" name="event_date">
-              <span class="inquiry__field-error" aria-live="polite"></span>
+            <div class="inquiry__row">
+              <div class="inquiry__field">
+                <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+                <input class="inquiry__input" type="date" id="inqDate" name="event_date">
+                <span class="inquiry__field-error" aria-live="polite"></span>
+              </div>
+              <div class="inquiry__field">
+                <label class="inquiry__field-label" for="inqVenue">Venue / City <span class="inquiry__optional">(optional)</span></label>
+                <input class="inquiry__input" type="text" id="inqVenue" name="venue" autocomplete="off" maxlength="255" placeholder="e.g. Taj, Goa">
+                <span class="inquiry__field-error" aria-live="polite"></span>
+              </div>
+            </div>
+
+            <div class="inquiry__row">
+              <div class="inquiry__field">
+                <label class="inquiry__field-label" for="inqGuests">Guest Count <span class="inquiry__optional">(approx.)</span></label>
+                <select class="inquiry__input inquiry__select" id="inqGuests" name="guest_count">
+                  <option value="">Select…</option>
+                  <option value="Under 100">Under 100</option>
+                  <option value="100–300">100–300</option>
+                  <option value="300–500">300–500</option>
+                  <option value="500–1000">500–1000</option>
+                  <option value="1000+">1000+</option>
+                </select>
+                <span class="inquiry__field-error" aria-live="polite"></span>
+              </div>
+              <div class="inquiry__field">
+                <label class="inquiry__field-label" for="inqBudget">Budget <span class="inquiry__optional">(optional)</span></label>
+                <select class="inquiry__input inquiry__select" id="inqBudget" name="budget_range">
+                  <option value="">Select…</option>
+                  <option value="Under ₹1,00,000">Under ₹1,00,000</option>
+                  <option value="₹1,00,000 – ₹2,00,000">₹1,00,000 – ₹2,00,000</option>
+                  <option value="₹2,00,000 – ₹4,00,000">₹2,00,000 – ₹4,00,000</option>
+                  <option value="₹4,00,000 – ₹7,00,000">₹4,00,000 – ₹7,00,000</option>
+                  <option value="₹7,00,000+">₹7,00,000+</option>
+                </select>
+                <span class="inquiry__field-error" aria-live="polite"></span>
+              </div>
             </div>
 
             <div class="inquiry__field">
-              <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(venue, plans, anything)</span></label>
+              <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(your story, plans, anything)</span></label>
               <textarea class="inquiry__input inquiry__textarea" id="inqMessage" name="message" rows="4" maxlength="2000"></textarea>
               <span class="inquiry__field-error" aria-live="polite"></span>
             </div>
 
             <button type="submit" class="inquiry__submit" id="inquirySubmit">
-              <span data-enq="button">Send Inquiry</span> <span class="inquiry__submit-arrow" aria-hidden="true">&#8594;</span>
+              Send Inquiry <span class="inquiry__submit-arrow" aria-hidden="true">&#8594;</span>
             </button>
 
             <p class="inquiry__status" id="inquiryStatus" role="status" aria-live="polite"></p>
@@ -227,7 +317,7 @@
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
-      <img src="/logo-full-white.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full-white.webp" alt="Amour Affairs" class="nav__logo-img" />
     </a>
           <span class="footer__col-label">Get In Touch</span>
           <address class="footer__address">
@@ -253,6 +343,8 @@
             <a href="/couple-shoots/" class="footer__nav-link">Couple Shoots</a>
             <a href="/films/" class="footer__nav-link">Films</a>
             <a href="/premium-albums/" class="footer__nav-link">Premium Albums</a>
+            <a href="/guides/" class="footer__nav-link">Wedding Guides</a>
+            <a href="/case-studies/" class="footer__nav-link">Real Weddings</a>
             <a href="/about/" class="footer__nav-link">About</a>
             <a href="/shop/" class="footer__nav-link">Shop</a>
           </nav>

@@ -72,13 +72,23 @@ ScrollTrigger.defaults({ scroller: document.body });
 function initHeroReveal() {
   const tl = gsap.timeline({ delay: 0.3 });
 
+  // Keyword eyebrow (the page h1) fades in first
+  if (document.getElementById('heroEyebrow')) {
+    tl.to('#heroEyebrow', {
+      opacity: 1,
+      y: 0,
+      duration: 0.9,
+      ease: 'power3.out',
+    });
+  }
+
   // Display title fades / slides up
   tl.to('#heroTitle', {
     opacity: 1,
     y: 0,
     duration: 1.2,
     ease: 'power3.out',
-  });
+  }, '-=0.5');
 
   // Gold line draws in
   tl.to('#heroLine', {
@@ -343,14 +353,16 @@ function initAboutNav() {
    ═══════════════════════════════════════════════════════ */
 
 async function init() {
-  // CMS team, or null to keep the static placeholder cards
-  renderTeamMarquee(await teamPromise);
-
-  // CMS founder photo + copy, applied before the reveal animations run
-  renderFounder(await siteContentPromise);
-
+  // Hide the preloader FIRST — never gate it on the CMS API (a slow/failed
+  // request must not hold the whole page on the loading screen).
   await initPreloader();
   initNav(lenis);
+
+  // CMS team + founder, applied before the reveal animations run. Wrapped so a
+  // bad payload can never throw past this point and freeze the boot.
+  try { renderTeamMarquee(await teamPromise); } catch (e) { console.error('team CMS', e); }
+  try { renderFounder(await siteContentPromise); } catch (e) { console.error('founder CMS', e); }
+
   initAboutNav();
   initHeroReveal();
   initFounderReveals();

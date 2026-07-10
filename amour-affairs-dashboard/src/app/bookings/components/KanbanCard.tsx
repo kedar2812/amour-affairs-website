@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Booking } from '@/data/mockData';
+import { formatISTDate } from '@/lib/datetime';
 
 interface KanbanCardProps {
   booking: Booking;
@@ -61,7 +62,7 @@ export function KanbanCard({ booking, isOverlay, onClick }: KanbanCardProps) {
       </div>
       
       <div className="flex items-center justify-between mt-4">
-        <span className="text-[12px] font-medium text-muted-foreground">{new Date(booking.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+        <span className="text-[12px] font-medium text-muted-foreground">{formatISTDate(booking.date, { month: 'short', day: 'numeric' })}</span>
         <span className="text-[13px] font-bold text-foreground">₹{booking.amount.toLocaleString('en-IN')}</span>
       </div>
     </div>

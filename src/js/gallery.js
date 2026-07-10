@@ -40,6 +40,9 @@ export async function initInstagramFeed() {
               src="${thumb}"
               alt="${caption.replace(/"/g, '&quot;')}"
               loading="lazy"
+              decoding="async"
+              width="320"
+              height="320"
               class="insta-tile__img"
             >
             <div class="insta-tile__overlay">

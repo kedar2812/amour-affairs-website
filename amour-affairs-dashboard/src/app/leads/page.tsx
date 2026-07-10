@@ -5,7 +5,8 @@ import { Search, Plus, Phone, Mail, Camera, Globe, Users, Loader2, X, Trash2, Me
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { leadsAPI, getStoredToken } from '@/lib/api';
-import { decodeEntities } from '@/lib/utils';
+import { decodeEntities, isValidIndianPhone, isValidEmail } from '@/lib/utils';
+import { parseIST, istTime, formatISTDate, formatISTDateTime, nowISTStamp } from '@/lib/datetime';
 import { leads as mockLeads } from '@/data/mockData';
 import { Drawer } from '@/components/ui/Drawer';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,6 +34,8 @@ interface APILead {
   instagram: string | null;
   event_type: string;
   event_date: string | null;
+  venue: string | null;
+  guest_count: string | null;
   budget_range: string | null;
   source: string;
   stage: string;
@@ -53,6 +56,8 @@ const mockAsAPILeads: APILead[] = mockLeads.map((l, i) => ({
   instagram: l.instagram || null,
   event_type: l.eventType,
   event_date: l.eventDate,
+  venue: null,
+  guest_count: null,
   budget_range: l.budgetRange,
   source: l.source,
   stage: l.stage,
@@ -73,6 +78,8 @@ const decodeLead = (l: APILead): APILead => ({
   ...l,
   client_name: decodeEntities(l.client_name),
   event_type: decodeEntities(l.event_type),
+  venue: l.venue ? decodeEntities(l.venue) : l.venue,
+  guest_count: l.guest_count ? decodeEntities(l.guest_count) : l.guest_count,
   budget_range: l.budget_range ? decodeEntities(l.budget_range) : l.budget_range,
   notes: (l.notes || []).map(n => ({
     ...n,
@@ -107,6 +114,8 @@ interface LeadFormState {
   email: string;
   event_type: string;
   event_date: string;
+  venue: string;
+  guest_count: string;
   budget_range: string;
   source: string;
   note: string;
@@ -114,7 +123,7 @@ interface LeadFormState {
 
 const EMPTY_LEAD_FORM: LeadFormState = {
   client_name: "", phone: "", email: "", event_type: "Wedding",
-  event_date: "", budget_range: "", source: "Other", note: "",
+  event_date: "", venue: "", guest_count: "", budget_range: "", source: "Other", note: "",
 };
 
 export default function LeadsPage() {
@@ -129,6 +138,7 @@ export default function LeadsPage() {
   // Add-lead drawer
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState<LeadFormState>(EMPTY_LEAD_FORM);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchLeads = useCallback(async () => {
@@ -153,6 +163,12 @@ export default function LeadsPage() {
 
   React.useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
+  // Global search deep link: /leads/?q=priya pre-fills the search box
+  React.useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearchQuery(q);
+  }, []);
+
   const filteredLeads = leads.filter(l =>
     l.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (l.lead_ref || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -163,29 +179,32 @@ export default function LeadsPage() {
   const stats = useMemo(() => {
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const thisMonth = leads.filter(l => l.created_at && new Date(l.created_at) >= monthStart);
+    const thisMonth = leads.filter(l => {
+      const created = parseIST(l.created_at);
+      return created && created >= monthStart;
+    });
     return [
       { label: "Total Leads", val: String(leads.length) },
       { label: "New Inquiries", val: String(leads.filter(l => l.stage === "New Inquiry").length) },
-      { label: "From Website", val: String(leads.filter(l => l.source === "Website").length) },
+      { label: "From Website", val: String(leads.filter(l => (l.source || "").startsWith("Website")).length) },
       { label: "This Month", val: String(thisMonth.length) },
     ];
   }, [leads]);
 
   const getSourceIcon = (source: string) => {
+    if ((source || "").startsWith("Website")) return <Globe className="h-3 w-3" />;
     switch (source) {
       case 'Instagram': return <Camera className="h-3 w-3" />;
       case 'WhatsApp': return <Phone className="h-3 w-3" />;
-      case 'Website': return <Globe className="h-3 w-3" />;
       case 'Referral': return <Users className="h-3 w-3" />;
       default: return <Mail className="h-3 w-3" />;
     }
   };
 
   const getDaysInStage = (movedAt: string | null) => {
-    if (!movedAt) return 0;
-    const ms = new Date().getTime() - new Date(movedAt).getTime();
-    return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+    const t = istTime(movedAt);
+    if (!t) return 0;
+    return Math.max(0, Math.floor((Date.now() - t) / (1000 * 60 * 60 * 24)));
   };
 
   // ── Actions ──
@@ -214,13 +233,22 @@ export default function LeadsPage() {
     }
   };
 
+  const validateLead = () => {
+    const errs: Record<string, string> = {};
+    if (!addForm.client_name.trim()) errs.client_name = "Please enter the client's name.";
+    if (addForm.phone.trim() && !isValidIndianPhone(addForm.phone)) errs.phone = "Enter a valid 10-digit Indian mobile number.";
+    if (addForm.email.trim() && !isValidEmail(addForm.email)) errs.email = "Enter a valid email address.";
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleAddLead = async () => {
-    if (!addForm.client_name.trim()) { setError("Client name is required"); return; }
+    if (!validateLead()) return;
     setIsSubmitting(true);
     setError("");
     try {
       const notes = addForm.note.trim()
-        ? [{ content: addForm.note.trim(), author: "Dashboard", date: new Date().toISOString().slice(0, 19).replace("T", " ") }]
+        ? [{ content: addForm.note.trim(), author: "Dashboard", date: nowISTStamp() }]
         : [];
       if (usingMockData) {
         setError("Connect to the live API to add leads — demo data is read-only.");
@@ -232,6 +260,8 @@ export default function LeadsPage() {
         email: addForm.email.trim(),
         event_type: addForm.event_type,
         event_date: addForm.event_date || null,
+        venue: addForm.venue.trim(),
+        guest_count: addForm.guest_count.trim(),
         budget_range: addForm.budget_range.trim(),
         source: addForm.source,
         stage: "New Inquiry",
@@ -254,7 +284,7 @@ export default function LeadsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Leads</h1>
+          <h1 className="dash-h1">Leads</h1>
           <p className="text-[14px] text-muted-foreground mt-1">
             Track and convert your inquiries — website enquiry forms land here as &ldquo;New Inquiry&rdquo;.
           </p>
@@ -270,7 +300,7 @@ export default function LeadsPage() {
               className="h-10 w-[240px] pl-9 pr-4 bg-card border border-border/50 rounded-xl text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <Button onClick={() => { setAddForm(EMPTY_LEAD_FORM); setShowAddForm(true); }} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none shadow-sm">
+          <Button onClick={() => { setAddForm(EMPTY_LEAD_FORM); setFieldErrors({}); setShowAddForm(true); }} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none shadow-sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
           </Button>
@@ -382,7 +412,7 @@ export default function LeadsPage() {
 
                               <p className="text-[11px] text-muted-foreground font-medium mb-3">
                                 {lead.event_type}
-                                {lead.event_date ? ` • ${new Date(lead.event_date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}` : ""}
+                                {lead.event_date ? ` • ${formatISTDate(lead.event_date, { month: 'short', year: 'numeric' })}` : ""}
                               </p>
 
                               <div className="flex items-center justify-between pt-3 border-t border-border/50">
@@ -429,7 +459,7 @@ export default function LeadsPage() {
                       </td>
                       <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                         {lead.event_type}
-                        {lead.event_date ? ` · ${new Date(lead.event_date).toLocaleDateString('en-IN')}` : ""}
+                        {lead.event_date ? ` · ${formatISTDate(lead.event_date)}` : ""}
                       </td>
                       <td className="px-4 py-3">
                         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-muted rounded text-[10px] text-muted-foreground font-medium">
@@ -438,7 +468,7 @@ export default function LeadsPage() {
                       </td>
                       <td className="px-4 py-3 text-[12px] font-medium text-foreground whitespace-nowrap">{lead.stage}</td>
                       <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
-                        {lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-IN') : "—"}
+                        {lead.created_at ? formatISTDate(lead.created_at) : "—"}
                       </td>
                     </tr>
                   ))}
@@ -458,9 +488,17 @@ export default function LeadsPage() {
           <div className="p-6 space-y-6">
             <div className="flex items-center justify-between">
               <span className="text-[12px] font-bold text-muted-foreground">{selectedLead.lead_ref}</span>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-muted rounded text-[11px] text-muted-foreground font-medium">
-                {getSourceIcon(selectedLead.source)} {selectedLead.source}
+              <span className="text-[12px] text-muted-foreground">
+                {selectedLead.created_at ? formatISTDateTime(selectedLead.created_at) : ""}
               </span>
+            </div>
+
+            <div>
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Came From</h4>
+              <div className="bg-muted/30 border border-border/50 p-4 rounded-xl flex items-center gap-2">
+                {getSourceIcon(selectedLead.source)}
+                <span className="text-[14px] text-foreground font-semibold">{selectedLead.source || "Unknown"}</span>
+              </div>
             </div>
 
             <div>
@@ -499,9 +537,15 @@ export default function LeadsPage() {
                 <p className="text-[14px] text-foreground font-semibold">{selectedLead.event_type}</p>
                 <p className="text-[12px] text-muted-foreground">
                   {selectedLead.event_date
-                    ? `Planned: ${new Date(selectedLead.event_date).toLocaleDateString('en-IN')}`
+                    ? `Planned: ${formatISTDate(selectedLead.event_date)}`
                     : "No date shared yet"}
                 </p>
+                {selectedLead.venue ? (
+                  <p className="text-[12px] text-muted-foreground mt-1">Venue: {selectedLead.venue}</p>
+                ) : null}
+                {selectedLead.guest_count ? (
+                  <p className="text-[12px] text-muted-foreground mt-1">Guests: {selectedLead.guest_count}</p>
+                ) : null}
                 {selectedLead.budget_range ? (
                   <p className="text-[13px] text-primary font-bold mt-2">{selectedLead.budget_range}</p>
                 ) : null}
@@ -517,7 +561,7 @@ export default function LeadsPage() {
                       <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{note.content}</p>
                       <p className="text-[11px] text-muted-foreground mt-2">
                         {note.author || note.authorId || "—"}
-                        {note.date ? ` · ${new Date(note.date).toLocaleString('en-IN')}` : ""}
+                        {note.date ? ` · ${formatISTDateTime(note.date)}` : ""}
                       </p>
                     </div>
                   ))}
@@ -541,18 +585,21 @@ export default function LeadsPage() {
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Client Name *</label>
             <input type="text" value={addForm.client_name} onChange={(e) => setAddForm(f => ({ ...f, client_name: e.target.value }))} placeholder="Priya & Rahul"
-              className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+              className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.client_name ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
+            {fieldErrors.client_name && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.client_name}</p>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Phone</label>
-              <input type="tel" value={addForm.phone} onChange={(e) => setAddForm(f => ({ ...f, phone: e.target.value }))} placeholder="+91"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+              <input type="tel" value={addForm.phone} onChange={(e) => setAddForm(f => ({ ...f, phone: e.target.value }))} placeholder="98765 43210"
+                className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.phone ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
+              {fieldErrors.phone && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.phone}</p>}
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Email</label>
-              <input type="email" value={addForm.email} onChange={(e) => setAddForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+              <input type="email" value={addForm.email} onChange={(e) => setAddForm(f => ({ ...f, email: e.target.value }))} placeholder="name@email.com"
+                className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.email ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
+              {fieldErrors.email && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.email}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -580,6 +627,18 @@ export default function LeadsPage() {
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Budget Range</label>
               <input type="text" value={addForm.budget_range} onChange={(e) => setAddForm(f => ({ ...f, budget_range: e.target.value }))} placeholder="₹1,00,000 – ₹1,50,000"
+                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Venue / City</label>
+              <input type="text" value={addForm.venue} onChange={(e) => setAddForm(f => ({ ...f, venue: e.target.value }))} placeholder="Taj, Goa"
+                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+            </div>
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Guest Count</label>
+              <input type="text" value={addForm.guest_count} onChange={(e) => setAddForm(f => ({ ...f, guest_count: e.target.value }))} placeholder="100–300"
                 className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
             </div>
           </div>

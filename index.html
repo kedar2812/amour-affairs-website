@@ -3,49 +3,148 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amour Affairs | Wedding Photographer in Pune | Candid Photography & Films</title>
-  <meta name="description" content="Amour Affairs is Pune's premier wedding photography & cinematography studio. Capturing candid moments, love stories, and cinematic wedding films since 2011.">
-  <meta name="keywords" content="wedding photographer pune, candid wedding photography pune, wedding films pune, amour affairs photography, pre-wedding shoot pune">
+  <title>Best Wedding Photographer in Pune | Amour Affairs</title>
+  <meta name="description" content="Amour Affairs is a trusted wedding photography studio in Pune led by Taher Husain — 13+ years of professional candid photography and cinematic wedding films across Maharashtra.">
+  <meta name="keywords" content="best wedding photographer in pune, wedding photography pune, candid photography team pune, amour affairs pune, taher husain photographer, pre-wedding shoot pune">
+
+  <link rel="canonical" href="https://www.amouraffairs.in/">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Amour Affairs">
   <meta property="og:url" content="https://www.amouraffairs.in/">
-  <meta property="og:title" content="Amour Affairs | Wedding Photographer in Pune">
-  <meta property="og:description" content="Candid wedding photography and cinematic films. Capturing love since 2011.">
-  <meta property="og:image" content="/assets/images/og-image.jpg">
+  <meta property="og:title" content="Best Wedding Photographer in Pune | Amour Affairs">
+  <meta property="og:description" content="Trusted wedding photography studio in Pune — 13+ years of candid photography and cinematic films by Taher Husain and team.">
+  <meta property="og:image" content="https://www.amouraffairs.in/logo-full.png">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Best Wedding Photographer in Pune | Amour Affairs">
+  <meta name="twitter:description" content="Trusted wedding photography studio in Pune — 13+ years of candid photography and cinematic films by Taher Husain and team.">
+  <meta name="twitter:image" content="https://www.amouraffairs.in/logo-full.png">
 
   <!-- Geo Tags -->
   <meta name="geo.region" content="IN-MH">
   <meta name="geo.placename" content="Pune">
+  <meta name="geo.position" content="18.5204;73.8567">
+  <meta name="ICBM" content="18.5204, 73.8567">
 
   <!-- Preconnect Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap" rel="stylesheet">
 
+  <!-- Preloader emblem is the very first thing on screen — fetch it immediately -->
+  <link rel="preload" as="image" href="/logo-emblem.webp" fetchpriority="high">
+  <!-- Nav wordmark (appears the moment the preloader lifts) -->
+  <link rel="preload" as="image" href="/logo-full.webp">
+  <!-- Kick off the hero's first model frame during HTML parse (faster first paint) -->
+  <link rel="preload" as="image" href="/frames/frame-0001.webp">
 
-  <!-- Schema.org LocalBusiness -->
+  <!-- Warm up the Instagram feed + its CDN so the gallery fills in faster -->
+  <link rel="preconnect" href="https://feeds.behold.so" crossorigin>
+  <link rel="dns-prefetch" href="https://feeds.behold.so">
+  <link rel="preconnect" href="https://scontent.cdninstagram.com" crossorigin>
+  <link rel="dns-prefetch" href="https://scontent.cdninstagram.com">
+
+
+  <!-- Schema.org — Organization + LocalBusiness graph -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "Amour Affairs",
-    "image": "https://www.amouraffairs.in/og-image.jpg",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Rowshni Bungalow, 5, Finance Rd, Opp. Ministry of Defence, Agarkar Nagar",
-      "addressLocality": "Pune",
-      "addressRegion": "MH",
-      "postalCode": "411001",
-      "addressCountry": "IN"
-    },
-    "telephone": "+919921000052",
-    "email": "info@amouraffairs.in",
-    "url": "https://www.amouraffairs.in",
-    "sameAs": [
-      "https://www.instagram.com/amouraffairs/",
-      "https://www.facebook.com/memoriesbyamouraffairs/",
-      "https://vimeo.com/amouraffairs"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.amouraffairs.in/#organization",
+        "name": "Amour Affairs",
+        "url": "https://www.amouraffairs.in/",
+        "logo": "https://www.amouraffairs.in/logo-full.png",
+        "foundingDate": "2011",
+        "founder": {
+          "@type": "Person",
+          "@id": "https://www.amouraffairs.in/#founder",
+          "name": "Taher Husain",
+          "jobTitle": "Founder & Lead Wedding Photographer",
+          "worksFor": { "@id": "https://www.amouraffairs.in/#organization" }
+        },
+        "email": "info@amouraffairs.in",
+        "telephone": "+919921000052",
+        "sameAs": [
+          "https://www.instagram.com/amouraffairs/",
+          "https://www.facebook.com/memoriesbyamouraffairs/",
+          "https://vimeo.com/amouraffairs"
+        ]
+      },
+      {
+        "@type": ["LocalBusiness", "PhotographyBusiness"],
+        "@id": "https://www.amouraffairs.in/#business",
+        "name": "Amour Affairs",
+        "description": "Trusted professional wedding photography and cinematography studio in Pune founded by Taher Husain — 13+ years of candid wedding photography, love stories and cinematic films across Pune and Maharashtra.",
+        "founder": { "@id": "https://www.amouraffairs.in/#founder" },
+        "image": "https://www.amouraffairs.in/logo-full.png",
+        "logo": "https://www.amouraffairs.in/logo-full.png",
+        "url": "https://www.amouraffairs.in/",
+        "telephone": "+919921000052",
+        "email": "info@amouraffairs.in",
+        "priceRange": "₹₹₹",
+        "parentOrganization": { "@id": "https://www.amouraffairs.in/#organization" },
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Rowshni Bungalow, 5, Finance Rd, Opp. Ministry of Defence, Agarkar Nagar",
+          "addressLocality": "Pune",
+          "addressRegion": "MH",
+          "postalCode": "411001",
+          "addressCountry": "IN"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 18.5248108,
+          "longitude": 73.87461
+        },
+        "areaServed": [
+          { "@type": "City", "name": "Pune" },
+          { "@type": "City", "name": "Mumbai" },
+          { "@type": "State", "name": "Maharashtra" },
+          { "@type": "Country", "name": "India" },
+          { "@type": "Place", "name": "Destination Weddings Worldwide" }
+        ],
+        "openingHoursSpecification": {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "10:00",
+          "closes": "19:00"
+        },
+        "sameAs": [
+          "https://www.instagram.com/amouraffairs/",
+          "https://www.facebook.com/memoriesbyamouraffairs/",
+          "https://vimeo.com/amouraffairs"
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "198",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Wedding Photography & Films",
+          "itemListElement": [
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Wedding Photography" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Wedding Cinematography & Films" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pre-Wedding Shoots" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Destination Wedding Photography" } },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Premium Wedding Albums" } }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.amouraffairs.in/#website",
+        "url": "https://www.amouraffairs.in/",
+        "name": "Amour Affairs",
+        "publisher": { "@id": "https://www.amouraffairs.in/#organization" }
+      }
     ]
   }
   </script>
@@ -57,7 +156,7 @@
 
   <!-- ═══════════════ PRELOADER ═══════════════ -->
   <div class="preloader" id="preloader">
-    <img src="/logo.svg" alt="Amour Affairs Logo" class="preloader__logo-svg" />
+    <img src="/logo-emblem.webp" alt="Amour Affairs Logo" class="preloader__logo-svg" fetchpriority="high" decoding="async" width="760" height="950" />
     <div class="preloader__progress">
       <div class="preloader__progress-fill"></div>
     </div>
@@ -66,7 +165,7 @@
   <!-- ═══════════════ NAVIGATION (5.1) ═══════════════ -->
   <nav class="nav" id="nav">
     <a href="#" class="nav__logo">
-      <img src="/logo-full.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full.webp" alt="Amour Affairs" class="nav__logo-img" width="265" height="50" fetchpriority="high" />
     </a>
 
     <div class="nav__links hide-mobile">
@@ -77,7 +176,7 @@
       <a href="/about/" class="nav__link">About</a>
       <a href="/testimonials/" class="nav__link">Testimonials</a>
       <a href="/shop/" class="nav__link">Shop</a>
-      <a href="#contact" class="nav__link">Contact</a>
+      <a href="/contact/" class="nav__link">Contact</a>
       <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
     </div>
 
@@ -89,7 +188,7 @@
   </nav>
 
   <!-- Mobile Menu Overlay -->
-  <div class="nav__mobile-menu" id="mobileMenu">
+  <div class="nav__mobile-menu" id="mobileMenu" data-lenis-prevent>
     <a href="#hero" class="nav__mobile-link">Home</a>
     <a href="/about/" class="nav__mobile-link">About</a>
     <a href="/weddings/" class="nav__mobile-link">Weddings</a>
@@ -97,7 +196,7 @@
     <a href="/films/" class="nav__mobile-link">Films</a>
     <a href="/testimonials/" class="nav__mobile-link">Testimonials</a>
     <a href="/shop/" class="nav__mobile-link">Shop</a>
-    <a href="#contact" class="nav__mobile-link">Contact</a>
+    <a href="/contact/" class="nav__mobile-link">Contact</a>
     <div class="nav__mobile-footer">
       <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://www.facebook.com/memoriesbyamouraffairs/" target="_blank" rel="noopener">Facebook</a>
@@ -118,25 +217,29 @@
       aria-hidden="true"
     ></canvas>
 
+    <!-- Scrim — fades the model into the parchment on phones so the text below
+         reads on a clean base instead of on top of the couple (mobile only). -->
+    <div class="hero__scrim" aria-hidden="true"></div>
+
     <!-- ── Hero Body (text overlays canvas) ── -->
     <div class="hero__body">
 
-      <!-- Eyebrow label -->
-      <span class="hero__eyebrow">
-        Wedding Photography &amp; Films &middot; Pune, India
-      </span>
+      <!-- Eyebrow label — doubles as the page h1 (primary keyword), styled
+           identically to the old span so the design is unchanged -->
+      <h1 class="hero__eyebrow">
+        Best Wedding Photographer in Pune &middot; Weddings &amp; Films
+      </h1>
 
-      <!-- Main headline -->
-      <h1 class="hero__headline">
+      <!-- Main headline (visual display text — h1 lives on the eyebrow) -->
+      <p class="hero__headline">
         Beyond the moment,<br>
         <em>we capture the eternal.</em>
-      </h1>
+      </p>
 
       <!-- Description -->
       <p class="hero__desc">
-        Pune&rsquo;s most celebrated wedding photographers and filmmakers.
-        We immortalize every stolen glance, every teardrop of joy &mdash;
-        crafting cinematic love stories that endure a lifetime.
+        Pune&rsquo;s most trusted professional wedding photographers and filmmakers.
+        <span class="hero__desc-mid">We immortalize every stolen glance, every teardrop of joy &mdash; c</span><span class="hero__desc-cap">C</span>rafting cinematic love stories that endure a lifetime.
       </p>
 
       <!-- CTA -->
@@ -180,7 +283,7 @@
           <h2 class="about__headline text-reveal">Wedding Photographer, Filmmakers & Storytellers.</h2>
         </div>
         <div class="about__body slide-right">
-          <p class="about__text">At Amour Affairs, we're all about love. True to our name, we love blushing brides and dashing grooms. We love weddings and crying at weddings. We love couples in love and alluring emotions that truly capture the essence of your relationship. We love memories that stand the test of time. We invite you to explore our world of creative and candid wedding photography & videography and how we immortalize every special moment.</p>
+          <p class="about__text">At Amour Affairs, we're all about love. True to our name, we love blushing brides and dashing grooms. We love weddings and crying at weddings. We love couples in love and alluring emotions that truly capture the essence of your relationship. For 13+ years, founder Taher Husain and the best candid photography team in Pune have been trusted by couples across Maharashtra to keep memories that stand the test of time. We invite you to explore our world of creative and candid wedding photography & videography and how we immortalize every special moment.</p>
         </div>
       </div>
     </div>
@@ -190,21 +293,26 @@
   <section class="section--alt about-stats-section" style="padding-bottom: var(--section-padding);">
     <div class="container">
       <div class="about__divider" style="margin-top: 0;"></div>
+      <!-- Numbers + labels are dashboard-editable (Website Content → Homepage Key
+           Numbers, settings group `site_content` → site_stats_json) and applied
+           at runtime by applyHomeStats() in site-content.js. The real values are
+           baked in below so the strip always reads correctly even if the count-up
+           animation or the CMS fetch never runs — it must never show 0. -->
       <div class="about__stats">
         <div class="about__stat fade-up">
-          <div class="about__stat-number" data-count="15" data-suffix="+">0</div>
+          <div class="about__stat-number" data-count="15" data-suffix="+">15+</div>
           <div class="about__stat-label">Years of Experience</div>
         </div>
         <div class="about__stat fade-up">
-          <div class="about__stat-number" data-count="500" data-suffix="+">0</div>
+          <div class="about__stat-number" data-count="500" data-suffix="+">500+</div>
           <div class="about__stat-label">Weddings Captured</div>
         </div>
         <div class="about__stat fade-up">
-          <div class="about__stat-number" data-count="10" data-suffix="">0</div>
+          <div class="about__stat-number" data-count="10" data-suffix="">10</div>
           <div class="about__stat-label">Press Features</div>
         </div>
         <div class="about__stat fade-up">
-          <div class="about__stat-number" data-count="1000" data-suffix="+">0</div>
+          <div class="about__stat-number" data-count="1000" data-suffix="+">1000+</div>
           <div class="about__stat-label">Happy Couples</div>
         </div>
       </div>
@@ -291,60 +399,60 @@
 
         <div class="process__step" data-step="1">
           <div class="process__step-illustration">
-            <img src="/process/step-1.svg" alt="Tell Us Your Story" class="process__step-img" loading="lazy" />
+            <img src="/process/step-1.webp" alt="Tell Us Your Story" class="process__step-img" loading="lazy" decoding="async" width="200" height="184" />
           </div>
           <div class="process__step-dot"></div>
           <div class="process__step-info">
             <span class="process__step-number">01.</span>
-            <h4 class="process__step-title">Email Requirement</h4>
+            <h3 class="process__step-title">Email Requirement</h3>
             <p class="process__step-desc">Share your date, venue &amp; vision &mdash; the little details that make your love story unlike any other.</p>
           </div>
         </div>
 
         <div class="process__step" data-step="2">
           <div class="process__step-illustration">
-            <img src="/process/step-2.svg" alt="Let's Connect & Plan" class="process__step-img" loading="lazy" />
+            <img src="/process/step-2.webp" alt="Let's Connect & Plan" class="process__step-img" loading="lazy" decoding="async" width="200" height="184" />
           </div>
           <div class="process__step-dot"></div>
           <div class="process__step-info">
             <span class="process__step-number">02.</span>
-            <h4 class="process__step-title">Get A Fair Quote</h4>
+            <h3 class="process__step-title">Get A Fair Quote</h3>
             <p class="process__step-desc">A transparent, customised package &mdash; events, team &amp; deliverables that fit your day, with no surprises.</p>
           </div>
         </div>
 
         <div class="process__step" data-step="3">
           <div class="process__step-illustration">
-            <img src="/process/step-3.svg" alt="Tailored Proposal" class="process__step-img" loading="lazy" />
+            <img src="/process/step-3.webp" alt="Tailored Proposal" class="process__step-img" loading="lazy" decoding="async" width="200" height="184" />
           </div>
           <div class="process__step-dot"></div>
           <div class="process__step-info">
             <span class="process__step-number">03.</span>
-            <h4 class="process__step-title">Sign Dotted Line</h4>
+            <h3 class="process__step-title">Sign Dotted Line</h3>
             <p class="process__step-desc">A simple agreement and a booking advance lock in your date &mdash; from here, your day is ours to cherish.</p>
           </div>
         </div>
 
         <div class="process__step" data-step="4">
           <div class="process__step-illustration">
-            <img src="/process/step-4.svg" alt="Lock In The Magic" class="process__step-img" loading="lazy" />
+            <img src="/process/step-4.webp" alt="Lock In The Magic" class="process__step-img" loading="lazy" decoding="async" width="200" height="184" />
           </div>
           <div class="process__step-dot"></div>
           <div class="process__step-info">
             <span class="process__step-number">04.</span>
-            <h4 class="process__step-title">Consultation</h4>
+            <h3 class="process__step-title">Consultation</h3>
             <p class="process__step-desc">We sit down to learn your story &amp; must-capture moments &mdash; so on the day, we already feel like family.</p>
           </div>
         </div>
 
         <div class="process__step" data-step="5">
           <div class="process__step-illustration">
-            <img src="/process/step-5.svg" alt="We Capture Forever" class="process__step-img" loading="lazy" />
+            <img src="/process/step-5.webp" alt="We Capture Forever" class="process__step-img" loading="lazy" decoding="async" width="200" height="184" />
           </div>
           <div class="process__step-dot"></div>
           <div class="process__step-info">
             <span class="process__step-number">05.</span>
-            <h4 class="process__step-title">Lets Shoot</h4>
+            <h3 class="process__step-title">Lets Shoot</h3>
             <p class="process__step-desc">We arrive early and blend in, quietly capturing every stolen glance and teardrop of joy &mdash; forever.</p>
           </div>
         </div>
@@ -397,6 +505,50 @@
       <span class="testimonials__label">Love Letters</span>
       <h2 class="testimonials__title">What Our <em>Couples</em> Say</h2>
       <p class="testimonials__sub">Real words from real couples whose stories we had the honour of telling</p>
+
+      <!-- Google rating badge — the visible counterpart of the LocalBusiness
+           aggregateRating. Values are baked in as a fallback and overridden at
+           runtime from the dashboard settings (studio_rating_value /
+           studio_review_count) by applyStudioProfile() in site-content.js. -->
+      <a class="g-rating fade-up"
+         href="https://www.google.com/maps?cid=1339347304869217340"
+         target="_blank" rel="noopener"
+         data-rating-badge
+         aria-label="Rated 4.9 out of 5 from 198 Google reviews">
+        <span class="g-rating__logo" aria-hidden="true">
+          <svg viewBox="0 0 48 48">
+            <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/>
+            <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/>
+            <path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24s.85 6.91 2.34 9.88l7.35-5.7z"/>
+            <path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/>
+          </svg>
+        </span>
+        <span class="g-rating__divider" aria-hidden="true"></span>
+        <span class="g-rating__body">
+          <span class="g-rating__top">
+            <span class="g-rating__score" data-rating-value>4.9</span>
+            <span class="g-rating__stars" data-rating-stars style="--pct:98%" aria-hidden="true">
+              <span class="g-rating__stars-track">
+                <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+              </span>
+              <span class="g-rating__stars-fill">
+                <span class="g-rating__stars-track">
+                  <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.6l2.47 5.01 5.53.8-4 3.9.94 5.5L10 14.2l-4.95 2.6.94-5.5-4-3.9 5.53-.8z"/></svg>
+                </span>
+              </span>
+            </span>
+          </span>
+          <span class="g-rating__count">Based on <span data-rating-count>198</span> Google reviews</span>
+        </span>
+      </a>
     </div>
 
     <!-- React mount point — Framer Motion carousel renders here -->
@@ -473,7 +625,7 @@
         </div>
 
         <!-- Right: the form -->
-        <form class="inquiry__form fade-up" id="inquiryForm" novalidate>
+        <form class="inquiry__form fade-up" id="inquiryForm" data-source="Website (Home)" novalidate>
 
           <!-- Honeypot — humans never see or fill this -->
           <div class="inquiry__hp" aria-hidden="true">
@@ -515,14 +667,48 @@
             </div>
           </div>
 
-          <div class="inquiry__field">
-            <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
-            <input class="inquiry__input" type="date" id="inqDate" name="event_date">
-            <span class="inquiry__field-error" aria-live="polite"></span>
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+              <input class="inquiry__input" type="date" id="inqDate" name="event_date">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqVenue">Venue / City <span class="inquiry__optional">(optional)</span></label>
+              <input class="inquiry__input" type="text" id="inqVenue" name="venue" autocomplete="off" maxlength="255" placeholder="e.g. Taj, Goa">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqGuests">Guest Count <span class="inquiry__optional">(approx.)</span></label>
+              <select class="inquiry__input inquiry__select" id="inqGuests" name="guest_count">
+                <option value="">Select…</option>
+                <option value="Under 100">Under 100</option>
+                <option value="100–300">100–300</option>
+                <option value="300–500">300–500</option>
+                <option value="500–1000">500–1000</option>
+                <option value="1000+">1000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqBudget">Budget <span class="inquiry__optional">(optional)</span></label>
+              <select class="inquiry__input inquiry__select" id="inqBudget" name="budget_range">
+                <option value="">Select…</option>
+                <option value="Under ₹1,00,000">Under ₹1,00,000</option>
+                <option value="₹1,00,000 – ₹2,00,000">₹1,00,000 – ₹2,00,000</option>
+                <option value="₹2,00,000 – ₹4,00,000">₹2,00,000 – ₹4,00,000</option>
+                <option value="₹4,00,000 – ₹7,00,000">₹4,00,000 – ₹7,00,000</option>
+                <option value="₹7,00,000+">₹7,00,000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
           </div>
 
           <div class="inquiry__field">
-            <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(venue, plans, anything)</span></label>
+            <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(your story, plans, anything)</span></label>
             <textarea class="inquiry__input inquiry__textarea" id="inqMessage" name="message" rows="4" maxlength="2000"></textarea>
             <span class="inquiry__field-error" aria-live="polite"></span>
           </div>
@@ -563,7 +749,7 @@
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
-      <img src="/logo-full-white.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full-white.webp" alt="Amour Affairs" class="nav__logo-img" width="265" height="50" loading="lazy" />
     </a>
           <span class="footer__col-label">Get In Touch</span>
           <address class="footer__address">
@@ -589,6 +775,8 @@
             <a href="/couple-shoots/" class="footer__nav-link">Couple Shoots</a>
             <a href="/films/" class="footer__nav-link">Films</a>
             <a href="/premium-albums/" class="footer__nav-link">Premium Albums</a>
+            <a href="/guides/" class="footer__nav-link">Wedding Guides</a>
+            <a href="/case-studies/" class="footer__nav-link">Real Weddings</a>
             <a href="/about/" class="footer__nav-link">About</a>
             <a href="/shop/" class="footer__nav-link">Shop</a>
           </nav>

@@ -77,14 +77,23 @@ switch ($method) {
 
         $updated = 0;
         foreach ($body['settings'] as $key => $value) {
-            $key = sanitize($key);
-            $value = sanitize($value);
+            // Keys are strict identifiers. Values are stored as RAW text —
+            // escaping belongs at render time (the site injects via
+            // textContent, the dashboard is React; both escape safely).
+            // Entity-encoding here double-escapes, so visitors saw literal
+            // "&amp;" in dashboard-edited copy like the notice bar.
+            $key = strtolower(trim((string)$key));
+            if (!preg_match('/^[a-z0-9_]{1,120}$/', $key)) continue;
+            $value = trim((string)$value);
+            $value = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $value);
+            if (strlen($value) > 20000) $value = substr($value, 0, 20000);
             // Determine group from key prefix
             $group = 'general';
             if (strpos($key, 'studio_') === 0) $group = 'profile';
             elseif (strpos($key, 'social_') === 0) $group = 'social';
             elseif (strpos($key, 'hero_') === 0) $group = 'hero';
             elseif (strpos($key, 'seo_') === 0) $group = 'seo';
+            elseif (strpos($key, 'notice_') === 0) $group = 'notice'; // urgency / availability banner
             elseif (strpos($key, 'site_') === 0) $group = 'site_content'; // dashboard-editable page copy
 
             $stmt->execute([$key, $value, $group]);

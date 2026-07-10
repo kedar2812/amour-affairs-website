@@ -33,31 +33,49 @@ export function applyStudioProfile(p) {
     if (num) document.querySelectorAll('a[href*="wa.me"]').forEach((a) => { a.href = `https://wa.me/${num}`; });
   }
 
-  // Email links → mailto + visible text where it shows an address
+  // Email links → mailto + visible text. Only rewrite the text of SIMPLE links
+  // (no child elements) so rich cards like the Contact-page method cards keep
+  // their icon/label markup; their value is updated via [data-studio] below.
   if (p.studio_email) {
     document.querySelectorAll('a[href^="mailto:"]').forEach((a) => {
       a.href = `mailto:${p.studio_email}`;
-      if (a.textContent && a.textContent.includes('@')) a.textContent = p.studio_email;
+      if (!a.querySelector('*') && a.textContent && a.textContent.includes('@')) {
+        a.textContent = p.studio_email;
+      }
     });
+    document.querySelectorAll('[data-studio="email"]').forEach((el) => { el.textContent = p.studio_email; });
   }
 
   // Phone: tel: links + the footer/inquiry phone-number link text
   if (p.studio_phone) {
     document.querySelectorAll('a[href^="tel:"]').forEach((a) => {
       a.href = `tel:${String(p.studio_phone).replace(/\s/g, '')}`;
-      a.textContent = p.studio_phone;
+      if (!a.querySelector('*')) a.textContent = p.studio_phone; // simple links only
     });
     document.querySelectorAll('.footer__contact-links a[href*="wa.me"], .inquiry__contact-link[href*="wa.me"]')
       .forEach((a) => { a.textContent = p.studio_phone; });
+    document.querySelectorAll('[data-studio="phone"]').forEach((el) => { el.textContent = p.studio_phone; });
   }
 
-  // Address (one string, comma/newline separated) → footer address block
+  // Address. The multi-line footer block is only rewritten when the studio has
+  // entered explicit line breaks (WYSIWYG — one line per line). A single-line
+  // value (the common case) is left to the correctly-grouped address baked into
+  // the page markup: splitting it on every comma wrongly orphans parts like "5"
+  // and "Finance Road" — or "Pune" and "Maharashtra" — onto separate lines.
+  // Compact [data-studio="address"] targets always reflect the current value,
+  // flattened to a single comma-separated line.
   if (p.studio_address) {
-    const addr = document.querySelector('.footer__address');
-    if (addr) {
-      addr.innerHTML = escapeHTML(p.studio_address)
-        .split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean).join(',<br>');
+    const raw = escapeHTML(p.studio_address);
+    const lines = raw.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    if (lines.length > 1) {
+      document.querySelectorAll('.footer__address').forEach((addr) => {
+        addr.innerHTML = lines.join('<br>');
+      });
     }
+    const inline = raw.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean);
+    document.querySelectorAll('[data-studio="address"]').forEach((el) => {
+      el.textContent = inline.join(', ');
+    });
   }
 
   // Google Maps embed — accepts a raw embed URL or a pasted <iframe …> snippet
@@ -66,11 +84,73 @@ export function applyStudioProfile(p) {
     const src = m ? m[1] : (/^https?:\/\//.test(String(p.studio_map_embed).trim()) ? String(p.studio_map_embed).trim() : '');
     if (src) document.querySelectorAll('iframe[src*="google.com/maps"], .footer__map iframe').forEach((f) => { f.src = src; });
   }
+
+  // Google rating — keep BOTH the homepage's structured data (#business
+  // aggregateRating) and the visible rating badge in sync with the studio's
+  // real Google rating, edited in the dashboard. No-ops where neither exists.
+  if (p.studio_rating_value || p.studio_review_count) {
+    applyRatingToSchema(p.studio_rating_value, p.studio_review_count);
+    updateRatingBadge(p.studio_rating_value, p.studio_review_count);
+  }
+}
+
+/* Update every visible Google-rating element from the dashboard values —
+   the homepage testimonials badge AND the Contact-page reassurance strip
+   (both use [data-rating-value]/[data-rating-count]). Bundled fallbacks stay
+   for any field the dashboard hasn't set. */
+function updateRatingBadge(ratingValue, reviewCount) {
+  const rating = ratingValue ? Number(ratingValue) : null;
+  const count = reviewCount ?? null;
+
+  if (rating && rating > 0) {
+    document.querySelectorAll('[data-rating-value]').forEach((el) => { el.textContent = rating.toFixed(1); });
+    document.querySelectorAll('[data-rating-stars]').forEach((stars) => {
+      stars.style.setProperty('--pct', `${Math.min(100, (rating / 5) * 100)}%`);
+    });
+  }
+  if (count) document.querySelectorAll('[data-rating-count]').forEach((el) => { el.textContent = count; });
+
+  const badge = document.querySelector('[data-rating-badge]');
+  if (badge) {
+    const shownRating = rating && rating > 0 ? rating.toFixed(1) : badge.querySelector('[data-rating-value]')?.textContent;
+    const shownCount = count || badge.querySelector('[data-rating-count]')?.textContent;
+    badge.setAttribute('aria-label', `Rated ${shownRating} out of 5 from ${shownCount} Google reviews`);
+  }
+}
+
+/* Patch the aggregateRating of the LocalBusiness node inside the page's
+   JSON-LD. Leaves the bundled fallback values in place for any field the
+   dashboard hasn't set, and silently does nothing if the page has no
+   #business schema (every page but the homepage). */
+function applyRatingToSchema(ratingValue, reviewCount) {
+  for (const script of document.querySelectorAll('script[type="application/ld+json"]')) {
+    let data;
+    try { data = JSON.parse(script.textContent); } catch { continue; }
+    const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+    const business = graph.find(
+      (node) => typeof node?.['@id'] === 'string' && node['@id'].endsWith('#business')
+    );
+    if (!business || !business.aggregateRating) continue;
+    if (ratingValue) business.aggregateRating.ratingValue = String(ratingValue);
+    if (reviewCount) business.aggregateRating.reviewCount = String(reviewCount);
+    script.textContent = JSON.stringify(data);
+    return;
+  }
 }
 
 /* ── Defaults (mirrors the seed values in api/database.sql) ── */
 
 export const SITE_CONTENT_DEFAULTS = {
+  // Homepage "by the numbers" strip. Mirrors the values baked into index.html.
+  site_stats_json: {
+    stats: [
+      { number: '15', suffix: '+', label: 'Years of Experience' },
+      { number: '500', suffix: '+', label: 'Weddings Captured' },
+      { number: '10', suffix: '', label: 'Press Features' },
+      { number: '1000', suffix: '+', label: 'Happy Couples' },
+    ],
+  },
+
   site_weddings_enq_label: 'Begin Your Story',
   site_weddings_enq_title: 'Book Your *Wedding*',
   site_weddings_enq_text:
@@ -125,6 +205,40 @@ export const SITE_CONTENT_DEFAULTS = {
     ],
   },
 };
+
+/* ── Homepage "by the numbers" stat strip ──
+   Updates the four About-section stats (number + suffix + label) from the CMS
+   (settings group `site_content` → site_stats_json). Writes the real figure
+   straight into the visible text so the strip is correct even if the count-up
+   animation never fires, and refreshes the data-count/data-suffix attributes
+   the counter animation reads. No-ops on pages without the stat strip. */
+export function applyHomeStats(content = {}) {
+  const cells = document.querySelectorAll('.about__stats .about__stat');
+  if (!cells.length) return;
+
+  const data = content.site_stats_json;
+  const stats =
+    data && Array.isArray(data.stats) && data.stats.length > 0
+      ? data.stats
+      : SITE_CONTENT_DEFAULTS.site_stats_json.stats;
+
+  cells.forEach((cell, i) => {
+    const stat = stats[i];
+    if (!stat) return; // fewer CMS entries than cells → keep the baked value
+
+    const numEl = cell.querySelector('.about__stat-number');
+    const labelEl = cell.querySelector('.about__stat-label');
+    const number = String(stat.number ?? '').trim();
+    const suffix = String(stat.suffix ?? '').trim();
+
+    if (numEl && number) {
+      numEl.dataset.count = number;
+      numEl.dataset.suffix = suffix;
+      numEl.textContent = number + suffix;
+    }
+    if (labelEl && stat.label) labelEl.textContent = stat.label;
+  });
+}
 
 /* ── Enquiry section copy ──
    Fills the [data-enq] slots inside an overlay enquiry section.

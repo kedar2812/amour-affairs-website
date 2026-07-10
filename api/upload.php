@@ -249,6 +249,63 @@ function processImageUpload(string $fieldName, string $subdir): array {
 
 
 /**
+ * Process and store a single uploaded PDF document from a form field.
+ * Returns ['file_path' => ..., 'original_name' => ...] or sends an error.
+ * Returns [] when the field is absent (optional upload).
+ */
+function processDocumentUpload(string $fieldName, string $subdir): array {
+    $files = normalizeUploadedFiles($fieldName);
+    if (empty($files)) {
+        return [];
+    }
+
+    $file = $files[0];
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        sendError('Upload error', 400);
+    }
+    if ($file['size'] > MAX_UPLOAD_SIZE) {
+        sendError('File size exceeds ' . (MAX_UPLOAD_SIZE / 1024 / 1024) . 'MB limit', 400);
+    }
+
+    // Validate the real MIME type — only PDFs are accepted as lead magnets
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+    if ($mimeType !== 'application/pdf') {
+        sendError('Invalid file type. Only PDF documents are allowed.', 400);
+    }
+
+    $timestamp = time();
+    $random = bin2hex(random_bytes(8));
+    $filename = "{$timestamp}_{$random}.pdf";
+
+    $uploadDir = ensureUploadDir($subdir);
+    $destPath = $uploadDir . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+        sendError('Failed to store document', 500);
+    }
+
+    return [
+        'file_path'     => UPLOAD_URL_PREFIX . $subdir . $filename,
+        'original_name' => $file['name'],
+    ];
+}
+
+
+/**
+ * Delete a stored file (by its /uploads/... URL path) from disk.
+ */
+function deleteStoredFile(?string $filePath): void {
+    if (!$filePath) return;
+    $fullPath = dirname(__DIR__) . $filePath;
+    if (is_file($fullPath)) {
+        unlink($fullPath);
+    }
+}
+
+
+/**
  * Delete an image file and its thumbnail from disk
  */
 function deleteImageFiles(string $filePath, ?string $thumbnailPath = null): void {

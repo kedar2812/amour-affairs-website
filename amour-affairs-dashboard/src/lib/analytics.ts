@@ -4,6 +4,9 @@
 // mock chart data so every chart reflects the actual database.
 // ============================================================
 
+// DB timestamps are naive IST strings — parse them as IST, not browser-local.
+import { istTime } from "@/lib/datetime";
+
 export type Range = "Week" | "Month" | "Year" | "Max";
 
 export const LEAD_STAGES = ["New Inquiry", "Contacted", "Consultation Scheduled", "Proposal Sent", "Won"] as const;
@@ -16,37 +19,67 @@ const TYPE_PALETTE = ["var(--primary)", "#ec4899", "#3b82f6", "#a855f7", "#10b98
 
 const RANGE_DAYS: Record<Range, number> = { Week: 7, Month: 31, Year: 366, Max: 100000 };
 
-function ts(iso?: string): number {
-  if (!iso) return 0;
-  const t = new Date(String(iso).replace(" ", "T")).getTime();
-  return Number.isNaN(t) ? 0 : t;
-}
 export function withinRange(iso: string | undefined, range: Range): boolean {
   if (range === "Max") return true;
-  const t = ts(iso);
+  const t = istTime(iso);
   if (!t) return false;
   return Date.now() - t <= RANGE_DAYS[range] * 86400000;
 }
 
-type Lead = { stage?: string; source?: string; created_at?: string };
-type Booking = { event_type?: string; eventType?: string; created_at?: string; date_start?: string };
+type Lead = { stage?: string; source?: string; created_at?: string; movedToStageAt?: string; moved_to_stage_at?: string };
+type Booking = { event_type?: string; eventType?: string; created_at?: string; date_start?: string; date?: string };
+
+// First usable date across the snake_case (API) and camelCase (mock) shapes.
+const leadDate = (l: Lead) => l.created_at || l.moved_to_stage_at || l.movedToStageAt;
+const bookingDate = (b: Booking) => b.created_at || b.date_start || b.date;
 
 const FUNNEL_COLORS = [
   "var(--primary)", "hsl(var(--primary) / 0.8)", "hsl(var(--primary) / 0.65)",
   "hsl(var(--primary) / 0.5)", "hsl(var(--primary) / 0.35)",
 ];
 
-// Pipeline distribution — how many leads currently sit at each stage.
+// Conversion funnel — how many leads REACHED each stage (i.e. are currently at
+// it or anywhere further along). Counting only the leads *sitting* at a stage
+// makes the maths garbage: one lead moved straight to Won would render as
+// 0 → 0 → 0 → 0 → 1 with -100% drop-offs and a 0% overall conversion. We only
+// know each lead's current stage, so "Lost"/unknown leads are counted at the
+// top of the funnel (they at least enquired) but at no later stage.
 export function buildFunnel(leads: Lead[], range: Range) {
-  const f = leads.filter((l) => withinRange(l.created_at, range));
+  const f = leads.filter((l) => withinRange(leadDate(l), range));
+  const stageIndex = (l: Lead) => LEAD_STAGES.indexOf((l.stage || "") as (typeof LEAD_STAGES)[number]);
   return LEAD_STAGES.map((stage, i) => ({
-    stage, count: f.filter((l) => l.stage === stage).length, color: FUNNEL_COLORS[i % FUNNEL_COLORS.length],
+    stage,
+    count: f.filter((l) => {
+      const k = stageIndex(l);
+      return k >= i || (k === -1 && i === 0);
+    }).length,
+    color: FUNNEL_COLORS[i % FUNNEL_COLORS.length],
   }));
+}
+
+// Lead volume in the current window vs the equal-length window right before
+// it — the honest "vs previous" comparison for KPI badges. `previous` is null
+// for "Max" (there is no previous window to compare against).
+export function rangeCounts(leads: Lead[], range: Range): { current: number; previous: number | null } {
+  if (range === "Max") return { current: leads.length, previous: null };
+  const windowMs = RANGE_DAYS[range] * 86400000;
+  const now = Date.now();
+  let current = 0;
+  let previous = 0;
+  for (const l of leads) {
+    const t = istTime(leadDate(l));
+    if (!t) continue;
+    const age = now - t;
+    if (age < 0) continue;
+    if (age <= windowMs) current++;
+    else if (age <= windowMs * 2) previous++;
+  }
+  return { current, previous };
 }
 
 // Lead sources as a % share of leads in range.
 export function buildSources(leads: Lead[], range: Range) {
-  const f = leads.filter((l) => withinRange(l.created_at, range));
+  const f = leads.filter((l) => withinRange(leadDate(l), range));
   const total = f.length || 1;
   return LEAD_SOURCES
     .map((name) => ({ name, count: f.filter((l) => (l.source || "Other") === name).length }))
@@ -56,7 +89,7 @@ export function buildSources(leads: Lead[], range: Range) {
 
 // Booking types by count of bookings in range.
 export function buildBookingTypes(bookings: Booking[], range: Range) {
-  const f = bookings.filter((b) => withinRange(b.created_at || b.date_start, range));
+  const f = bookings.filter((b) => withinRange(bookingDate(b), range));
   const counts = new Map<string, number>();
   for (const b of f) {
     const t = b.event_type || b.eventType || "Other";

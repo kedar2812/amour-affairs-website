@@ -82,6 +82,7 @@ const specLine = (c: Collection) =>
 export default function PremiumAlbumsPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -314,14 +315,14 @@ export default function PremiumAlbumsPage() {
               <button onClick={() => setOpenCollection(null)} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-2">
                 <ArrowLeft className="h-4 w-4" /> All Premium Albums
               </button>
-              <h1 className="text-3xl font-bold text-foreground">{openCollection.couple}</h1>
+              <h1 className="dash-h1">{openCollection.couple}</h1>
               <p className="text-[14px] text-muted-foreground mt-1">
                 {specLine(openCollection) || "Manage this collection's photos."}
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-foreground">Premium Albums</h1>
+              <h1 className="dash-h1">Premium Albums</h1>
               <p className="text-[14px] text-muted-foreground mt-1">Your handcrafted album &amp; print collections shown on the Premium Albums page.</p>
             </>
           )}

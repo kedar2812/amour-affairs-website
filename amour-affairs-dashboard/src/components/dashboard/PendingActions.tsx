@@ -21,7 +21,7 @@ export function PendingActions() {
       <div className="dash-card h-full flex flex-col">
         <div className="flex items-center justify-between p-6 pb-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-[18px] font-bold text-foreground">Action Items</h3>
+            <h3 className="dash-card-title">Action Items</h3>
             <span className="bg-red-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">{actions.length}</span>
           </div>
           <button className="text-[13px] font-semibold text-primary flex items-center gap-0.5 hover:underline">

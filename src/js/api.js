@@ -246,6 +246,43 @@ export async function loadStudioProfile() {
 }
 
 /**
+ * Load the urgency / booking-availability notice (settings group `notice`), or
+ * null. Drives the site-wide announcement bar + the homepage floating badge.
+ * Values arrive HTML-encoded from the PHP API and are decoded here. Returns
+ * null on any failure so the site simply shows no notice.
+ */
+export async function loadNotice() {
+  const data = await fetchFromAPI('settings.php?group=notice');
+  if (!data || !data.settings || typeof data.settings !== 'object') return null;
+  const n = {};
+  for (const [key, raw] of Object.entries(data.settings)) {
+    n[key] = decodeEntities(raw);
+  }
+  return Object.keys(n).length > 0 ? n : null;
+}
+
+/**
+ * Load active FAQs grouped by category ({ before, during, after }), or null.
+ * Each item is { question, answer }. Used to let the dashboard drive the FAQs
+ * page; when null the page keeps its bundled (hardcoded) questions.
+ */
+export async function loadFaqs() {
+  const data = await fetchFromAPI('faqs.php');
+  if (!data || !Array.isArray(data.faqs) || data.faqs.length === 0) return null;
+
+  const groups = { before: [], during: [], after: [] };
+  data.faqs.forEach((f) => {
+    const cat = ['before', 'during', 'after'].includes(f.category) ? f.category : 'before';
+    const question = decodeEntities(f.question);
+    const answer = decodeEntities(f.answer);
+    if (question && answer) groups[cat].push({ question, answer });
+  });
+
+  const total = groups.before.length + groups.during.length + groups.after.length;
+  return total > 0 ? groups : null;
+}
+
+/**
  * Load active team members (with photos) for the about-page marquee, or null.
  */
 export async function loadTeam() {

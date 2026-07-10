@@ -31,6 +31,7 @@ export default function GalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [activeCategory, setActiveCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -137,7 +138,7 @@ export default function GalleryPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Gallery</h1>
+          <h1 className="dash-h1">Gallery</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Manage your portfolio images across all categories.</p>
         </div>
         <div className="flex items-center gap-3">

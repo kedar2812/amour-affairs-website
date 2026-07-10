@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { ProtectedRoute } from "@/components/providers/ProtectedRoute";
 import { PageWrapper } from "@/components/layout/PageWrapper";
+import { RouteProgress } from "@/components/layout/RouteProgress";
 import { AnimatePresence } from "framer-motion";
 
 /**
@@ -26,6 +27,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   // All other pages — full dashboard shell with auth protection
   return (
     <ProtectedRoute>
+      {/* Navigation loading indicator */}
+      <RouteProgress />
+
       {/* Sidebar Container */}
       <div className="p-3 pr-0 h-full flex shrink-0">
         <Sidebar />

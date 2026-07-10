@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { leadsAPI, getStoredToken } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
+import { istTime, formatISTDate } from "@/lib/datetime";
 
 interface NotifLead {
   id: number;
@@ -40,10 +41,10 @@ const sourceIcon = (source: string) => {
 };
 
 const timeAgo = (iso: string) => {
-  if (!iso) return "";
-  // MySQL datetimes ("2026-06-13 10:00:00") need the space → T for Safari/strict parsers
-  const t = new Date(iso.replace(" ", "T")).getTime();
-  if (Number.isNaN(t)) return "";
+  // API datetimes are naive IST — istTime() parses them as IST so the
+  // "x min ago" maths is right in every browser timezone.
+  const t = istTime(iso);
+  if (!t) return "";
   const diff = Date.now() - t;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
@@ -52,13 +53,10 @@ const timeAgo = (iso: string) => {
   if (hrs < 24) return `${hrs}h ago`;
   const days = Math.floor(hrs / 24);
   if (days < 7) return `${days}d ago`;
-  return new Date(iso.replace(" ", "T")).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return formatISTDate(iso, { day: "numeric", month: "short" });
 };
 
-const leadTime = (iso: string) => {
-  const t = new Date((iso || "").replace(" ", "T")).getTime();
-  return Number.isNaN(t) ? 0 : t;
-};
+const leadTime = (iso: string) => istTime(iso);
 
 export function NotificationBell() {
   const router = useRouter();

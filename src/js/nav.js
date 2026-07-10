@@ -5,6 +5,8 @@
 
 import { loadStudioProfile } from './api.js';
 import { applyStudioProfile } from './site-content.js';
+import { initNotice } from './notice.js';
+import './track.js'; // first-party pageview beacon — self-fires once on load
 
 export function initNav(lenisInstance) {
   const nav = document.querySelector('.nav');
@@ -12,6 +14,10 @@ export function initNav(lenisInstance) {
   // Studio profile (contact details + map) is editable from the dashboard
   // Settings → apply it to the footer/contact on every page. Non-blocking.
   loadStudioProfile().then(applyStudioProfile).catch(() => {});
+
+  // Urgency / availability notice (announcement bar + homepage badge),
+  // dashboard-driven. Non-blocking — never holds up the nav.
+  initNotice().catch(() => {});
 
   const hamburger = document.querySelector('.nav__hamburger');
   const mobileMenu = document.querySelector('.nav__mobile-menu');

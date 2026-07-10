@@ -16,7 +16,7 @@
 
 .nav {
   position: fixed;
-  top: 0;
+  top: var(--notice-h, 0px); /* shifts down when the announcement bar is shown */
   left: 0;
   width: 100%;
   padding: 10px var(--container-gutter);
@@ -304,6 +304,20 @@
   filter: contrast(1.2) brightness(1.04);
 }
 
+/* ── Scrim between the model and the text. Desktop has horizontal room so the
+      text never sits on the model; on phones everything stacks, so this fades
+      the model into the parchment where the copy lives. Mobile-only. ── */
+.hero__scrim {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Desktop shows the full description; the capital fallback stays hidden. */
+.hero__desc-cap { display: none; }
+
 /* ── Hero body — text centered vertically ── */
 .hero__body {
   position: absolute;
@@ -581,6 +595,20 @@
 }
 
 @media (max-width: 768px) {
+  /* Activate the model→text scrim and trim the description to cut clutter. */
+  .hero__scrim {
+    display: block;
+    background: linear-gradient(
+      to bottom,
+      rgba(245, 237, 226, 0)    22%,
+      rgba(245, 237, 226, 0.45) 42%,
+      rgba(245, 237, 226, 0.85) 56%,
+      #F5EDE2                   68%
+    );
+  }
+  .hero__desc-mid { display: none; }   /* drop the long middle clause */
+  .hero__desc-cap { display: inline; } /* …and capitalise "Crafting" */
+
   .nav {
     padding: 12px clamp(16px, 4vw, 32px);
   }

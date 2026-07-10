@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Albums &amp; Canvas Prints | Amour Affairs — Handcrafted Heirlooms</title>
-  <meta name="description" content="Handcrafted 12×12 and 15×15 luxury wedding albums and archival canvas prints by Amour Affairs — browse our collections of finished pieces, printed and bound to outlast generations.">
+  <title>Wedding Albums &amp; Prints | Affordable Wedding Photographer in Pune</title>
+  <meta name="description" content="Handcrafted 12×12 and 15×15 luxury wedding albums and archival canvas prints — from an affordable wedding photographer in Pune with transparent packages. Printed and bound to outlast generations.">
+  <link rel="canonical" href="https://www.amouraffairs.in/premium-albums/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Amour Affairs">
+  <meta property="og:url" content="https://www.amouraffairs.in/premium-albums/">
+  <meta property="og:title" content="Wedding Albums &amp; Prints | Amour Affairs Pune">
+  <meta property="og:description" content="Handcrafted luxury wedding albums and canvas prints — transparent, fair packages from Pune's trusted wedding photography studio.">
+  <meta property="og:image" content="https://www.amouraffairs.in/logo-full.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +24,7 @@
 
   <!-- PRELOADER -->
   <div class="preloader" id="preloader">
-    <img src="/logo.svg" alt="Amour Affairs Logo" class="preloader__logo-svg" />
+    <img src="/logo-emblem.webp" alt="Amour Affairs Logo" class="preloader__logo-svg" />
     <div class="preloader__progress">
       <div class="preloader__progress-fill"></div>
     </div>
@@ -25,7 +33,7 @@
   <!-- ═══════════ NAVIGATION ═══════════ -->
   <nav class="nav" id="nav">
     <a href="/" class="nav__logo">
-      <img src="/logo-full.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full.webp" alt="Amour Affairs" class="nav__logo-img" />
     </a>
     <div class="nav__links hide-mobile">
       <a href="/" class="nav__link">Home</a>
@@ -35,7 +43,7 @@
       <a href="/about/" class="nav__link">About</a>
       <a href="/testimonials/" class="nav__link">Testimonials</a>
       <a href="/shop/" class="nav__link">Shop</a>
-      <a href="#contact" class="nav__link">Contact</a>
+      <a href="/contact/" class="nav__link">Contact</a>
       <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="btn--nav-book nav__book hide-mobile">Book Now</a>
     </div>
     <div class="nav__hamburger hide-desktop" id="hamburger">
@@ -52,7 +60,7 @@
     <a href="/about/" class="nav__mobile-link">About</a>
     <a href="/testimonials/" class="nav__mobile-link">Testimonials</a>
     <a href="/shop/" class="nav__mobile-link">Shop</a>
-    <a href="#contact" class="nav__mobile-link">Contact</a>
+    <a href="/contact/" class="nav__mobile-link">Contact</a>
     <div class="nav__mobile-footer">
       <a href="https://www.instagram.com/amouraffairs/" target="_blank" rel="noopener">Instagram</a>
       <a href="https://vimeo.com/amouraffairs" target="_blank" rel="noopener">Vimeo</a>
@@ -63,7 +71,7 @@
   <section class="ppage-hero">
     <span class="ppage-hero__eyebrow">Heirloom Albums &amp; Canvas Prints &middot; Handcrafted</span>
     <h1 class="ppage-hero__title">Where Digital<br><em>Becomes Eternal.</em></h1>
-    <p class="ppage-hero__sub">Screens fade and drives fail &mdash; albums endure. Browse the pieces we have printed, bound and stretched by hand, then make one yours.</p>
+    <p class="ppage-hero__sub">Screens fade and drives fail &mdash; albums endure. Browse the pieces we have printed, bound and stretched by hand, then make one yours. Every album comes from a transparent, fairly-priced package &mdash; premium work from an affordable wedding photographer in Pune.</p>
   </section>
 
   <!-- ═══════════ THE COLLECTIONS ═══════════ -->
@@ -167,7 +175,7 @@
           </div>
         </div>
 
-        <form class="inquiry__form" id="inquiryForm" novalidate>
+        <form class="inquiry__form" id="inquiryForm" data-source="Website (Premium Albums)" novalidate>
           <!-- Honeypot — humans never see or fill this -->
           <div class="inquiry__hp" aria-hidden="true">
             <label>Website
@@ -208,14 +216,48 @@
             </div>
           </div>
 
-          <div class="inquiry__field">
-            <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
-            <input class="inquiry__input" type="date" id="inqDate" name="event_date">
-            <span class="inquiry__field-error" aria-live="polite"></span>
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+              <input class="inquiry__input" type="date" id="inqDate" name="event_date">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqVenue">Venue / City <span class="inquiry__optional">(optional)</span></label>
+              <input class="inquiry__input" type="text" id="inqVenue" name="venue" autocomplete="off" maxlength="255" placeholder="e.g. Taj, Goa">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqGuests">Guest Count <span class="inquiry__optional">(approx.)</span></label>
+              <select class="inquiry__input inquiry__select" id="inqGuests" name="guest_count">
+                <option value="">Select…</option>
+                <option value="Under 100">Under 100</option>
+                <option value="100–300">100–300</option>
+                <option value="300–500">300–500</option>
+                <option value="500–1000">500–1000</option>
+                <option value="1000+">1000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="inqBudget">Budget <span class="inquiry__optional">(optional)</span></label>
+              <select class="inquiry__input inquiry__select" id="inqBudget" name="budget_range">
+                <option value="">Select…</option>
+                <option value="Under ₹1,00,000">Under ₹1,00,000</option>
+                <option value="₹1,00,000 – ₹2,00,000">₹1,00,000 – ₹2,00,000</option>
+                <option value="₹2,00,000 – ₹4,00,000">₹2,00,000 – ₹4,00,000</option>
+                <option value="₹4,00,000 – ₹7,00,000">₹4,00,000 – ₹7,00,000</option>
+                <option value="₹7,00,000+">₹7,00,000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
           </div>
 
           <div class="inquiry__field">
-            <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(venue, plans, anything)</span></label>
+            <label class="inquiry__field-label" for="inqMessage">Tell Us More <span class="inquiry__optional">(your story, plans, anything)</span></label>
             <textarea class="inquiry__input inquiry__textarea" id="inqMessage" name="message" rows="4" maxlength="2000"></textarea>
             <span class="inquiry__field-error" aria-live="polite"></span>
           </div>
@@ -253,7 +295,7 @@
         <!-- Column 1: Contact -->
         <div class="footer__col fade-up">
           <a href="/" class="nav__logo footer__logo">
-      <img src="/logo-full-white.png" alt="Amour Affairs" class="nav__logo-img" />
+      <img src="/logo-full-white.webp" alt="Amour Affairs" class="nav__logo-img" />
     </a>
           <span class="footer__col-label">Get In Touch</span>
           <address class="footer__address">
@@ -279,6 +321,8 @@
             <a href="/couple-shoots/" class="footer__nav-link">Couple Shoots</a>
             <a href="/films/" class="footer__nav-link">Films</a>
             <a href="/premium-albums/" class="footer__nav-link">Premium Albums</a>
+            <a href="/guides/" class="footer__nav-link">Wedding Guides</a>
+            <a href="/case-studies/" class="footer__nav-link">Real Weddings</a>
             <a href="/about/" class="footer__nav-link">About</a>
             <a href="/shop/" class="footer__nav-link">Shop</a>
           </nav>

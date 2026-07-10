@@ -71,6 +71,7 @@ const EMPTY_FORM: PackageForm = {
 
 export default function PackagesPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [packages, setPackages] = useState<PackageVM[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [usingMock, setUsingMock] = useState(false);
@@ -193,7 +194,7 @@ export default function PackagesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Packages</h1>
+          <h1 className="dash-h1">Packages</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Design and manage your service offerings &amp; pricing.</p>
         </div>
         <div className="flex items-center gap-3">

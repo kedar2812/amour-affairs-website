@@ -188,7 +188,7 @@ export function initProcessAnimation() {
         delay: i * 0.1,
         scrollTrigger: {
           trigger: stepsContainer,
-          start: 'top 80%',
+          start: 'top 90%',
           toggleActions: 'play none none none',
         },
       });
@@ -203,24 +203,27 @@ export function initProcessAnimation() {
         delay: i * 0.1 + 0.2,
         scrollTrigger: {
           trigger: stepsContainer,
-          start: 'top 80%',
+          start: 'top 90%',
           toggleActions: 'play none none none',
         },
       });
     }
   });
 
+  // The highlight scrub is mapped to the section's ENTRANCE — from the strip
+  // peeking in ('top 85%') to it being fully on screen ('bottom 92%') — so
+  // every step and the connecting line finish revealing while the whole strip
+  // is still visible. The old window ended at 'bottom 55%', which meant the
+  // final steps only lit up after the top of the section had already scrolled
+  // off screen.
+  const revealWindow = { trigger: stepsContainer, start: 'top 85%', end: 'bottom 92%' };
+
   // Animate the connecting line fill with scroll scrub
   if (lineFill) {
     gsap.to(lineFill, {
       width: '100%',
       ease: 'none',
-      scrollTrigger: {
-        trigger: stepsContainer,
-        start: 'top 70%',
-        end: 'bottom 55%',
-        scrub: 1,
-      },
+      scrollTrigger: { ...revealWindow, scrub: 1 },
     });
   }
 
@@ -228,9 +231,7 @@ export function initProcessAnimation() {
   const total = steps.length;
 
   ScrollTrigger.create({
-    trigger: stepsContainer,
-    start: 'top 70%',
-    end: 'bottom 55%',
+    ...revealWindow,
     scrub: 1,
     onUpdate: (self) => {
       const progress = self.progress;
@@ -246,15 +247,25 @@ export function initProcessAnimation() {
   });
 }
 
-/* ── Counter Animation ── */
+/* ── Counter Animation ──
+   Safe to call more than once: any previously-created stat triggers are killed
+   first so the CMS can re-arm the counters after applying dashboard-edited
+   numbers. The real figure is written to the element up front, so even if the
+   trigger never fires (slow boot, reduced motion, scroll already past it) the
+   strip reads its true value instead of sticking at 0. */
+let counterTriggers = [];
 export function initCounters() {
+  counterTriggers.forEach((t) => t.kill());
+  counterTriggers = [];
+
   document.querySelectorAll('.about__stat-number').forEach((el) => {
     const target = parseInt(el.dataset.count, 10);
-    if (isNaN(target)) return;
-
     const suffix = el.dataset.suffix || '';
+    if (isNaN(target)) return; // non-numeric CMS value → leave the baked text as-is
 
-    ScrollTrigger.create({
+    el.textContent = target + suffix; // correct baseline before any animation
+
+    const trigger = ScrollTrigger.create({
       trigger: el,
       start: 'top 85%',
       once: true,
@@ -269,6 +280,7 @@ export function initCounters() {
         });
       },
     });
+    counterTriggers.push(trigger);
   });
 }
 

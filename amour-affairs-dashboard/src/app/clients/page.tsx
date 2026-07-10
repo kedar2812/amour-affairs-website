@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, Plus, Star, Copy, Download, Users, Loader2, Check } from 'lucide-react';
+import { Search, Plus, Star, Copy, Users, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useClients } from '@/lib/useData';
 import { clientsAPI } from '@/lib/api';
+import { isValidIndianPhone, isValidEmail } from '@/lib/utils';
+import { ExportMenu } from '@/components/ui/ExportMenu';
+import { flattenClients } from '@/lib/exportUtils';
 import { Drawer } from '@/components/ui/Drawer';
 import { motion } from 'framer-motion';
 
@@ -45,6 +48,12 @@ export default function ClientsPage() {
   const [activeTab, setActiveTab] = useState<TabView>("Overview");
   const { data: rawClients, refetch } = useClients();
 
+  // Global search deep link: /clients/?q=priya pre-fills the search box
+  React.useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearchQuery(q);
+  }, []);
+
   // Add-client form state
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({ ...EMPTY_ADD });
@@ -54,7 +63,9 @@ export default function ClientsPage() {
   const setField = (k: string, v: string) => setAddForm((p) => ({ ...p, [k]: v }));
 
   const handleAddSubmit = async () => {
-    if (!addForm.name.trim()) { setAddError("Client name is required."); return; }
+    if (!addForm.name.trim()) { setAddError("Please enter the client's name."); return; }
+    if (addForm.phone.trim() && !isValidIndianPhone(addForm.phone)) { setAddError("Enter a valid 10-digit Indian mobile number, or leave the phone blank."); return; }
+    if (addForm.email.trim() && !isValidEmail(addForm.email)) { setAddError("Enter a valid email address, or leave the email blank."); return; }
     setAdding(true); setAddError("");
     try {
       await clientsAPI.create({
@@ -116,7 +127,7 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Clients</h1>
+          <h1 className="dash-h1">Clients</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Your client relationships and history.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -130,10 +141,12 @@ export default function ClientsPage() {
               className="h-10 w-[280px] pl-9 pr-4 bg-card border border-border/50 rounded-xl text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <Button variant="outline" className="h-10 px-4 rounded-xl border-border/50 bg-card/10">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          <ExportMenu
+            datasets={[flattenClients(filteredClients as never)]}
+            filename="amour-affairs-clients"
+            pdfTitle="Clients Export"
+            variant="inline"
+          />
           <Button onClick={() => { setAddError(""); setAddedOk(false); setIsAddOpen(true); }} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none">
             <Plus className="h-4 w-4 mr-2" />
             Add Client

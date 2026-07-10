@@ -47,8 +47,14 @@ export function initArchivePage({
   folderWord = 'Folder',
   openWord = 'Open Folder',
   filmLabel = 'The Wedding Film',
+  photoWord = 'wedding photography',
 }) {
   const p = prefix;
+
+  // Descriptive, truthful alt text: couple + service + real shoot location
+  // (e.g. "Aarohi & Vedant — wedding photography at The Corinthians, Pune").
+  const altFor = (album) =>
+    `${album.couple} — ${photoWord}${album.location ? ` at ${album.location}` : ''}`;
 
   // ── Lenis Smooth Scroll ──
   const lenis = new Lenis({
@@ -102,7 +108,7 @@ export function initArchivePage({
         <article class="${p}-card" data-album="${i}" tabindex="0" role="button"
                  aria-label="${openWord}: ${album.couple}">
           <div class="${p}-card__thumb">
-            <img src="${album.cover}" alt="${album.couple} — cover photograph" loading="lazy" />
+            <img src="${album.cover}" alt="${altFor(album)}" loading="lazy" />
             <span class="${p}-card__chip">${folderWord} ${pad2(i)}</span>
             <span class="${p}-card__open">${openWord} <span aria-hidden="true">&#8594;</span></span>
           </div>
@@ -194,7 +200,7 @@ export function initArchivePage({
     masonry.innerHTML = album.photos
       .map((src, i) => `
         <button class="${p}-album__photo" data-photo="${i}" aria-label="View photograph ${i + 1} of ${album.couple}">
-          <img src="${src}" alt="${album.couple} — photograph ${i + 1}" loading="lazy" />
+          <img src="${src}" alt="${altFor(album)} — photograph ${i + 1}" loading="lazy" />
         </button>
       `)
       .join('');

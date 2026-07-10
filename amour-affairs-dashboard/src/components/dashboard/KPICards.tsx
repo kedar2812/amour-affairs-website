@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { CalendarCheck, IndianRupee, BookOpen, Eye, ArrowUpRight } from "lucide-react";
+import { CalendarCheck, IndianRupee, BookOpen, Eye } from "lucide-react";
 import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 import { useBookingStats, useLeads } from "@/lib/useData";
 
@@ -8,13 +8,7 @@ import { useBookingStats, useLeads } from "@/lib/useData";
  * KPI strip — live from the API (bookings stats + leads). Shows real figures
  * (0 until there's data) instead of fabricated demo numbers.
  */
-function fmtMoney(n: number): string {
-  n = Number(n) || 0;
-  if (n >= 10000000) return `₹${(n / 10000000).toFixed(1)}Cr`;
-  if (n >= 100000) return `₹${(n / 100000).toFixed(1)}L`;
-  if (n >= 1000) return `₹${Math.round(n / 1000)}K`;
-  return `₹${n}`;
-}
+import { formatINRCompact as fmtMoney } from "@/lib/utils";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -31,7 +25,8 @@ export function KPICards() {
   const { data: leads } = useLeads();
 
   const s = (stats || {}) as Record<string, number>;
-  const closedStages = ["booked", "lost", "delivered", "closed", "completed"];
+  // A lead is "active" until it's won or lost (or otherwise closed/delivered).
+  const closedStages = ["won", "booked", "lost", "delivered", "closed", "completed"];
   const activeInquiries = (leads as Array<{ stage?: string }> || []).filter(
     (l) => !closedStages.includes((l.stage || "").toLowerCase())
   ).length;
@@ -80,9 +75,6 @@ export function KPICards() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between">
                 <p className="text-[14px] font-bold text-foreground">{metric.title}</p>
-                <button className="h-7 w-7 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/50 transition-colors -mt-0.5">
-                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
-                </button>
               </div>
               <h3 className="text-2xl font-bold text-foreground mt-1 tracking-tight">
                 <AnimatedCounter value={metric.value} />

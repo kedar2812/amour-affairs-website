@@ -35,7 +35,7 @@ export function TeamStatus() {
     >
       <div className="dash-card h-full flex flex-col">
         <div className="flex items-center justify-between p-6 pb-4">
-          <h3 className="text-[18px] font-bold text-foreground">Team Status</h3>
+          <h3 className="dash-card-title">Team Status</h3>
           <Link href="/team" className="text-[13px] font-semibold text-primary hover:underline">
             Manage
           </Link>

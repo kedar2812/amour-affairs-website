@@ -35,6 +35,7 @@ const rowDirection = (row: number) => (row % 2 === 1 ? "scrolls left" : "scrolls
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -172,7 +173,7 @@ export default function TestimonialsPage() {
     <div className="flex flex-col gap-6 max-w-[1540px] mx-auto w-full">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Testimonials</h1>
+          <h1 className="dash-h1">Testimonials</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Manage client reviews for your website.</p>
         </div>
         <div className="flex items-center gap-3">

@@ -43,6 +43,7 @@ const FOUNDER_DEFAULTS: Founder = {
 
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [activeTab, setActiveTab] = useState<TabView>("Profile");
   const { data: teamMembers, refetch } = useTeam(true);
@@ -213,7 +214,7 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Team</h1>
+          <h1 className="dash-h1">Team</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Manage your crew and the people shown on the website About page.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -252,7 +253,7 @@ export default function TeamPage() {
       <div className="dash-card p-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Founder — About Page</h2>
+            <h2 className="dash-card-title">Founder — About Page</h2>
             <p className="text-[13px] text-muted-foreground mt-0.5">The photo and story shown in the founder section of the website About page.</p>
           </div>
           <Button onClick={saveFounder} disabled={founderSaving} className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm shrink-0">
@@ -441,12 +442,12 @@ export default function TeamPage() {
               )}
               {activeTab === "Schedule" && (
                 <div className="text-center text-muted-foreground py-12 text-[13px]">
-                  Calendar tracking integration coming soon using date-fns.
+                  No shoots scheduled for {selectedMember.name.split(" ")[0]} yet. Assigned shoots will appear here.
                 </div>
               )}
               {activeTab !== "Profile" && activeTab !== "Schedule" && (
                 <div className="text-center text-muted-foreground py-12 text-[13px]">
-                  {activeTab} data coming soon.
+                  No {activeTab.toLowerCase()} recorded for {selectedMember.name.split(" ")[0]} yet.
                 </div>
               )}
             </div>

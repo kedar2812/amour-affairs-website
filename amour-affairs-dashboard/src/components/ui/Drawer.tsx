@@ -67,7 +67,7 @@ export function Drawer({ isOpen, onClose, title, children, width = "420px" }: Dr
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border/50 shrink-0">
-              <h2 className="text-lg font-bold text-foreground">{title}</h2>
+              <h2 className="dash-card-title">{title}</h2>
               <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 rounded-full hover:bg-muted">
                 <X className="h-4 w-4" />
               </Button>

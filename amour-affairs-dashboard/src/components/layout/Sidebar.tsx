@@ -22,6 +22,10 @@ import {
   Film,
   MessageSquareQuote,
   Globe,
+  HelpCircle,
+  Newspaper,
+  Sparkles,
+  Gift,
   LogOut,
 } from "lucide-react";
 
@@ -32,6 +36,10 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
   { name: "Premium Albums", href: "/premium-albums", icon: BookOpen },
   { name: "Films", href: "/films", icon: Film },
   { name: "Testimonials", href: "/testimonials", icon: MessageSquareQuote },
+  { name: "FAQs", href: "/faqs", icon: HelpCircle },
+  { name: "Guides", href: "/guides", icon: Newspaper },
+  { name: "Case Studies", href: "/case-studies", icon: Sparkles },
+  { name: "Lead Magnets", href: "/lead-magnets", icon: Gift },
   { name: "Website", href: "/website", icon: Globe },
   { name: "Team", href: "/team", icon: Camera },
   { name: "Gallery", href: "/gallery", icon: Image },

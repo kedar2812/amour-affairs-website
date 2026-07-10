@@ -20,7 +20,45 @@ import { decodeEntities } from "@/lib/utils";
 interface PackageRow { label: string; value: string }
 interface SessionPackage { name: string; tagline: string; rows: PackageRow[] }
 
+interface StatItem { number: string; suffix: string; label: string }
+
 interface EnquiryCopy { label: string; title: string; text: string; button: string }
+
+interface NoticeCfg {
+  enabled: boolean;
+  message: string;
+  ctaLabel: string;
+  ctaLink: string;
+  barEnabled: boolean;
+  barPosition: string; // 'top' | 'bottom'
+  badgeEnabled: boolean;
+  badgeText: string;
+  bgColor: string;
+  textColor: string;
+  dismissible: boolean;
+}
+
+const DEFAULT_NOTICE: NoticeCfg = {
+  enabled: true,
+  message: "Now booking 2026 & 2027 weddings — limited dates remain",
+  ctaLabel: "Check your date",
+  ctaLink: "/contact/",
+  barEnabled: true,
+  barPosition: "top",
+  badgeEnabled: true,
+  badgeText: "Limited 2026 dates",
+  bgColor: "#2A1E16",
+  textColor: "#F5EDE2",
+  dismissible: true,
+};
+
+// Mirrors the values baked into the website's index.html + site-content.js.
+const DEFAULT_STATS: StatItem[] = [
+  { number: "15", suffix: "+", label: "Years of Experience" },
+  { number: "500", suffix: "+", label: "Weddings Captured" },
+  { number: "10", suffix: "", label: "Press Features" },
+  { number: "1000", suffix: "+", label: "Happy Couples" },
+];
 
 const DEFAULT_WEDDINGS_ENQ: EnquiryCopy = {
   label: "Begin Your Story",
@@ -104,6 +142,121 @@ function Field({ label, value, onChange, hint, textarea }: {
   );
 }
 
+function Toggle({ label, checked, onChange, hint }: {
+  label: string; checked: boolean; onChange: (v: boolean) => void; hint?: string;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 py-1">
+      <div className="min-w-0">
+        <span className="text-[13px] font-semibold text-foreground">{label}</span>
+        {hint && <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{hint}</p>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? "bg-primary" : "bg-muted-foreground/30"}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-5" : ""}`} />
+      </button>
+    </div>
+  );
+}
+
+function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div>
+      <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">{label}</label>
+      <div className="flex items-center gap-2">
+        <input type="color" value={value} onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-12 shrink-0 rounded-lg border border-border/50 bg-transparent cursor-pointer p-1" />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
+          className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground font-mono focus:outline-none focus:border-primary/50" />
+      </div>
+    </div>
+  );
+}
+
+function NoticeEditor({ cfg, onChange }: { cfg: NoticeCfg; onChange: (c: NoticeCfg) => void }) {
+  const set = <K extends keyof NoticeCfg>(key: K, val: NoticeCfg[K]) => onChange({ ...cfg, [key]: val });
+  return (
+    <div className="space-y-5">
+      <Toggle label="Show the booking notice" checked={cfg.enabled} onChange={(v) => set("enabled", v)}
+        hint="Master switch — turns off both the bar and the badge across the whole site." />
+
+      <div className={cfg.enabled ? "space-y-5" : "space-y-5 opacity-50 pointer-events-none"}>
+        <Field label="Message" value={cfg.message} onChange={(v) => set("message", v)}
+          hint="Shown in the announcement bar, e.g. “Now booking 2026 & 2027 weddings — limited dates remain”." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field label="Button Label" value={cfg.ctaLabel} onChange={(v) => set("ctaLabel", v)} hint="Leave blank for no button." />
+          <Field label="Button Link" value={cfg.ctaLink} onChange={(v) => set("ctaLink", v)} hint="e.g. /contact/ or a full https:// URL." />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ColorField label="Background Colour" value={cfg.bgColor} onChange={(v) => set("bgColor", v)} />
+          <ColorField label="Text Colour" value={cfg.textColor} onChange={(v) => set("textColor", v)} />
+        </div>
+
+        <div className="border-t border-border/40 pt-4 space-y-3">
+          <Toggle label="Announcement bar" checked={cfg.barEnabled} onChange={(v) => set("barEnabled", v)}
+            hint="The slim site-wide strip." />
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Bar Position</label>
+            <select value={cfg.barPosition} onChange={(e) => set("barPosition", e.target.value)}
+              className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50">
+              <option value="top">Top of page (above the menu)</option>
+              <option value="bottom">Bottom of page</option>
+            </select>
+          </div>
+          <Toggle label="Visitors can dismiss the bar" checked={cfg.dismissible} onChange={(v) => set("dismissible", v)}
+            hint="Adds a × button. Changing the message re-shows it to everyone." />
+        </div>
+
+        <div className="border-t border-border/40 pt-4 space-y-3">
+          <Toggle label="Floating badge (homepage)" checked={cfg.badgeEnabled} onChange={(v) => set("badgeEnabled", v)}
+            hint="A small pill near the hero that fades out as visitors scroll." />
+          <Field label="Badge Text" value={cfg.badgeText} onChange={(v) => set("badgeText", v)}
+            hint="Keep it short, e.g. “Limited 2026 dates”." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatsEditor({ stats, onChange }: { stats: StatItem[]; onChange: (s: StatItem[]) => void }) {
+  const setStat = (i: number, patch: Partial<StatItem>) =>
+    onChange(stats.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {stats.map((stat, i) => (
+        <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
+          <div className="flex items-end gap-3">
+            <div className="w-[45%]">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Number</label>
+              <input type="text" inputMode="numeric" value={stat.number}
+                onChange={(e) => setStat(i, { number: e.target.value })}
+                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+            </div>
+            <div className="flex-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Suffix</label>
+              <input type="text" value={stat.suffix} placeholder="e.g. +"
+                onChange={(e) => setStat(i, { suffix: e.target.value })}
+                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
+            </div>
+          </div>
+          <Field label="Label" value={stat.label} onChange={(v) => setStat(i, { label: v })} />
+          <p className="text-[11px] text-muted-foreground">
+            Shows as <span className="font-semibold text-foreground">{(stat.number || "0") + (stat.suffix || "")}</span> — {stat.label || "…"}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function EnquiryEditor({ copy, onChange }: { copy: EnquiryCopy; onChange: (c: EnquiryCopy) => void }) {
   return (
     <div className="space-y-4">
@@ -119,11 +272,13 @@ function EnquiryEditor({ copy, onChange }: { copy: EnquiryCopy; onChange: (c: En
 }
 
 export default function WebsiteContentPage() {
+  const [stats, setStats] = useState<StatItem[]>(DEFAULT_STATS);
   const [weddingsEnq, setWeddingsEnq] = useState<EnquiryCopy>(DEFAULT_WEDDINGS_ENQ);
   const [coupleEnq, setCoupleEnq] = useState<EnquiryCopy>(DEFAULT_COUPLE_ENQ);
   const [pkgEyebrow, setPkgEyebrow] = useState(DEFAULT_PKG_EYEBROW);
   const [pkgHeading, setPkgHeading] = useState(DEFAULT_PKG_HEADING);
   const [packages, setPackages] = useState<SessionPackage[]>(DEFAULT_PACKAGES);
+  const [notice, setNotice] = useState<NoticeCfg>(DEFAULT_NOTICE);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,6 +297,19 @@ export default function WebsiteContentPage() {
       const res = await settingsAPI.getGroup("site_content") as { settings: Record<string, string> };
       const s: Record<string, string> = {};
       Object.entries(res.settings || {}).forEach(([k, v]) => { s[k] = decodeEntities(v || ""); });
+
+      if (s.site_stats_json) {
+        try {
+          const parsed = JSON.parse(s.site_stats_json);
+          if (parsed && Array.isArray(parsed.stats) && parsed.stats.length > 0) {
+            setStats(parsed.stats.map((st: Partial<StatItem>) => ({
+              number: String(st.number ?? ""),
+              suffix: String(st.suffix ?? ""),
+              label: String(st.label ?? ""),
+            })));
+          }
+        } catch { /* keep defaults on malformed JSON */ }
+      }
 
       setWeddingsEnq({
         label: s.site_weddings_enq_label || DEFAULT_WEDDINGS_ENQ.label,
@@ -165,6 +333,28 @@ export default function WebsiteContentPage() {
           }
         } catch { /* keep defaults on malformed JSON */ }
       }
+
+      // Booking-availability notice (settings group `notice`) — separate group,
+      // wrapped so a failure here can't lose the page copy above.
+      try {
+        const nres = await settingsAPI.getGroup("notice") as { settings: Record<string, string> };
+        const n = nres.settings || {};
+        if (Object.keys(n).length > 0) {
+          setNotice({
+            enabled: (n.notice_enabled ?? "1") === "1",
+            message: decodeEntities(n.notice_message || DEFAULT_NOTICE.message),
+            ctaLabel: decodeEntities(n.notice_cta_label ?? DEFAULT_NOTICE.ctaLabel),
+            ctaLink: n.notice_cta_link ?? DEFAULT_NOTICE.ctaLink,
+            barEnabled: (n.notice_bar_enabled ?? "1") === "1",
+            barPosition: n.notice_bar_position || DEFAULT_NOTICE.barPosition,
+            badgeEnabled: (n.notice_badge_enabled ?? "1") === "1",
+            badgeText: decodeEntities(n.notice_badge_text || DEFAULT_NOTICE.badgeText),
+            bgColor: n.notice_bg_color || DEFAULT_NOTICE.bgColor,
+            textColor: n.notice_text_color || DEFAULT_NOTICE.textColor,
+            dismissible: (n.notice_dismissible ?? "1") === "1",
+          });
+        }
+      } catch { /* keep notice defaults */ }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load website content");
     } finally {
@@ -217,7 +407,19 @@ export default function WebsiteContentPage() {
         return;
       }
 
+      const cleanedStats = stats.map((s) => ({
+        number: s.number.trim(),
+        suffix: s.suffix.trim(),
+        label: s.label.trim(),
+      }));
+
+      if (cleanedStats.some((s) => !s.number || !s.label)) {
+        setError("Each key number needs a value and a label.");
+        return;
+      }
+
       await settingsAPI.update({
+        site_stats_json: JSON.stringify({ stats: cleanedStats }),
         site_weddings_enq_label: weddingsEnq.label.trim(),
         site_weddings_enq_title: weddingsEnq.title.trim(),
         site_weddings_enq_text: weddingsEnq.text.trim(),
@@ -229,6 +431,18 @@ export default function WebsiteContentPage() {
         site_couple_pkg_eyebrow: pkgEyebrow.trim(),
         site_couple_pkg_heading: pkgHeading.trim(),
         site_couple_packages_json: JSON.stringify({ packages: cleanedPackages }),
+        // Booking-availability notice
+        notice_enabled: notice.enabled ? "1" : "0",
+        notice_message: notice.message.trim(),
+        notice_cta_label: notice.ctaLabel.trim(),
+        notice_cta_link: notice.ctaLink.trim(),
+        notice_bar_enabled: notice.barEnabled ? "1" : "0",
+        notice_bar_position: notice.barPosition === "bottom" ? "bottom" : "top",
+        notice_badge_enabled: notice.badgeEnabled ? "1" : "0",
+        notice_badge_text: notice.badgeText.trim(),
+        notice_bg_color: notice.bgColor.trim(),
+        notice_text_color: notice.textColor.trim(),
+        notice_dismissible: notice.dismissible ? "1" : "0",
       });
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 3000);
@@ -243,9 +457,9 @@ export default function WebsiteContentPage() {
     <div className="flex flex-col gap-6 max-w-[1100px] mx-auto w-full pb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Website Content</h1>
+          <h1 className="dash-h1">Website Content</h1>
           <p className="text-[14px] text-muted-foreground mt-1">
-            Edit the enquiry sections inside the Weddings &amp; Couple Shoots folders and the couple-shoot session packages.
+            Edit the homepage key numbers, the booking-availability notice, the enquiry sections inside the Weddings &amp; Couple Shoots folders, and the couple-shoot session packages.
           </p>
         </div>
         <Button onClick={handleSave} disabled={isSaving || isLoading} className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm">
@@ -272,10 +486,35 @@ export default function WebsiteContentPage() {
         <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 text-primary animate-spin" /></div>
       ) : (
         <>
+          {/* Homepage key numbers */}
+          <div className="dash-card p-6 md:p-8 space-y-5">
+            <div>
+              <h2 className="dash-card-title">Homepage — Key Numbers</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                The four figures in the strip below the hero (years of experience, weddings
+                captured, press features, happy couples). The <span className="font-semibold text-foreground">number</span> counts
+                up on the site; the <span className="font-semibold text-foreground">suffix</span> (e.g. &ldquo;+&rdquo;) sits beside it.
+              </p>
+            </div>
+            <StatsEditor stats={stats} onChange={setStats} />
+          </div>
+
+          {/* Booking-availability notice */}
+          <div className="dash-card p-6 md:p-8 space-y-5">
+            <div>
+              <h2 className="dash-card-title">Booking Availability Notice</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                A site-wide announcement bar plus an optional floating badge on the homepage —
+                ideal for booking scarcity (&ldquo;limited dates&rdquo;) or a seasonal promotion.
+              </p>
+            </div>
+            <NoticeEditor cfg={notice} onChange={setNotice} />
+          </div>
+
           {/* Weddings enquiry */}
           <div className="dash-card p-6 md:p-8 space-y-5">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Weddings — Folder Enquiry</h2>
+              <h2 className="dash-card-title">Weddings — Folder Enquiry</h2>
               <p className="text-[13px] text-muted-foreground mt-0.5">
                 Shown at the end of every opened wedding folder, after &ldquo;Continue Browsing&rdquo;.
               </p>
@@ -286,7 +525,7 @@ export default function WebsiteContentPage() {
           {/* Couple shoots enquiry */}
           <div className="dash-card p-6 md:p-8 space-y-5">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Couple Shoots — Folder Enquiry</h2>
+              <h2 className="dash-card-title">Couple Shoots — Folder Enquiry</h2>
               <p className="text-[13px] text-muted-foreground mt-0.5">
                 Shown at the end of every opened couple-shoot folder, after &ldquo;Continue Browsing&rdquo;.
               </p>
@@ -297,7 +536,7 @@ export default function WebsiteContentPage() {
           {/* Session packages */}
           <div className="dash-card p-6 md:p-8 space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-foreground">Couple Shoots — Session Packages</h2>
+              <h2 className="dash-card-title">Couple Shoots — Session Packages</h2>
               <p className="text-[13px] text-muted-foreground mt-0.5">
                 The three offering cards in the &ldquo;What to Expect&rdquo; section: photographs only,
                 cinematic film only, and photographs + film. No pricing is shown on the website.

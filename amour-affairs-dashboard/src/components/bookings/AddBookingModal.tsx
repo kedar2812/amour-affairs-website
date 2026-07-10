@@ -5,7 +5,11 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { bookingSchema, BookingFormData } from "@/lib/bookingSchema";
-import { clients as mockClients, packages as mockPackages, teamMembers as mockTeam, bookings as mockBookings, Booking } from "@/data/mockData";
+import type { Booking, Client, Package, TeamMember } from "@/data/mockData";
+import { useClients, usePackages, useTeam, useBookings } from "@/lib/useData";
+import { bookingsAPI, clientsAPI, getStoredToken } from "@/lib/api";
+import { mapApiBooking, mapApiClient, type WithDbId } from "@/lib/normalize";
+import { isValidIndianPhone, isValidEmail } from "@/lib/utils";
 import { useToast } from "@/lib/ToastContext";
 import { DiscardModal } from "@/components/ui/DiscardModal";
 import { X, Search, Calendar as CalendarIcon, Clock, MapPin, Users, IndianRupee, Check, Plus, AlertCircle, Trash2, Camera, Video, MonitorPlay } from "lucide-react";
@@ -35,9 +39,20 @@ interface AddBookingModalProps {
   onSuccess: (booking: Booking, isEdit: boolean, clientType: "new" | "existing") => void;
 }
 
+const isMockMode = () => {
+  const token = getStoredToken();
+  return !token || token.startsWith("mock_");
+};
+
 export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: AddBookingModalProps) {
   const { showToast } = useToast();
-  
+
+  // Live data (falls back to the bundled demo data when the API is offline)
+  const { data: clients } = useClients();
+  const { data: packages } = usePackages();
+  const { data: team } = useTeam(true);
+  const { data: allBookings } = useBookings();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [stepDirection, setStepDirection] = useState<"forward" | "back">("forward");
   const [showDiscard, setShowDiscard] = useState(false);
@@ -52,6 +67,7 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
 
   const { register, handleSubmit, control, watch, setValue, trigger, reset, formState: { errors, isDirty } } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema) as any,
+    mode: "onTouched",
     defaultValues: {
       clientType: "new",
       clientCity: "Pune",
@@ -71,14 +87,18 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
     if (isOpen) {
       setCurrentStep(1);
       if (bookingToEdit) {
+        // API dates arrive as "YYYY-MM-DDTHH:MM:SS" (normalised) — split
+        // defensively so a missing time part can never crash the modal.
+        const datePart = (v: string) => (v || "").split("T")[0] || "";
+        const timePart = (v: string, fallback: string) => ((v || "").split("T")[1] || fallback).substring(0, 5);
         reset({
           clientType: "existing",
           existingClientId: bookingToEdit.clientId,
           eventType: bookingToEdit.eventType,
-          eventDate: bookingToEdit.date.split('T')[0],
-          eventEndDate: bookingToEdit.endDate.split('T')[0],
-          startTime: bookingToEdit.date.split('T')[1].substring(0,5),
-          endTime: bookingToEdit.endDate.split('T')[1].substring(0,5),
+          eventDate: datePart(bookingToEdit.date),
+          eventEndDate: datePart(bookingToEdit.endDate),
+          startTime: timePart(bookingToEdit.date, "09:00"),
+          endTime: timePart(bookingToEdit.endDate, "18:00"),
           venueName: bookingToEdit.venue,
           venueCity: bookingToEdit.city,
           packageId: bookingToEdit.packageId,
@@ -108,7 +128,7 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
   // Live Auto-Calculations
   useEffect(() => {
     if (formData.packageId) {
-      const selectedPkg = mockPackages.find(p => p.id === formData.packageId);
+      const selectedPkg = packages.find(p => p.id === formData.packageId);
       if (selectedPkg) {
         let total = formData.customAmount !== undefined ? formData.customAmount : selectedPkg.price;
         
@@ -124,7 +144,7 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
         setValue("totalAmount", total);
       }
     }
-  }, [formData.packageId, formData.customAmount, formData.addOns, setValue]);
+  }, [formData.packageId, formData.customAmount, formData.addOns, packages, setValue]);
 
   if (!isOpen && !showDiscard) return null;
 
@@ -138,6 +158,30 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
     2: ["eventType", "eventDate", "startTime", "endTime", "venueName"],
     3: ["packageId", "assignedPhotographers"],
     4: ["totalAmount", "advanceAmount", "status"],
+  };
+
+  // Live per-step validity — greys out the Next/Create button and explains
+  // why, so the form can never be advanced with missing required fields.
+  const step1Valid = formData.clientType === "existing"
+    ? !!formData.existingClientId
+    : !!formData.clientName?.trim()
+      && isValidIndianPhone(formData.clientPhone || "")
+      && (!formData.clientEmail?.trim() || isValidEmail(formData.clientEmail));
+  const step2Valid = !!formData.eventType && !!formData.eventDate && !!formData.startTime
+    && !!formData.endTime && (formData.venueName || "").trim().length >= 2
+    && (!formData.eventEndDate || formData.eventEndDate >= formData.eventDate);
+  const step3Valid = !!formData.packageId && (formData.assignedPhotographers?.length || 0) > 0;
+  const step4Valid = (formData.totalAmount || 0) >= 1
+    && (formData.advanceAmount || 0) <= (formData.totalAmount || 0);
+
+  const stepValid: Record<number, boolean> = { 1: step1Valid, 2: step2Valid, 3: step3Valid, 4: step4Valid };
+  const stepHint: Record<number, string> = {
+    1: formData.clientType === "existing"
+      ? "Select a client to continue"
+      : "Enter the client's name and a valid 10-digit mobile number to continue",
+    2: "Fill in the event type, date, times and venue to continue",
+    3: "Select a package and assign at least one team member to continue",
+    4: "Enter a total amount (the advance can't exceed it)",
   };
 
   const goNext = async () => {
@@ -170,67 +214,100 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
 
   const executeFinalSubmit = async (data: BookingFormData) => {
     setIsSubmittingForm(true);
-    // Simulate 300ms creation logic
-    await new Promise(r => setTimeout(r, 400));
-    
-    const newId = bookingToEdit ? bookingToEdit.id : `#BK-${String(mockBookings.length + 1043).padStart(4, '0')}`;
-    
-    let clientObj: any;
-    if (data.clientType === "existing") {
-      clientObj = mockClients.find(c => c.id === data.existingClientId);
-    } else {
-      clientObj = {
-        id: `CL-${Date.now().toString().slice(-4)}`,
-        name: data.clientName,
-        phone: data.clientPhone,
-        email: data.clientEmail || "",
-        whatsapp: data.clientWhatsApp || data.clientPhone,
-        instagram: data.clientInstagram || "",
-        type: data.eventType === "Corporate" ? "Corporate" : "Wedding",
-        city: "Pune",
-        totalBookings: 1,
-        totalSpend: data.totalAmount,
-        lastShootDate: data.eventDate,
-        rating: 0,
-        tags: ["New Client"]
-      };
-    }
-
-    const pkg = mockPackages.find(p => p.id === data.packageId)!;
-
-    const newBooking: Booking = {
-      id: newId,
-      clientId: clientObj.id,
-      clientName: clientObj.name,
-      eventType: data.eventType,
-      date: `${data.eventDate}T${data.startTime}:00`,
-      endDate: data.eventEndDate ? `${data.eventEndDate}T${data.endTime}:00` : `${data.eventDate}T${data.endTime}:00`,
-      venue: data.venueName,
-      city: data.venueCity || "Pune",
-      packageId: pkg.id,
-      packageName: pkg.name,
-      teamAssignedIds: [...data.assignedPhotographers, ...(data.assignedVideographers || []), ...(data.assignedEditors || [])],
-      amount: data.totalAmount,
-      status: data.status as any,
-      notes: data.internalNotes,
-      timeline: {
-        inquiry: new Date().toISOString().split('T')[0],
-        consultation: null,
-        confirmed: data.status === "Confirmed" ? new Date().toISOString().split('T')[0] : null,
-        shoot: null,
-        editing: null,
-        delivered: null
-      },
-      payment: {
+    try {
+      const pkg = packages.find(p => p.id === data.packageId);
+      const teamIds = [...data.assignedPhotographers, ...(data.assignedVideographers || []), ...(data.assignedEditors || [])];
+      const dateStart = `${data.eventDate}T${data.startTime}:00`;
+      const dateEnd = data.eventEndDate ? `${data.eventEndDate}T${data.endTime}:00` : `${data.eventDate}T${data.endTime}:00`;
+      const today = new Date().toISOString().split('T')[0];
+      const timeline = bookingToEdit
+        ? { ...bookingToEdit.timeline, confirmed: data.status === "Confirmed" ? (bookingToEdit.timeline.confirmed || today) : bookingToEdit.timeline.confirmed }
+        : { inquiry: today, consultation: null, confirmed: data.status === "Confirmed" ? today : null, shoot: null, editing: null, delivered: null };
+      const payment = {
         total: data.totalAmount,
         paid: data.advanceAmount || 0,
-        due: data.totalAmount - (data.advanceAmount || 0)
-      }
-    };
+        due: data.totalAmount - (data.advanceAmount || 0),
+      };
 
-    onSuccess(newBooking, !!bookingToEdit, data.clientType as "new" | "existing");
-    showToast(`Booking ${newId} ${bookingToEdit ? 'updated' : 'created'} successfully!`, "success");
-    setIsSubmittingForm(false);
+      if (isMockMode()) {
+        // Demo mode — build the booking locally so the flow stays usable offline.
+        const clientObj = data.clientType === "existing"
+          ? clients.find(c => c.id === data.existingClientId)
+          : { id: `CL-${Date.now().toString().slice(-4)}`, name: data.clientName! };
+        const newBooking: Booking = {
+          id: bookingToEdit ? bookingToEdit.id : `#BK-${Date.now().toString().slice(-4)}`,
+          clientId: clientObj?.id || "",
+          clientName: clientObj?.name || data.clientName || "Client",
+          eventType: data.eventType,
+          date: dateStart, endDate: dateEnd,
+          venue: data.venueName, city: data.venueCity || "Pune",
+          packageId: pkg?.id || "", packageName: pkg?.name || "",
+          teamAssignedIds: teamIds, amount: data.totalAmount,
+          status: (data.status || "Confirmed") as Booking["status"],
+          notes: data.internalNotes, timeline, payment,
+        };
+        onSuccess(newBooking, !!bookingToEdit, data.clientType as "new" | "existing");
+        showToast(`Booking ${newBooking.id} ${bookingToEdit ? 'updated' : 'created'} (demo mode — connect the live API to save permanently).`, "success");
+        return;
+      }
+
+      // ── Live mode: persist through the API ──
+      let clientId: number | string = "";
+      let clientName = "";
+      if (data.clientType === "existing") {
+        const c = clients.find(cl => cl.id === data.existingClientId) as WithDbId<Client> | undefined;
+        clientId = c?.dbId ?? Number(c?.id) ?? "";
+        clientName = c?.name || "";
+      } else {
+        // New client → create the client record first so it shows on the Clients page.
+        const created = await clientsAPI.create({
+          name: data.clientName!.trim(),
+          phone: (data.clientPhone || "").trim(),
+          email: (data.clientEmail || "").trim(),
+          whatsapp: (data.clientWhatsApp || data.clientPhone || "").trim(),
+          instagram: (data.clientInstagram || "").trim(),
+          city: (data.clientCity || "Pune").trim(),
+          type: data.eventType === "Corporate" ? "Corporate" : "Wedding",
+          tags: ["New Client"],
+        }) as Record<string, unknown>;
+        const mapped = mapApiClient(created);
+        clientId = mapped.dbId ?? Number(mapped.id) ?? "";
+        clientName = mapped.name;
+      }
+
+      const payload: Record<string, unknown> = {
+        client_id: clientId || null,
+        client_name: clientName,
+        event_type: data.eventType,
+        date_start: dateStart.replace("T", " "),
+        date_end: dateEnd.replace("T", " "),
+        venue: data.venueName,
+        city: data.venueCity || "Pune",
+        package_id: pkg ? Number((pkg as WithDbId<Package>).dbId ?? pkg.id) || null : null,
+        package_name: pkg?.name || "",
+        team_assigned: teamIds,
+        amount: data.totalAmount,
+        status: data.status || "Confirmed",
+        notes: data.internalNotes || "",
+        timeline,
+        payment_total: payment.total,
+        payment_paid: payment.paid,
+        payment_due: payment.due,
+      };
+
+      const editDbId = (bookingToEdit as WithDbId<Booking> | null | undefined)?.dbId;
+      const savedRow = (bookingToEdit && editDbId
+        ? await bookingsAPI.update(editDbId, payload)
+        : await bookingsAPI.create(payload)) as Record<string, unknown>;
+      const saved = mapApiBooking(savedRow);
+
+      onSuccess(saved, !!bookingToEdit, data.clientType as "new" | "existing");
+      showToast(`Booking ${saved.id} ${bookingToEdit ? 'updated' : 'created'} successfully!`, "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Couldn't save the booking — please try again.", "error");
+    } finally {
+      setIsSubmittingForm(false);
+    }
   };
 
   const variants = {
@@ -277,9 +354,9 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
                 transition={{ duration: 0.25, ease: "easeInOut" }}
                 className="w-full flex tracking-wide flex-col"
               >
-                {currentStep === 1 && <Step1_ClientInfo formData={formData} register={register} errors={errors} setValue={setValue} clientSearch={clientSearch} setClientSearch={setClientSearch} showClientDropdown={showClientDropdown} setShowClientDropdown={setShowClientDropdown} />}
+                {currentStep === 1 && <Step1_ClientInfo formData={formData} register={register} errors={errors} setValue={setValue} clients={clients} clientSearch={clientSearch} setClientSearch={setClientSearch} showClientDropdown={showClientDropdown} setShowClientDropdown={setShowClientDropdown} />}
                 {currentStep === 2 && <Step2_EventDetails formData={formData} register={register} errors={errors} setValue={setValue} venueSearch={venueSearch} setVenueSearch={setVenueSearch} showVenueDropdown={showVenueDropdown} setShowVenueDropdown={setShowVenueDropdown} watch={watch} />}
-                {currentStep === 3 && <Step3_PackageTeam formData={formData} register={register} errors={errors} setValue={setValue} />}
+                {currentStep === 3 && <Step3_PackageTeam formData={formData} register={register} errors={errors} setValue={setValue} packages={packages} team={team} bookings={allBookings} editingId={bookingToEdit?.id} />}
                 {currentStep === 4 && <Step4_PaymentNotes formData={formData} register={register} errors={errors} setValue={setValue} watch={watch} />}
               </motion.div>
             </AnimatePresence>
@@ -290,7 +367,7 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
             {currentStep === 3 && (
               <motion.div initial={{ y: 50 }} animate={{ y: 0 }} exit={{ y: 50 }} className="bg-background border-t border-border px-6 py-3 flex items-center justify-between text-[13px] font-medium text-muted-foreground z-10 relative shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
                 <div>
-                  <span className="text-foreground bg-muted px-2 py-0.5 rounded mr-2">Package: {mockPackages.find(p => p.id === formData.packageId)?.name || 'None'}</span>
+                  <span className="text-foreground bg-muted px-2 py-0.5 rounded mr-2">Package: {packages.find(p => p.id === formData.packageId)?.name || 'None'}</span>
                   {formData.addOns && formData.addOns.length > 0 && <span className="mr-2 border-l border-border pl-2">Add-ons: {formData.addOns.length}</span>}
                   <span className="border-l border-border pl-2">Team: {(formData.assignedPhotographers?.length || 0) + (formData.assignedVideographers?.length || 0) + (formData.assignedEditors?.length || 0)} assigned</span>
                 </div>
@@ -302,28 +379,35 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
           </AnimatePresence>
 
           {/* Footer */}
-          <div className="px-6 py-4 border-t border-border bg-card flex items-center justify-between rounded-b-2xl z-20">
+          <div className="px-6 py-4 border-t border-border bg-card flex items-center justify-between gap-4 rounded-b-2xl z-20">
             {currentStep > 1 ? (
-              <button type="button" onClick={goBack} className="px-5 py-2.5 rounded-lg border border-border text-foreground font-semibold text-sm hover:bg-muted transition">
+              <button type="button" onClick={goBack} className="px-5 py-2.5 rounded-lg border border-border text-foreground font-semibold text-sm hover:bg-muted transition shrink-0">
                 Back
               </button>
             ) : <div />}
 
-            <button
-              onClick={currentStep < 4 ? goNext : handleSubmit(executeFinalSubmit, (formErrors) => {
-                // Surface why the final submit didn't go through instead of
-                // letting the button appear dead (react-hook-form swallows
-                // invalid submits silently by default).
-                const first = Object.values(formErrors)[0] as { message?: string } | undefined;
-                showToast(first?.message || "Please complete all required fields before creating the booking.", "error");
-              })}
-              disabled={isSubmittingForm}
-              className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm tracking-wide hover:bg-primary/90 transition shadow-lg shadow-primary/20 disabled:opacity-70 flex items-center gap-2"
-            >
-              {isSubmittingForm ? (
-                <><div className="h-4 w-4 rounded-full border-2 border-primary-foreground/20 border-t-primary-foreground animate-spin" /> {bookingToEdit ? 'Saving' : 'Creating'}...</>
-              ) : currentStep < 4 ? "Next Step" : (bookingToEdit ? "Save Changes" : "Create Booking")}
-            </button>
+            <div className="flex items-center gap-3 min-w-0">
+              {!stepValid[currentStep] && !isSubmittingForm && (
+                <span className="text-[12px] text-muted-foreground text-right leading-snug hidden sm:block">
+                  {stepHint[currentStep]}
+                </span>
+              )}
+              <button
+                onClick={currentStep < 4 ? goNext : handleSubmit(executeFinalSubmit, (formErrors) => {
+                  // Surface why the final submit didn't go through instead of
+                  // letting the button appear dead (react-hook-form swallows
+                  // invalid submits silently by default).
+                  const first = Object.values(formErrors)[0] as { message?: string } | undefined;
+                  showToast(first?.message || "Please complete all required fields before creating the booking.", "error");
+                })}
+                disabled={isSubmittingForm || !stepValid[currentStep]}
+                className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-sm tracking-wide hover:bg-primary/90 transition shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shrink-0"
+              >
+                {isSubmittingForm ? (
+                  <><div className="h-4 w-4 rounded-full border-2 border-primary-foreground/20 border-t-primary-foreground animate-spin" /> {bookingToEdit ? 'Saving' : 'Creating'}...</>
+                ) : currentStep < 4 ? "Next Step" : (bookingToEdit ? "Save Changes" : "Create Booking")}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -342,7 +426,8 @@ export function AddBookingModal({ isOpen, onClose, bookingToEdit, onSuccess }: A
 // STEP COMPONENTS
 // ----------------------------------------------------
 
-function Step1_ClientInfo({ formData, register, errors, setValue, clientSearch, setClientSearch, showClientDropdown, setShowClientDropdown }: any) {
+function Step1_ClientInfo({ formData, register, errors, setValue, clients, clientSearch, setClientSearch, showClientDropdown, setShowClientDropdown }: any) {
+  const clientList = (clients || []) as Client[];
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -373,10 +458,10 @@ function Step1_ClientInfo({ formData, register, errors, setValue, clientSearch, 
             
             {showClientDropdown && clientSearch.length > 0 && (
               <div className="absolute top-12 left-0 w-full bg-card border border-border shadow-xl rounded-lg z-50 max-h-60 overflow-y-auto">
-                {mockClients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()) || c.phone.includes(clientSearch)).length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground text-sm">No clients found.</div>
+                {clientList.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()) || (c.phone || "").includes(clientSearch)).length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground text-sm">No clients found — switch to &ldquo;New Client&rdquo; to add them.</div>
                 ) : (
-                  mockClients.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()) || c.phone.includes(clientSearch)).map(c => (
+                  clientList.filter(c => c.name.toLowerCase().includes(clientSearch.toLowerCase()) || (c.phone || "").includes(clientSearch)).map(c => (
                     <div key={c.id} onClick={() => { setValue("existingClientId", c.id); setClientSearch(c.name); setShowClientDropdown(false); }} className="p-3 border-b border-border last:border-0 hover:bg-muted cursor-pointer flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8"><AvatarFallback className="text-xs bg-primary/20 text-primary border border-primary/30">{c.name.substring(0,2)}</AvatarFallback></Avatar>
@@ -395,16 +480,20 @@ function Step1_ClientInfo({ formData, register, errors, setValue, clientSearch, 
           {errors.existingClientId && <ErrorText>{errors.existingClientId.message as string}</ErrorText>}
 
           {/* Selected Summary */}
-          {formData.existingClientId && (
-            <div className="mt-4 bg-background border border-border rounded-xl p-5 flex items-start gap-4">
-              <Avatar className="h-14 w-14 ring-2 ring-primary/30"><AvatarFallback className="text-lg bg-card border border-border"> {mockClients.find(c => c.id === formData.existingClientId)?.name.substring(0,2)}</AvatarFallback></Avatar>
-              <div className="flex flex-col gap-1">
-                <span className="text-lg font-bold text-foreground tracking-wide">{mockClients.find(c => c.id === formData.existingClientId)?.name}</span>
-                <span className="text-sm text-muted-foreground font-mono">{mockClients.find(c => c.id === formData.existingClientId)?.phone}</span>
-                <span className="text-xs text-primary font-semibold mt-1 uppercase tracking-wider">Total Lifetime Spend: ₹{mockClients.find(c => c.id === formData.existingClientId)?.totalSpend.toLocaleString('en-IN')}</span>
+          {formData.existingClientId && (() => {
+            const sel = clientList.find(c => c.id === formData.existingClientId);
+            if (!sel) return null;
+            return (
+              <div className="mt-4 bg-background border border-border rounded-xl p-5 flex items-start gap-4">
+                <Avatar className="h-14 w-14 ring-2 ring-primary/30"><AvatarFallback className="text-lg bg-card border border-border">{sel.name.substring(0, 2)}</AvatarFallback></Avatar>
+                <div className="flex flex-col gap-1">
+                  <span className="text-lg font-bold text-foreground tracking-wide">{sel.name}</span>
+                  <span className="text-sm text-muted-foreground font-mono">{sel.phone || "No phone on record"}</span>
+                  <span className="text-xs text-primary font-semibold mt-1 uppercase tracking-wider">Total Lifetime Spend: ₹{(sel.totalSpend || 0).toLocaleString('en-IN')}</span>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
           
           <button type="button" onClick={() => setValue('clientType', 'new')} className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 text-left w-fit mt-2">Not the right person? Add new client.</button>
 
@@ -568,18 +657,21 @@ function Step2_EventDetails({ formData, register, errors, setValue, venueSearch,
 }
 
 
-function Step3_PackageTeam({ formData, register, errors, setValue }: any) {
+function Step3_PackageTeam({ formData, register, errors, setValue, packages, team, bookings, editingId }: any) {
+  const packageList = (packages || []) as Package[];
+  const teamList = (team || []) as TeamMember[];
+  const bookingList = (bookings || []) as Booking[];
 
   const togglePhotographer = (id: string) => {
     const current = formData.assignedPhotographers || [];
     if (current.includes(id)) {
-      setValue("assignedPhotographers", current.filter((x: string) => x !== id));
+      setValue("assignedPhotographers", current.filter((x: string) => x !== id), { shouldValidate: true });
     } else {
-      setValue("assignedPhotographers", [...current, id]);
+      setValue("assignedPhotographers", [...current, id], { shouldValidate: true });
     }
   };
-  
-  const selectedPkg = mockPackages.find(p => p.id === formData.packageId);
+
+  const selectedPkg = packageList.find(p => p.id === formData.packageId);
 
   return (
     <div className="flex flex-col gap-10">
@@ -588,11 +680,16 @@ function Step3_PackageTeam({ formData, register, errors, setValue }: any) {
         
         {/* Packages Grid */}
         <label className={LabelClass}>Select Base Package *</label>
+        {packageList.length === 0 && (
+          <p className="text-[13px] text-muted-foreground bg-muted/40 border border-border rounded-lg p-4 mt-2">
+            No packages yet — create one on the Packages page first, then come back to this booking.
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-          {mockPackages.map(pkg => (
+          {packageList.map(pkg => (
             <div 
               key={pkg.id} 
-              onClick={() => { setValue("packageId", pkg.id); setValue("addOns", []); setValue("customAmount", undefined); }}
+              onClick={() => { setValue("packageId", pkg.id, { shouldValidate: true }); setValue("addOns", []); setValue("customAmount", undefined); }}
               className={`p-5 rounded-xl border-2 transition-all cursor-pointer relative overflow-hidden group ${formData.packageId === pkg.id ? 'bg-primary/5 border-primary' : 'bg-background border-border hover:border-muted-foreground/50'}`}
             >
               {pkg.popularity > 20 && (
@@ -658,15 +755,25 @@ function Step3_PackageTeam({ formData, register, errors, setValue }: any) {
           <span className="text-[11px] text-muted-foreground uppercase tracking-widest bg-muted/50 px-2 py-0.5 rounded-full flex items-center gap-1"><Users className="h-3.5 w-3.5" /> Required</span>
         </div>
 
-        {/* Photographers */}
+        {/* Team members (photographers, cinematographers, editors — all roles) */}
         <div className="mb-6">
-          <label className={LabelClass}>Photographers *</label>
+          <label className={LabelClass}>Team Members *</label>
+          {teamList.length === 0 && (
+            <p className="text-[13px] text-muted-foreground bg-muted/40 border border-border rounded-lg p-4 mt-2">
+              No team members yet — add your crew on the Team page first.
+            </p>
+          )}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
-            {mockTeam.filter(t => t.role === "Lead Photographer" || t.role === "Photographer").map(tm => {
+            {teamList.map(tm => {
               const isSelected = formData.assignedPhotographers?.includes(tm.id);
-              // Mock conflict detection logic using mockBookings for selected event date
-              const isConflict = formData.eventDate && mockBookings.some(b => b.date.startsWith(formData.eventDate) && b.teamAssignedIds.includes(tm.id));
-              
+              // A member is in conflict when a *different* booking on the same
+              // day already assigns them (the booking being edited doesn't count).
+              const isConflict = formData.eventDate && bookingList.some(b =>
+                b.id !== editingId &&
+                b.date.startsWith(formData.eventDate) &&
+                b.teamAssignedIds.includes(tm.id)
+              );
+
               return (
                 <div 
                   key={tm.id} 

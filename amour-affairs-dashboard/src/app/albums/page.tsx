@@ -80,6 +80,7 @@ export default function AlbumsPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [activeType, setActiveType] = useState("wedding");
   const [searchQuery, setSearchQuery] = useState("");
+  React.useEffect(() => { const q = new URLSearchParams(window.location.search).get("q"); if (q) setSearchQuery(q); }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -316,14 +317,14 @@ export default function AlbumsPage() {
               <button onClick={() => setOpenAlbum(null)} className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-2">
                 <ArrowLeft className="h-4 w-4" /> All {getTypeLabel(openAlbum.type)}
               </button>
-              <h1 className="text-3xl font-bold text-foreground">{openAlbum.couple}</h1>
+              <h1 className="dash-h1">{openAlbum.couple}</h1>
               <p className="text-[14px] text-muted-foreground mt-1">
                 {[openAlbum.location, openAlbum.date_label].filter(Boolean).join(" · ") || "Manage this album's photos."}
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-3xl font-bold text-foreground">Albums</h1>
+              <h1 className="dash-h1">Albums</h1>
               <p className="text-[14px] text-muted-foreground mt-1">Wedding, couple shoot and premium album archives shown on the website.</p>
             </>
           )}

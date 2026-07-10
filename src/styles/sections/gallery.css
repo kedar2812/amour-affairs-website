@@ -179,8 +179,10 @@
 }
 
 @media (max-width: 600px) {
+  /* Keep a 2-up grid on phones: each image is ~half the width of a
+     full-bleed tile, so it loads ~4× faster and reads as an IG feed. */
   .insta-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 }

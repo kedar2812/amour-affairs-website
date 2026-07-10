@@ -2,17 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus, Download, Calendar as CalendarIcon, List as ListIcon, LayoutDashboard, MoreHorizontal, MapPin } from 'lucide-react';
+import { Search, Plus, Calendar as CalendarIcon, List as ListIcon, LayoutDashboard, MapPin, Trash2, Loader2, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Drawer } from '@/components/ui/Drawer';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ExportMenu } from '@/components/ui/ExportMenu';
 import { flattenBookings } from '@/lib/exportUtils';
 import { useBookings, useTeam } from '@/lib/useData';
-import { Booking, TeamMember } from '@/data/mockData';
+import { bookingsAPI, getStoredToken } from '@/lib/api';
+import { useToast } from '@/lib/ToastContext';
+import type { WithDbId } from '@/lib/normalize';
+import { Booking } from '@/data/mockData';
+import { formatISTDate, formatISTTime, istDayOfMonth } from '@/lib/datetime';
 import { KanbanView } from './components/KanbanView';
 import { CalendarView } from './components/CalendarView';
 import { LiquidButton } from '@/components/ui/liquid-glass-button';
+
+const isMockMode = () => {
+  const token = getStoredToken();
+  return !token || token.startsWith("mock_");
+};
 
 // Badges Helper
 const getStatusClasses = (status: Booking['status']) => {
@@ -95,14 +104,21 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: Book
 
 export default function BookingsPage() {
   const [activeTab, setActiveTab] = useState<"List" | "Calendar" | "Kanban">("List");
-  const { data: bookingsData } = useBookings();
+  const { data: bookingsData, isLoading } = useBookings();
   const { data: teamMembers } = useTeam(true);
+  const { showToast } = useToast();
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   // Sync from hook
   React.useEffect(() => { setAllBookings(bookingsData); }, [bookingsData]);
+
+  // Global search deep link: /bookings/?q=priya pre-fills the search box
+  React.useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearchQuery(q);
+  }, []);
 
   React.useEffect(() => {
     const handleSync = (e: any) => {
@@ -126,8 +142,33 @@ export default function BookingsPage() {
     );
   }, [allBookings, searchQuery]);
 
-  const handleUpdateBookingStatus = (bookingId: string, newStatus: Booking['status']) => {
+  // Optimistically update, persist through the API, roll back on failure.
+  const handleUpdateBookingStatus = async (bookingId: string, newStatus: Booking['status']) => {
+    const target = allBookings.find(b => b.id === bookingId) as WithDbId<Booking> | undefined;
+    if (!target) return;
+    const prevStatus = target.status;
     setAllBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: newStatus } : b));
+    setSelectedBooking(s => s && s.id === bookingId ? { ...s, status: newStatus } : s);
+    if (isMockMode() || !target.dbId) return; // demo data — local only
+    try {
+      await bookingsAPI.update(target.dbId, { status: newStatus });
+    } catch (err) {
+      setAllBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: prevStatus } : b));
+      showToast(err instanceof Error ? err.message : "Couldn't update the booking status — please try again.", "error");
+    }
+  };
+
+  const handleDeleteBooking = async (booking: Booking) => {
+    if (!window.confirm(`Delete booking ${booking.id} for ${booking.clientName}? This cannot be undone.`)) return;
+    const dbId = (booking as WithDbId<Booking>).dbId;
+    try {
+      if (!isMockMode() && dbId) await bookingsAPI.delete(dbId);
+      setAllBookings(prev => prev.filter(b => b.id !== booking.id));
+      setSelectedBooking(null);
+      showToast(`Booking ${booking.id} deleted.`, "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Couldn't delete the booking — please try again.", "error");
+    }
   };
 
   return (
@@ -135,7 +176,7 @@ export default function BookingsPage() {
       {/* Header Row */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Bookings</h1>
+          <h1 className="dash-h1">Bookings</h1>
           <p className="text-[14px] text-muted-foreground mt-1">Manage all your studio shoots and appointments.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -232,8 +273,8 @@ export default function BookingsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[13px] text-foreground">
-                      {new Date(b.date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
-                      <span className="text-muted-foreground ml-1">· {new Date(b.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                      {formatISTDate(b.date, { weekday: 'short', month: 'short', day: 'numeric' })}
+                      <span className="text-muted-foreground ml-1">· {formatISTTime(b.date)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5 text-[13px]">
@@ -251,16 +292,33 @@ export default function BookingsPage() {
                       />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <MoreHorizontal className="h-4 w-4" />
+                      <Button
+                        variant="ghost" size="icon" title="Delete booking"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteBooking(b); }}
+                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </td>
                   </tr>
                 ))}
-                {filteredBookings.length === 0 && (
+                {isLoading && filteredBookings.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
-                      No bookings found for "{searchQuery}".
+                    <td colSpan={8} className="px-6 py-16 text-center">
+                      <Loader2 className="h-6 w-6 text-primary animate-spin inline-block" />
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && filteredBookings.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-14 text-center">
+                      <CalendarDays className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
+                      <p className="text-[14px] font-semibold text-foreground">
+                        {searchQuery ? `No bookings match "${searchQuery}"` : "No bookings yet"}
+                      </p>
+                      <p className="text-[13px] text-muted-foreground mt-1">
+                        {searchQuery ? "Try a different client name or booking ID." : "Click “Add Booking” to create your first booking."}
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -337,13 +395,13 @@ export default function BookingsPage() {
                 <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Event Schedule</h4>
                 <div className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border/50 shadow-sm">
                   <div className="h-10 w-10 flex flex-col items-center justify-center bg-primary/10 rounded-lg text-primary shrink-0">
-                    <span className="text-[10px] font-semibold uppercase leading-none">{new Date(selectedBooking.date).toLocaleDateString('en-IN', { month: 'short' })}</span>
-                    <span className="text-lg font-bold leading-none mt-0.5">{new Date(selectedBooking.date).getDate()}</span>
+                    <span className="text-[10px] font-semibold uppercase leading-none">{formatISTDate(selectedBooking.date, { month: 'short' })}</span>
+                    <span className="text-lg font-bold leading-none mt-0.5">{istDayOfMonth(selectedBooking.date)}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-[15px] text-foreground">{new Date(selectedBooking.date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric' })}</p>
+                    <p className="font-semibold text-[15px] text-foreground">{formatISTDate(selectedBooking.date, { weekday: 'long', year: 'numeric' })}</p>
                     <p className="text-[13px] text-muted-foreground mt-0.5">
-                      {new Date(selectedBooking.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} &nbsp;—&nbsp; {new Date(selectedBooking.endDate).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                      {formatISTTime(selectedBooking.date)} &nbsp;—&nbsp; {formatISTTime(selectedBooking.endDate)}
                     </p>
                   </div>
                 </div>
@@ -387,12 +445,19 @@ export default function BookingsPage() {
             </div>
 
             {/* Sticky Actions */}
-            <div className="sticky bottom-0 p-6 bg-card border-t border-border/50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex items-center justify-between gap-4">
+            <div className="sticky bottom-0 p-6 bg-card border-t border-border/50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex items-center justify-between gap-3">
               <div className="flex-1">
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Total Amount</p>
                 <p className="text-xl text-foreground font-bold leading-tight">₹{selectedBooking.amount.toLocaleString('en-IN')}</p>
               </div>
-              <Button 
+              <Button
+                variant="ghost" size="icon" title="Delete booking"
+                onClick={() => handleDeleteBooking(selectedBooking)}
+                className="h-10 w-10 rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
                 onClick={() => window.dispatchEvent(new CustomEvent('open-add-booking', { detail: { bookingToEdit: selectedBooking } }))}
                 className="rounded-xl px-6 bg-[#c9a96e] text-black hover:bg-[#d6b981] font-semibold shadow-md border-none"
               >

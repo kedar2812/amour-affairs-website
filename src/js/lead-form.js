@@ -102,14 +102,23 @@ export function initLeadForm() {
     const originalLabel = submitBtn.innerHTML;
     submitBtn.textContent = 'Sending…';
 
+    // Read defensively — a form variant that omits an optional field must
+    // never throw here (that would leave the button stuck on "Sending…").
+    const val = (name) => (form.elements[name]?.value ?? '');
+
     const result = await submitInquiry({
-      client_name: form.client_name.value.trim(),
-      phone: form.phone.value.trim(),
-      email: form.email.value.trim(),
-      event_type: form.event_type.value,
-      event_date: form.event_date.value,
-      message: form.message.value.trim(),
-      website: form.website.value, // honeypot — empty for humans
+      client_name: val('client_name').trim(),
+      phone: val('phone').trim(),
+      email: val('email').trim(),
+      event_type: val('event_type'),
+      event_date: val('event_date'),
+      venue: val('venue').trim(),
+      guest_count: val('guest_count'),
+      budget_range: val('budget_range'),
+      message: val('message').trim(),
+      source: form.dataset.source || 'Website', // which page this form sits on
+      page: form.dataset.page || '', // exact article path (guide/case-study), if any
+      website: val('website'), // honeypot — empty for humans
     });
 
     if (result.ok) {

@@ -37,6 +37,7 @@ loadArchiveAlbums('couple_shoot', fallbackAlbums).then((albums) => initArchivePa
   albums,
   prefix: 'cpage',
   filmLabel: 'The Couple Film',
+  photoWord: 'pre-wedding shoot',
   onReady({ gsap, ScrollTrigger }) {
     // The enquiry form inside the opened folder feeds the leads pipeline
     initLeadForm();

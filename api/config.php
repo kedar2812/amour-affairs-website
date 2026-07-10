@@ -119,6 +119,10 @@ function getDB(): PDO {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
             PDO::MYSQL_ATTR_FOUND_ROWS   => true,
+            // Pin MySQL to IST so NOW() / CURRENT_TIMESTAMP match PHP's
+            // Asia/Kolkata (the host's own clock is UK time — without this,
+            // DB-written timestamps land 4.5–5.5h behind India).
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '+05:30'",
         ];
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);

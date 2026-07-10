@@ -26,6 +26,10 @@ import {
   transactions as mockTransactions,
   type Booking, type Lead, type Client, type TeamMember, type Package, type Invoice, type Transaction,
 } from "@/data/mockData";
+import {
+  mapApiBooking, mapApiClient, mapApiTeamMember,
+  mapApiPackage, mapApiInvoice, mapApiTransaction,
+} from "@/lib/normalize";
 
 // ── Helper: detect if we're in mock mode ──
 function isMockMode(): boolean {
@@ -73,7 +77,7 @@ function useAPIData<T>(
 export function useBookings(status?: string) {
   return useAPIData(
     () => bookingsAPI.list(status),
-    (res) => (res.bookings || []) as Booking[],
+    (res) => ((res.bookings || []) as Record<string, unknown>[]).map(mapApiBooking) as Booking[],
     mockBookings,
     [status]
   );
@@ -111,7 +115,7 @@ export function useLeads(params?: { stage?: string; source?: string }) {
 export function useClients(params?: { type?: string; search?: string }) {
   return useAPIData(
     () => clientsAPI.list(params),
-    (res) => (res.clients || []) as Client[],
+    (res) => ((res.clients || []) as Record<string, unknown>[]).map(mapApiClient) as Client[],
     mockClients,
     [params?.type, params?.search]
   );
@@ -121,7 +125,7 @@ export function useClients(params?: { type?: string; search?: string }) {
 export function useTeam(all = false) {
   return useAPIData(
     () => teamAPI.list(all),
-    (res) => (res.team || []) as TeamMember[],
+    (res) => ((res.team || []) as Record<string, unknown>[]).map(mapApiTeamMember) as TeamMember[],
     mockTeam,
     [all]
   );
@@ -131,7 +135,7 @@ export function useTeam(all = false) {
 export function usePackages(params?: { category?: string; all?: boolean }) {
   return useAPIData(
     () => packagesAPI.list(params),
-    (res) => (res.packages || []) as Package[],
+    (res) => ((res.packages || []) as Record<string, unknown>[]).map(mapApiPackage) as Package[],
     mockPackages,
     [params?.category, params?.all]
   );
@@ -141,7 +145,7 @@ export function usePackages(params?: { category?: string; all?: boolean }) {
 export function useInvoices(status?: string) {
   return useAPIData(
     () => paymentsAPI.invoices.list(status),
-    (res) => (res.invoices || []) as Invoice[],
+    (res) => ((res.invoices || []) as Record<string, unknown>[]).map(mapApiInvoice) as Invoice[],
     mockInvoices,
     [status]
   );
@@ -151,7 +155,7 @@ export function useInvoices(status?: string) {
 export function useTransactions() {
   return useAPIData(
     () => paymentsAPI.transactions.list(),
-    (res) => (res.transactions || []) as Transaction[],
+    (res) => ((res.transactions || []) as Record<string, unknown>[]).map(mapApiTransaction) as Transaction[],
     mockTransactions
   );
 }

@@ -13,8 +13,10 @@ const FIELDS: { key: string; label: string; type?: string; full?: boolean; multi
   { key: "studio_email", label: "Email", type: "email" },
   { key: "studio_phone", label: "Phone" },
   { key: "studio_whatsapp", label: "WhatsApp Number", hint: "Digits only or with country code — used for every WhatsApp / Book Now button on the website." },
-  { key: "studio_address", label: "Address", full: true, multiline: true, hint: "Shown in the website footer. Put each line on its own line (or separate with commas)." },
+  { key: "studio_address", label: "Address", full: true, multiline: true, hint: "Shown in the website footer. Put each line of the address on its own line — it appears exactly that way. Commas stay on the same line (e.g. keep “5, Finance Road” together)." },
   { key: "studio_map_embed", label: "Google Maps embed", full: true, multiline: true, hint: "On Google Maps: Share → Embed a map → Copy HTML, and paste it here. Updates the map in the website footer." },
+  { key: "studio_rating_value", label: "Google Rating", hint: "Your average star rating on Google, e.g. 4.9. Powers the rich-snippet star rating in search results." },
+  { key: "studio_review_count", label: "Google Review Count", hint: "Total number of Google reviews, e.g. 198. Bump this when it grows — must reflect your real, public review count." },
 ];
 
 export default function SettingsPage() {
@@ -30,7 +32,7 @@ export default function SettingsPage() {
     for (const f of FIELDS) next[f.key] = settings[f.key] || "";
     setForm(next);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.studio_name, settings.studio_tagline, settings.studio_email, settings.studio_phone, settings.studio_whatsapp, settings.studio_address]);
+  }, [settings.studio_name, settings.studio_tagline, settings.studio_email, settings.studio_phone, settings.studio_whatsapp, settings.studio_address, settings.studio_map_embed, settings.studio_rating_value, settings.studio_review_count]);
 
   const set = (key: string, value: string) => setForm((p) => ({ ...p, [key]: value }));
 
@@ -51,7 +53,7 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-6 max-w-[900px] mx-auto w-full h-full pb-12">
       <div className="shrink-0 px-2 lg:px-0">
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+        <h1 className="dash-h1">Settings</h1>
         <p className="text-[14px] text-muted-foreground mt-1">Your studio profile — used across the website and invoices.</p>
       </div>
 

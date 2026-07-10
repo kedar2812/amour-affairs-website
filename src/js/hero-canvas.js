@@ -71,9 +71,54 @@ function drawModelFrame(idx, scale) {
 
   modelCtx.clearRect(0, 0, cw, ch);
 
-  // ── Mobile: lightweight single-image draw (no shadow/blur/gradient/composite) ──
+  // ── Mobile draw ──────────────────────────────────────────────────────────
+  // The model frame is a 1440² square in which the couple occupies only ~32%
+  // width / ~60% height (lots of transparent padding). The desktop path fits
+  // the WHOLE square to the canvas, which on a narrow phone renders the couple
+  // tiny (~120px). Instead, size the draw so the couple FILLS the screen — the
+  // transparent margins simply overflow the sides (FILL tuned to 1.85). We also
+  // apply the warm ground-shadow + amber tint so the couple reads as warm
+  // carved stone matching the parchment bg, NOT a cold grey cut-out. The
+  // expensive shadowBlur drop-shadow is intentionally omitted here so the
+  // scroll scrub stays buttery on touch devices.
   if (IS_MOBILE) {
-    modelCtx.drawImage(img, dx, dy, dw, dh);
+    const FILL  = 1.72;
+    const SHIFT = -0.05;                    // nudge left: the dress flares right, so
+                                            // centring the bounding box reads right-heavy
+    const mdw   = cw * FILL * (scale / 1.20);
+    const mdh   = mdw / ia;
+    const mdx   = (cw - mdw) / 2 + cw * SHIFT;
+    const mdy   = ch * 0.34 - mdh * 0.50;   // couple sits in the UPPER zone so the text
+                                            // below it stays clear (a scrim fades the gap)
+    const mcx   = cw / 2 + cw * SHIFT;
+    const feetY = mdy + mdh * 0.80;         // couple's feet ≈ 80% down the frame
+
+    // Ground shadow ellipse — anchors the couple to the scene.
+    const rX = mdw * 0.20, rY = mdh * 0.022;
+    const grad = modelCtx.createRadialGradient(mcx, feetY, 0, mcx, feetY, rX);
+    grad.addColorStop(0,   'rgba(90, 55, 20, 0.52)');
+    grad.addColorStop(0.5, 'rgba(90, 55, 20, 0.22)');
+    grad.addColorStop(1,   'rgba(90, 55, 20, 0)');
+    modelCtx.save();
+    modelCtx.scale(1, rY / rX);
+    modelCtx.fillStyle = grad;
+    modelCtx.beginPath();
+    modelCtx.arc(mcx, feetY * (rX / rY), rX, 0, Math.PI * 2);
+    modelCtx.fill();
+    modelCtx.restore();
+
+    // The model.
+    modelCtx.drawImage(img, mdx, mdy, mdw, mdh);
+
+    // Warm amber tint — source-atop tints only the model's opaque pixels, so
+    // the cool render takes on the hero's parchment warmth (no bg bleed).
+    modelCtx.save();
+    modelCtx.globalCompositeOperation = 'source-atop';
+    modelCtx.fillStyle = 'rgba(223, 203, 170, 0.24)';
+    modelCtx.fillRect(0, 0, cw, ch);
+    modelCtx.fillStyle = 'rgba(74, 48, 22, 0.12)';
+    modelCtx.fillRect(0, 0, cw, ch);
+    modelCtx.restore();
     return;
   }
 
@@ -125,26 +170,41 @@ function drawAll() {
   drawModelFrame(scrollObj.frame, scrollObj.scale);
 }
 
+// On phones we load only every Nth frame (the lightweight draw keeps the
+// previous frame for skipped indices, so the scrub still reads smoothly) —
+// this roughly halves the hero's image payload, the page's biggest cost.
+const FRAME_STEP = IS_MOBILE ? 2 : 1;
+
+// How many frames must arrive before we reveal the hero. On phones we reveal
+// much sooner (≈0.8 MB instead of ≈1.8 MB) — the rest stream in behind the
+// scrub, so the page feels fast on mobile networks without losing any frames.
+const EARLY_COUNT = IS_MOBILE ? 16 : 35;
+
 /* ─── Preload frame set ──────────────────────────────────── */
-function preloadFrameSet({ frames, urlFn, earlyCount, onProgress }) {
+function preloadFrameSet({ frames, urlFn, step, earlyCount, onProgress }) {
   return new Promise((resolve) => {
+    const indices = [];
+    for (let i = 0; i < TOTAL_FRAMES; i += step) indices.push(i);
+    const target = indices.length;
+    const early = Math.min(earlyCount, target);
     let loaded = 0, resolved = false;
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
+
+    indices.forEach((i) => {
       const img = new Image();
       img.decoding = 'async';
       img.onload = () => {
         frames[i] = img;
         loaded++;
-        onProgress(loaded);
-        if (!resolved && loaded >= earlyCount) { resolved = true; resolve(); }
-        if (!resolved && loaded === TOTAL_FRAMES) { resolved = true; resolve(); }
+        onProgress(loaded, target);
+        if (!resolved && loaded >= early) { resolved = true; resolve(); }
+        if (!resolved && loaded === target) { resolved = true; resolve(); }
       };
       img.onerror = () => {
         loaded++;
-        if (!resolved && loaded >= earlyCount) { resolved = true; resolve(); }
+        if (!resolved && loaded >= early) { resolved = true; resolve(); }
       };
       img.src = urlFn(i + 1);
-    }
+    });
   });
 }
 
@@ -191,8 +251,12 @@ export async function initHeroCanvas() {
     animation:     scrubTl,
     trigger:       heroEl,
     start:         'top top',
-    end:           '+=350%',
-    scrub:         0.5,
+    // Shorter pinned scrub on phones — 350% of finger-travel feels sluggish and
+    // janky on touch; 175% covers the same frame + text reveal with far less
+    // scrolling, so the hero reads as snappy rather than "stuck". Slightly more
+    // scrub smoothing on mobile softens the lower frame cadence.
+    end:           IS_MOBILE ? '+=175%' : '+=350%',
+    scrub:         IS_MOBILE ? 0.7 : 0.5,
     pin:           true,
     pinSpacing:    true,
     anticipatePin: 1,
@@ -213,10 +277,10 @@ export async function initHeroCanvas() {
 
   // ── Loading bar ──
   const loader = createLoadingBar(heroEl);
-  let mdDone = 0;
+  let mdDone = 0, mdTarget = TOTAL_FRAMES;
 
   function updateLoader() {
-    const pct = mdDone / TOTAL_FRAMES;
+    const pct = mdTarget ? mdDone / mdTarget : 1;
     loader.fill.style.width  = `${pct * 100}%`;
     loader.label.textContent = pct < 1 ? `${Math.round(pct * 100)}%` : 'Ready';
     if (modelFrames[0]) drawModelFrame(0, 1.20);
@@ -226,8 +290,9 @@ export async function initHeroCanvas() {
   await preloadFrameSet({
     frames:     modelFrames,
     urlFn:      (n) => `/frames/frame-${pad(n)}.webp`,
-    earlyCount: 35,
-    onProgress: (n) => { mdDone = n; updateLoader(); },
+    step:       FRAME_STEP,
+    earlyCount: EARLY_COUNT,
+    onProgress: (n, target) => { mdDone = n; mdTarget = target; updateLoader(); },
   });
 
   // ── Hide loader ──

@@ -1,4 +1,5 @@
 import { KPICards } from "@/components/dashboard/KPICards";
+import { WebsiteTrafficStrip } from "@/components/dashboard/WebsiteTrafficStrip";
 import { RevenueChart } from "@/components/dashboard/RevenueChart";
 import { FunnelChart } from "@/components/dashboard/FunnelChart";
 import { UpcomingShoots } from "@/components/dashboard/UpcomingShoots";
@@ -13,7 +14,10 @@ export default function Dashboard() {
     <div className="flex flex-col gap-6 max-w-[1540px] mx-auto w-full">
       {/* Row 1: KPI Strip */}
       <KPICards />
-      
+
+      {/* Row 1.5: Website traffic at a glance (first-party analytics) */}
+      <WebsiteTrafficStrip />
+
       {/* Row 2: Revenue Chart + Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 min-h-[420px]">

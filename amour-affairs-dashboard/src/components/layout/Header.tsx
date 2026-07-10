@@ -7,7 +7,6 @@ import { ExportMenu } from "@/components/ui/ExportMenu";
 import { AddBookingModal } from "@/components/bookings/AddBookingModal";
 import { GlobalSearch } from "./GlobalSearch";
 import { NotificationBell } from "./NotificationBell";
-import { bookings } from "@/data/mockData";
 import type { Booking } from "@/data/mockData";
 import { useBookings, useLeads, useClients, useTeam, usePackages } from "@/lib/useData";
 import {
@@ -34,6 +33,10 @@ const ROUTE_CONTENT: Record<string, { title: string; subtitle: string }> = {
   "/films": { title: "Films", subtitle: "Manage the wedding films featured across your website." },
   "/website": { title: "Website Content", subtitle: "Edit enquiry copy, session packages, and page text." },
   "/testimonials": { title: "Testimonials", subtitle: "Review client stories and publish quotes." },
+  "/faqs": { title: "FAQs", subtitle: "Manage the questions and answers shown on the website." },
+  "/guides": { title: "Guides", subtitle: "Publish planning guides and articles to the website." },
+  "/case-studies": { title: "Case Studies", subtitle: "Publish real wedding stories to the website." },
+  "/lead-magnets": { title: "Lead Magnets", subtitle: "Manage downloadable guides that capture enquiries." },
   "/payments": { title: "Payments", subtitle: "Track invoices, payments status, and gross revenues." },
   "/analytics": { title: "Analytics", subtitle: "Analyze funnel rates, performance, and key metrics." },
   "/settings": { title: "Settings", subtitle: "Configure CRM details, permissions, and app preferences." },
@@ -63,7 +66,7 @@ export function Header() {
   }, []);
 
   // Live data for the export (real API when authenticated, mock fallback otherwise)
-  const { data: bookingsData } = useBookings();
+  const { data: bookingsData, refetch: refetchBookings } = useBookings();
   const { data: leadsData } = useLeads();
   const { data: clientsData } = useClients();
   const { data: teamData } = useTeam(true);
@@ -146,15 +149,12 @@ export function Header() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         bookingToEdit={bookingToEdit}
-        onSuccess={(newBooking, isEdit, clientType) => {
-          if (isEdit) {
-            const idx = bookings.findIndex(b => b.id === newBooking.id);
-            if (idx > -1) bookings[idx] = newBooking;
-          } else {
-            bookings.unshift(newBooking);
-          }
+        onSuccess={(newBooking, isEdit) => {
           setIsModalOpen(false);
+          // The modal already persisted through the API — tell open pages to
+          // update their local lists, and refresh this header's export data.
           window.dispatchEvent(new CustomEvent('booking-synced', { detail: { newBooking, isEdit } }));
+          refetchBookings();
         }}
       />
     </>

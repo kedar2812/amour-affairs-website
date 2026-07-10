@@ -180,7 +180,14 @@ INSERT INTO `settings` (`setting_key`, `setting_value`, `setting_group`) VALUES
 ('studio_email', 'info@amouraffairs.in', 'profile'),
 ('studio_phone', '+91 9921000052', 'profile'),
 ('studio_whatsapp', '919921000052', 'profile'),
-('studio_address', 'Rowshni Bungalow, 5, Finance Road, Opp. Ministry of Defence, Agarkar Nagar, Pune, Maharashtra — 411001, India', 'profile'),
+('studio_address', 'Rowshni Bungalow,
+5, Finance Road,
+Opp. Ministry of Defence,
+Agarkar Nagar,
+Pune, Maharashtra — 411001,
+India', 'profile'),
+('studio_rating_value', '4.9', 'profile'),
+('studio_review_count', '198', 'profile'),
 ('social_instagram', 'https://www.instagram.com/amouraffairs/', 'social'),
 ('social_facebook', 'https://www.facebook.com/memoriesbyamouraffairs/', 'social'),
 ('social_youtube', 'https://www.youtube.com/channel/UCYGQScVZ25nK3Ti-O-Xuo4g', 'social'),
@@ -190,7 +197,19 @@ INSERT INTO `settings` (`setting_key`, `setting_value`, `setting_group`) VALUES
 ('hero_stat_years', '15+', 'hero'),
 ('hero_stat_couples', '1000+', 'hero'),
 ('hero_headline', 'Beyond the moment, we capture the eternal.', 'hero'),
-('hero_description', 'Pune''s most celebrated wedding photographers and filmmakers. We immortalize every stolen glance, every teardrop of joy — crafting cinematic love stories that endure a lifetime.', 'hero');
+('hero_description', 'Pune''s most celebrated wedding photographers and filmmakers. We immortalize every stolen glance, every teardrop of joy — crafting cinematic love stories that endure a lifetime.', 'hero'),
+-- Urgency / booking-availability notice (announcement bar + floating badge)
+('notice_enabled', '1', 'notice'),
+('notice_message', 'Now booking 2026 & 2027 weddings — limited dates remain', 'notice'),
+('notice_cta_label', 'Check your date', 'notice'),
+('notice_cta_link', '/contact/', 'notice'),
+('notice_bar_enabled', '1', 'notice'),
+('notice_bar_position', 'top', 'notice'),
+('notice_bg_color', '#2A1E16', 'notice'),
+('notice_text_color', '#F5EDE2', 'notice'),
+('notice_dismissible', '1', 'notice'),
+('notice_badge_enabled', '1', 'notice'),
+('notice_badge_text', 'Limited 2026 dates', 'notice');
 
 -- ────────────────────────────────────────────────────────────
 -- 8. CLIENTS
@@ -263,6 +282,8 @@ CREATE TABLE IF NOT EXISTS `leads` (
   `instagram` VARCHAR(255) DEFAULT NULL,
   `event_type` VARCHAR(50) NOT NULL DEFAULT 'Wedding',
   `event_date` DATE DEFAULT NULL,
+  `venue` VARCHAR(255) DEFAULT NULL,
+  `guest_count` VARCHAR(50) DEFAULT NULL,
   `budget_range` VARCHAR(100) DEFAULT NULL,
   `source` ENUM('Instagram','WhatsApp','Google','Referral','Website','Other') NOT NULL DEFAULT 'Website',
   `stage` ENUM('New Inquiry','Contacted','Consultation Scheduled','Proposal Sent','Won','Lost') NOT NULL DEFAULT 'New Inquiry',
@@ -458,6 +479,122 @@ INSERT INTO `testimonials` (`client_name`, `event_type`, `review_text`, `city`, 
 ('Madhu & Sudipto', 'Wedding', 'The pics are absolutely fantastic! Many many thanks to Neha, Gagan and Taher! You got some stunning shots, and the post processing is just spot on perfect — vibrant colours and great lighting. Madhu says you made her look stunning. The candid shots are very nice indeed. Thanks again team Amour! We''re glad we picked you.', 'Portland, Oregon', 0, 28),
 ('Sejal & Anniket', 'Pre-Wedding', 'We had the idea of a pre-wedding video ever since we got engaged but never got the time to make one till only a few days were left for the sangeet. To Taher and his team we are truly thankful for capturing our moments in an amazing video that was made with only one day of filming. This video has become a part of our new life together and will always be a reminder of our beginning.', 'Nasik', 0, 29),
 ('Deepika & Karan', 'Wedding', 'Thank you Amour Affairs for making our wedding so beautiful through your lens. It was great working with you and we would definitely be giving your reference to all our friends and family. We appreciate all your insights and you being able to make it to the function despite your booked schedule. Everyone loved your work!', 'New Delhi', 0, 30);
+
+-- ────────────────────────────────────────────────────────────
+-- 20. FAQS — editable Q&A powering the /faqs page + FAQ schema
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `faqs` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `question` VARCHAR(500) NOT NULL,
+  `answer` TEXT NOT NULL,
+  `category` ENUM('before','during','after') NOT NULL DEFAULT 'before',
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_faq_active` (`is_active`, `category`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- 21. GUIDES — educational blog/guide articles (AEO/GEO content)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `guides` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `slug` VARCHAR(200) NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `excerpt` VARCHAR(500) DEFAULT NULL,
+  `body` MEDIUMTEXT NOT NULL,
+  `category` VARCHAR(80) NOT NULL DEFAULT 'Wedding Planning',
+  `cover_path` VARCHAR(255) DEFAULT NULL,
+  `author` VARCHAR(120) NOT NULL DEFAULT 'Amour Affairs',
+  `read_minutes` INT UNSIGNED NOT NULL DEFAULT 5,
+  `meta_title` VARCHAR(255) DEFAULT NULL,
+  `meta_description` VARCHAR(320) DEFAULT NULL,
+  `is_published` TINYINT(1) NOT NULL DEFAULT 0,
+  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `published_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_guide_slug` (`slug`),
+  KEY `idx_guide_pub` (`is_published`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- 22. CASE_STUDIES — detailed wedding stories (E-E-A-T content)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `case_studies` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `slug` VARCHAR(200) NOT NULL,
+  `couple` VARCHAR(200) NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `location` VARCHAR(200) DEFAULT NULL,
+  `event_date` DATE DEFAULT NULL,
+  `event_type` VARCHAR(80) NOT NULL DEFAULT 'Wedding',
+  `summary` VARCHAR(500) DEFAULT NULL,
+  `body` MEDIUMTEXT NOT NULL,
+  `services` VARCHAR(300) DEFAULT NULL,
+  `guest_count` VARCHAR(50) DEFAULT NULL,
+  `cover_path` VARCHAR(255) DEFAULT NULL,
+  `gallery` JSON DEFAULT NULL,
+  `film_youtube_id` VARCHAR(20) DEFAULT NULL,
+  `meta_title` VARCHAR(255) DEFAULT NULL,
+  `meta_description` VARCHAR(320) DEFAULT NULL,
+  `is_published` TINYINT(1) NOT NULL DEFAULT 0,
+  `is_featured` TINYINT(1) NOT NULL DEFAULT 0,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `published_at` DATETIME DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_case_slug` (`slug`),
+  KEY `idx_case_pub` (`is_published`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- 23. LEAD_MAGNETS — downloadable guides gated by an email capture
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `lead_magnets` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `slug` VARCHAR(200) NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `description` VARCHAR(500) DEFAULT NULL,
+  `file_path` VARCHAR(255) DEFAULT NULL,
+  `cover_path` VARCHAR(255) DEFAULT NULL,
+  `button_label` VARCHAR(80) NOT NULL DEFAULT 'Download Free Guide',
+  `download_count` INT UNSIGNED NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_magnet_slug` (`slug`),
+  KEY `idx_magnet_active` (`is_active`, `sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────
+-- PAGE VIEWS — first-party website analytics (no raw IP stored)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `page_views` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `path` VARCHAR(255) NOT NULL,
+  `referrer_host` VARCHAR(255) DEFAULT NULL,
+  `source` VARCHAR(120) DEFAULT NULL,
+  `device` VARCHAR(16) DEFAULT NULL,
+  `browser` VARCHAR(40) DEFAULT NULL,
+  `country` VARCHAR(60) DEFAULT NULL,
+  `session_id` CHAR(36) DEFAULT NULL,
+  `visitor_hash` CHAR(40) DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_pv_created` (`created_at`),
+  KEY `idx_pv_path` (`path`),
+  KEY `idx_pv_source` (`source`),
+  KEY `idx_pv_visitor` (`visitor_hash`),
+  KEY `idx_pv_session` (`session_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
 -- POST-SEED DEFAULTS

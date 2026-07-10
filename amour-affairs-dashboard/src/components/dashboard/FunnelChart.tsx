@@ -7,7 +7,9 @@ import { useLeads } from "@/lib/useData";
 import { buildFunnel } from "@/lib/analytics";
 
 /*
- * Lead pipeline funnel — live counts of leads at each stage (from the API).
+ * Lead conversion funnel — for each stage, how many leads reached it (are at
+ * it or further along). Drop-offs and the overall % (Won ÷ inquiries) are
+ * therefore true conversion figures, not a snapshot of where leads sit today.
  */
 
 export function FunnelChart() {
@@ -29,7 +31,7 @@ export function FunnelChart() {
       <div className="dash-card h-full flex flex-col">
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-[18px] font-bold text-foreground">Conversion Funnel</h3>
+            <h3 className="dash-card-title">Conversion Funnel</h3>
             <div className="flex items-center gap-2">
               <AnimatePresence mode="popLayout">
                 <motion.span 

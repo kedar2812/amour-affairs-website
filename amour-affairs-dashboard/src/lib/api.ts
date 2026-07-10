@@ -175,6 +175,59 @@ export async function apiRequest<T = unknown>(
 }
 
 
+/**
+ * Multipart upload with real upload-progress reporting. `fetch` cannot report
+ * upload progress, so file uploads go through XMLHttpRequest instead — the
+ * `onProgress` callback receives 0–100 as the bytes leave the browser. Mirrors
+ * apiRequest's auth + single 401→refresh→retry behaviour.
+ */
+export function apiUpload<T = unknown>(
+  endpoint: string,
+  formData: FormData,
+  onProgress?: (percent: number) => void
+): Promise<T> {
+  const send = (allowRetry: boolean): Promise<T> =>
+    new Promise<T>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${API_BASE}/${endpoint}`);
+
+      const token = getStoredToken();
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+      if (onProgress) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+        };
+        // Once the bytes are up, the server is processing — hold at 100.
+        xhr.upload.onload = () => onProgress(100);
+      }
+
+      xhr.onload = async () => {
+        // Expired token — refresh once and retry the whole upload.
+        if (xhr.status === 401 && allowRetry) {
+          const refreshed = await refreshAccessToken();
+          if (refreshed) { resolve(await send(false)); return; }
+          if (typeof window !== 'undefined') window.location.href = '/login';
+          reject(new Error('Session expired'));
+          return;
+        }
+        let data: unknown = null;
+        try { data = JSON.parse(xhr.responseText); } catch { /* non-JSON */ }
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(data as T);
+        } else {
+          reject(new Error((data as APIError)?.error || `Upload failed (${xhr.status})`));
+        }
+      };
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.ontimeout = () => reject(new Error('Upload timed out'));
+      xhr.send(formData);
+    });
+
+  return send(true);
+}
+
+
 // ── Convenience Methods ──
 
 export const api = {
@@ -315,6 +368,62 @@ export const testimonialsAPI = {
   delete: (id: number) => api.delete(`testimonials.php?id=${id}`),
 };
 
+export const faqsAPI = {
+  list: (all = false) => {
+    const qs = all ? '?all=1' : '';
+    return api.get<{ faqs: unknown[]; total: number }>(`faqs.php${qs}`, !all ? false : true);
+  },
+  get: (id: number) => api.get(`faqs.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post('faqs.php', data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`faqs.php?id=${id}`, data),
+  delete: (id: number) => api.delete(`faqs.php?id=${id}`),
+  reorder: (orders: { id: number; sort_order: number }[]) =>
+    api.post('faqs.php?action=reorder', { orders } as unknown as Record<string, unknown>),
+};
+
+export const guidesAPI = {
+  list: (all = false) => {
+    const qs = all ? '?all=1' : '';
+    return api.get<{ guides: unknown[]; total: number }>(`guides.php${qs}`, all);
+  },
+  get: (id: number) => api.get(`guides.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post('guides.php', data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`guides.php?id=${id}`, data),
+  setCover: (id: number, formData: FormData, onProgress?: (p: number) => void) =>
+    apiUpload(`guides.php?action=cover&id=${id}`, formData, onProgress),
+  delete: (id: number) => api.delete(`guides.php?id=${id}`),
+};
+
+export const caseStudiesAPI = {
+  list: (all = false) => {
+    const qs = all ? '?all=1' : '';
+    return api.get<{ case_studies: unknown[]; total: number }>(`case_studies.php${qs}`, all);
+  },
+  get: (id: number) => api.get(`case_studies.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post('case_studies.php', data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`case_studies.php?id=${id}`, data),
+  setCover: (id: number, formData: FormData, onProgress?: (p: number) => void) =>
+    apiUpload(`case_studies.php?action=cover&id=${id}`, formData, onProgress),
+  addGallery: (id: number, formData: FormData, onProgress?: (p: number) => void) =>
+    apiUpload(`case_studies.php?action=gallery&id=${id}`, formData, onProgress),
+  delete: (id: number) => api.delete(`case_studies.php?id=${id}`),
+};
+
+export const leadMagnetsAPI = {
+  list: (all = false) => {
+    const qs = all ? '?all=1' : '';
+    return api.get<{ lead_magnets: unknown[]; total: number }>(`lead_magnets.php${qs}`, all);
+  },
+  get: (id: number) => api.get(`lead_magnets.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post('lead_magnets.php', data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`lead_magnets.php?id=${id}`, data),
+  uploadFile: (id: number, formData: FormData, onProgress?: (p: number) => void) =>
+    apiUpload(`lead_magnets.php?action=file&id=${id}`, formData, onProgress),
+  setCover: (id: number, formData: FormData, onProgress?: (p: number) => void) =>
+    apiUpload(`lead_magnets.php?action=cover&id=${id}`, formData, onProgress),
+  delete: (id: number) => api.delete(`lead_magnets.php?id=${id}`),
+};
+
 export const settingsAPI = {
   getAll: () => api.get<{ settings: Record<string, string> }>('settings.php', false),
   getGroup: (group: string) => api.get<{ settings: Record<string, string> }>(`settings.php?group=${group}`, false),
@@ -348,6 +457,24 @@ export const leadsAPI = {
   create: (data: Record<string, unknown>) => api.post('leads.php', data),
   update: (id: number, data: Record<string, unknown>) => api.put(`leads.php?id=${id}`, data),
   delete: (id: number) => api.delete(`leads.php?id=${id}`),
+};
+
+export interface TrafficData {
+  range: string;
+  totals: { views: number; visitors: number; sessions: number };
+  prev_totals: { views: number; visitors: number; sessions: number } | null;
+  engagement: { bounce_rate: number | null; pages_per_session: number | null };
+  series: { date: string; label: string; views: number; visitors: number }[];
+  top_pages: { path: string; views: number; visitors: number }[];
+  sources: { source: string; views: number }[];
+  devices: { device: string; views: number }[];
+  browsers: { browser: string; views: number }[];
+  countries: { country: string; views: number }[];
+}
+
+export const analyticsAPI = {
+  // First-party website traffic. range: 7d | 30d | 90d | 12m | all
+  traffic: (range = '30d') => api.get<TrafficData>(`analytics.php?range=${range}`),
 };
 
 export const clientsAPI = {

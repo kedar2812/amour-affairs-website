@@ -29,12 +29,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { initNav } from './js/nav.js';
 import { initHero } from './js/hero.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
-import { initPreloader, initAllAnimations } from './js/animations.js';
+import { initPreloader, initAllAnimations, initCounters } from './js/animations.js';
 import { initInstagramFeed } from './js/gallery.js';
 import { initGlobe } from './js/globe.js';
 import { initFooterTyping } from './js/footer-typing.js';
 import { initTestimonials } from './js/testimonials.js';
 import { initLeadForm } from './js/lead-form.js';
+import { loadSiteContent } from './js/api.js';
+import { applyHomeStats } from './js/site-content.js';
 
 // ── Register GSAP Plugins ──
 gsap.registerPlugin(ScrollTrigger);
@@ -121,6 +123,18 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// ── Homepage "by the numbers" strip — dashboard-editable ──
+// Loaded independently of the boot chain above so the figures resolve even if
+// the heavy hero-canvas preload is slow or fails. index.html already ships the
+// real numbers; this applies any dashboard overrides and re-arms the count-up
+// with the final targets. Fully fail-safe: on any error the baked values stand.
+loadSiteContent()
+  .then((content) => {
+    if (content) applyHomeStats(content);
+    initCounters();
+  })
+  .catch(() => {});
 
 // ── Globe — initialise independently after layout settles ──
 window.addEventListener('load', () => {

@@ -44,6 +44,9 @@ function handlePublicInquiry(): void {
     $message = trim((string)($body['message'] ?? ''));
     $eventType = (string)($body['event_type'] ?? 'Wedding');
     $eventDate = trim((string)($body['event_date'] ?? ''));
+    $venue = sanitize($body['venue'] ?? '');
+    $budgetRange = sanitize($body['budget_range'] ?? '');
+    $guestCount = sanitize($body['guest_count'] ?? '');
 
     if (mb_strlen($clientName) < 2 || mb_strlen($clientName) > 200) {
         sendError('Please enter your name', 400);
@@ -68,12 +71,31 @@ function handlePublicInquiry(): void {
         $eventType = 'Wedding';
     }
 
+    // Which page the enquiry form sits on — whitelisted so the value is always
+    // a known, display-safe label. Anything unrecognised falls back to "Website".
+    $allowedSources = [
+        'Website',
+        'Website (Home)', 'Website (Weddings)', 'Website (Couples)',
+        'Website (Films)', 'Website (Premium Albums)', 'Website (Testimonials)',
+        'Website (About)', 'Website (Guides)', 'Website (Case Studies)',
+        'Website (Contact)',
+    ];
+    $source = (string)($body['source'] ?? 'Website');
+    if (!in_array($source, $allowedSources, true)) {
+        $source = 'Website';
+    }
+
     if ($eventDate !== '') {
         $parsed = DateTime::createFromFormat('Y-m-d', $eventDate);
         if (!$parsed || $parsed->format('Y-m-d') !== $eventDate) {
             sendError('Please enter a valid event date', 400);
         }
     }
+
+    // Optional detail fields — length-capped, never required
+    if (mb_strlen($venue) > 255)      { $venue = mb_substr($venue, 0, 255); }
+    if (mb_strlen($budgetRange) > 100) { $budgetRange = mb_substr($budgetRange, 0, 100); }
+    if (mb_strlen($guestCount) > 50)   { $guestCount = mb_substr($guestCount, 0, 50); }
 
     $notes = [];
     if ($message !== '') {
@@ -84,13 +106,25 @@ function handlePublicInquiry(): void {
         ];
     }
 
+    // Exact article path the form sat on (guide / case-study templates send it)
+    // — recorded as a note so the team can see which page converted. Only a
+    // plain site-relative path is accepted.
+    $page = trim((string)($body['page'] ?? ''));
+    if ($page !== '' && mb_strlen($page) <= 160 && preg_match('#^/[a-zA-Z0-9/_\-]*$#', $page)) {
+        $notes[] = [
+            'content' => 'Enquiry sent from ' . $page,
+            'author' => 'Website Form',
+            'date' => date('Y-m-d H:i:s'),
+        ];
+    }
+
     $db = getDB();
 
     // Insert with a placeholder ref, then derive the final ref from the
     // auto-increment id — immune to concurrent-submit collisions.
     $stmt = $db->prepare(
-        'INSERT INTO leads (lead_ref, client_name, phone, email, event_type, event_date, source, stage, last_activity, moved_to_stage_at, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
+        'INSERT INTO leads (lead_ref, client_name, phone, email, event_type, event_date, venue, guest_count, budget_range, source, stage, last_activity, moved_to_stage_at, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
     );
     $stmt->execute([
         'tmp-' . bin2hex(random_bytes(8)),
@@ -99,7 +133,10 @@ function handlePublicInquiry(): void {
         sanitize($email),
         $eventType,
         $eventDate !== '' ? $eventDate : null,
-        'Website',
+        $venue !== '' ? $venue : null,
+        $guestCount !== '' ? $guestCount : null,
+        $budgetRange !== '' ? $budgetRange : null,
+        $source,
         'New Inquiry',
         json_encode($notes, JSON_UNESCAPED_UNICODE),
     ]);
@@ -167,8 +204,8 @@ switch ($method) {
         $leadRef = '#LD-' . $nextId;
 
         $stmt = $db->prepare(
-            'INSERT INTO leads (lead_ref, client_name, phone, email, instagram, event_type, event_date, budget_range, source, stage, assigned_to, last_activity, moved_to_stage_at, notes)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
+            'INSERT INTO leads (lead_ref, client_name, phone, email, instagram, event_type, event_date, venue, guest_count, budget_range, source, stage, assigned_to, last_activity, moved_to_stage_at, notes)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
         );
         $stmt->execute([
             $leadRef,
@@ -178,6 +215,8 @@ switch ($method) {
             sanitize($body['instagram'] ?? ''),
             sanitize($body['event_type'] ?? 'Wedding'),
             $body['event_date'] ?? null,
+            sanitize($body['venue'] ?? ''),
+            sanitize($body['guest_count'] ?? ''),
             sanitize($body['budget_range'] ?? ''),
             sanitize($body['source'] ?? 'Website'),
             sanitize($body['stage'] ?? 'New Inquiry'),
@@ -210,7 +249,7 @@ switch ($method) {
         $fields = [];
         $params = [];
 
-        $stringFields = ['client_name', 'phone', 'email', 'instagram', 'event_type', 'budget_range', 'source', 'stage'];
+        $stringFields = ['client_name', 'phone', 'email', 'instagram', 'event_type', 'venue', 'guest_count', 'budget_range', 'source', 'stage'];
         $dateFields = ['event_date', 'last_activity', 'moved_to_stage_at'];
         $numericFields = ['assigned_to'];
         $jsonFields = ['notes'];

@@ -23,6 +23,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 // ── Modules ──
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { loadFaqs } from './api.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -92,6 +93,80 @@ function initFaqAccordion() {
   });
 }
 
+/* Build a single .ipage-faq accordion item from CMS data. */
+function faqItemMarkup(question, answer) {
+  const paras = String(answer)
+    .split(/\n{2,}|\r\n\r\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${escapeHtml(p)}</p>`)
+    .join('') || `<p>${escapeHtml(answer)}</p>`;
+
+  return `
+    <div class="ipage-faq">
+      <button class="ipage-faq__q" aria-expanded="false">
+        <span class="ipage-faq__q-text">${escapeHtml(question)}</span>
+        <span class="ipage-faq__icon"><svg viewBox="0 0 10 10" fill="none" stroke-width="1.5"><line x1="5" y1="1" x2="5" y2="9"/><line x1="1" y1="5" x2="9" y2="5"/></svg></span>
+      </button>
+      <div class="ipage-faq__a"><div class="ipage-faq__a-inner">${paras}</div></div>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/* Replace the bundled FAQ panels with dashboard-managed content, if any. */
+async function renderFaqsFromCms() {
+  const beforePanel = document.getElementById('tab-before');
+  if (!beforePanel) return; // not the FAQs page
+
+  const groups = await loadFaqs();
+  if (!groups) return; // keep bundled fallback when the CMS has none
+
+  const map = { before: 'tab-before', during: 'tab-during', after: 'tab-after' };
+  for (const [cat, panelId] of Object.entries(map)) {
+    const panel = document.getElementById(panelId);
+    if (!panel) continue;
+    const items = groups[cat] || [];
+    if (items.length === 0) continue; // leave the bundled questions for empty categories
+    panel.innerHTML = items.map((f) => faqItemMarkup(f.question, f.answer)).join('');
+  }
+}
+
+/* Inject a FAQPage JSON-LD block built from whatever questions are on the page
+   (CMS or bundled), so the structured data always matches the visible content. */
+function injectFaqSchema() {
+  const items = [...document.querySelectorAll('.ipage-faq')]
+    .map((item) => {
+      const q = item.querySelector('.ipage-faq__q-text')?.textContent?.trim();
+      const a = item.querySelector('.ipage-faq__a-inner')?.textContent?.replace(/\s+/g, ' ').trim();
+      if (!q || !a) return null;
+      return {
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: { '@type': 'Answer', text: a },
+      };
+    })
+    .filter(Boolean);
+
+  if (items.length === 0) return;
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items,
+  };
+
+  const script = document.createElement('script');
+  script.type = 'application/ld+json';
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
+}
+
 
 /* ═══════════════════════════════════════════════════════
    ANIMATIONS
@@ -135,10 +210,12 @@ function initScrollReveals() {
    ═══════════════════════════════════════════════════════ */
 
 async function init() {
+  await initPreloader();       // hide preloader first — never gate it on the FAQ API
+  initNav(lenis);
+  try { await renderFaqsFromCms(); } catch (e) { console.error('faqs CMS', e); } // swap in dashboard-managed FAQs before binding
   initFaqTabs();
   initFaqAccordion();
-  await initPreloader();
-  initNav(lenis);
+  injectFaqSchema();           // structured data matches whatever rendered
   initHeroEntrance();
   initScrollReveals();
   ScrollTrigger.refresh();

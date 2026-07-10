@@ -79,11 +79,12 @@ export function downloadPDF(datasets: DatasetSheet[], filename: string, title: s
   doc.setFont("helvetica", "normal");
   doc.text(title, 14, 22);
 
-  // Timestamp
+  // Timestamp — always Indian time, wherever the export is generated
   const now = new Date();
   const stamp = now.toLocaleString("en-IN", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "Asia/Kolkata",
   });
   doc.setFontSize(9);
   doc.setTextColor(160, 160, 160);
@@ -164,7 +165,29 @@ export function downloadPDF(datasets: DatasetSheet[], filename: string, title: s
 // These transform your raw mockData objects into DatasetSheet format
 // -------------------------------------------------------
 
-import type { Booking, Lead, Client, TeamMember, Invoice, Package } from "@/data/mockData";
+import type { Booking, Lead, Client, TeamMember, Invoice, Package, Transaction } from "@/data/mockData";
+
+export function flattenInvoices(invoices: Invoice[]): DatasetSheet {
+  return {
+    sheetName: "Invoices",
+    columns: ["Invoice #", "Client", "Booking Ref", "Issue Date", "Due Date", "Amount (₹)", "Paid (₹)", "Balance Due (₹)", "Status"],
+    rows: invoices.map((i) => [
+      i.id, i.clientName, i.bookingId,
+      (i.issueDate || "").split("T")[0], (i.dueDate || "").split("T")[0],
+      i.amount, i.amountPaid, i.amount - i.amountPaid, i.status,
+    ]),
+  };
+}
+
+export function flattenTransactions(transactions: Transaction[]): DatasetSheet {
+  return {
+    sheetName: "Transactions",
+    columns: ["Ref", "Date", "Client", "Booking Ref", "Method", "Amount (₹)", "Notes"],
+    rows: transactions.map((t) => [
+      t.id, (t.date || "").split("T")[0], t.clientName, t.bookingId, t.method, t.amount, t.notes || "",
+    ]),
+  };
+}
 
 export function flattenBookings(bookings: Booking[]): DatasetSheet {
   return {
@@ -193,6 +216,20 @@ export function flattenBookings(bookings: Booking[]): DatasetSheet {
 }
 
 export function flattenLeads(leads: Lead[]): DatasetSheet {
+  // The live API returns snake_case lead rows while the demo data is
+  // camelCase — read both so the export is never blank.
+  const rows = (leads as unknown as Record<string, unknown>[]).map((l) => [
+    String(l.lead_ref ?? l.id ?? ""),
+    String(l.client_name ?? l.clientName ?? ""),
+    String(l.phone ?? ""),
+    String(l.email ?? ""),
+    String(l.event_type ?? l.eventType ?? ""),
+    String(l.event_date ?? l.eventDate ?? ""),
+    String(l.budget_range ?? l.budgetRange ?? ""),
+    String(l.source ?? ""),
+    String(l.stage ?? ""),
+    String(l.last_activity ?? l.lastActivity ?? ""),
+  ]);
   return {
     sheetName: "Leads",
     columns: [
@@ -200,18 +237,7 @@ export function flattenLeads(leads: Lead[]): DatasetSheet {
       "Event Date", "Budget Range", "Source", "Stage",
       "Last Activity",
     ],
-    rows: leads.map((l) => [
-      l.id,
-      l.clientName,
-      l.phone,
-      l.email,
-      l.eventType,
-      l.eventDate,
-      l.budgetRange,
-      l.source,
-      l.stage,
-      l.lastActivity,
-    ]),
+    rows,
   };
 }
 
@@ -223,19 +249,21 @@ export function flattenClients(clients: Client[]): DatasetSheet {
       "City", "Type", "Total Bookings", "Total Spend (₹)",
       "Last Shoot", "Rating", "Tags",
     ],
+    // Read defensively — the Clients page passes a trimmed row shape that may
+    // omit lastShootDate / rating, and blank should print as "" not "undefined".
     rows: clients.map((c) => [
-      c.id,
-      c.name,
-      c.phone,
-      c.email,
-      c.whatsapp,
-      c.city,
-      c.type,
-      c.totalBookings,
-      c.totalSpend,
-      c.lastShootDate,
-      c.rating,
-      c.tags.join(", "),
+      c.id ?? "",
+      c.name ?? "",
+      c.phone ?? "",
+      c.email ?? "",
+      c.whatsapp ?? "",
+      c.city ?? "",
+      c.type ?? "",
+      c.totalBookings ?? 0,
+      c.totalSpend ?? 0,
+      (c.lastShootDate ?? "") as string,
+      (c.rating ?? "") as number | string,
+      Array.isArray(c.tags) ? c.tags.join(", ") : "",
     ]),
   };
 }

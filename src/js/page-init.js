@@ -33,7 +33,15 @@ const lenis = new Lenis({
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   orientation: 'vertical',
   smoothWheel: true,
-  touchMultiplier: 2,
+  // syncTouch drives TOUCH scrolling through the same rAF loop as the wheel, so
+  // the scroll-scrubbed hero is as buttery on phones as it already is on
+  // desktop. Without it, touch falls back to native momentum events that the
+  // pinned scrub can't follow → the choppiness. Lerp keeps it silky but
+  // responsive; inertia gives a natural flick.
+  syncTouch: true,
+  syncTouchLerp: 0.085,
+  touchInertiaMultiplier: 18,
+  touchMultiplier: 1.5,
 });
 
 window.__lenis = lenis;

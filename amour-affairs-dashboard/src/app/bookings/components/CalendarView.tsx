@@ -14,6 +14,7 @@ import {
 } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Booking } from '@/data/mockData';
+import { istDayKey, formatISTTime } from '@/lib/datetime';
 import { Button } from '@/components/ui/button';
 
 interface CalendarViewProps {
@@ -39,7 +40,9 @@ export function CalendarView({ bookings, onBookingClick }: CalendarViewProps) {
   const bookingsByDate = React.useMemo(() => {
     const map = new Map<string, Booking[]>();
     bookings.forEach(b => {
-      const dateKey = format(new Date(b.date), 'yyyy-MM-dd');
+      // Group by the IST calendar day so shoots land on the Indian date.
+      const dateKey = istDayKey(b.date);
+      if (!dateKey) return;
       if (!map.has(dateKey)) map.set(dateKey, []);
       map.get(dateKey)!.push(b);
     });
@@ -124,7 +127,7 @@ export function CalendarView({ bookings, onBookingClick }: CalendarViewProps) {
                       className={`truncate text-[10px] font-bold px-1.5 py-1 rounded cursor-pointer border hover:opacity-80 transition-opacity ${getTypeClasses(b.eventType)}`}
                       title={b.clientName}
                     >
-                      {format(new Date(b.date), 'HH:mm')} {b.clientName}
+                      {formatISTTime(b.date, { hour12: false })} {b.clientName}
                     </div>
                   ))}
                   {dayBookings.length > 3 && (
