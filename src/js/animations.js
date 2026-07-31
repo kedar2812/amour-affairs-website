@@ -357,8 +357,33 @@ export function initCTABanner() {
 }
 
 /* ── Initialize All Animations ── */
+/* ── About intro — gold rule draws in, paragraphs follow the headline ── */
+export function initAboutIntro() {
+  const copy = document.querySelector('.about__copy');
+  if (!copy) return;
+
+  const rule = copy.querySelector('.about__rule');
+  const paras = copy.querySelectorAll('.about__text');
+  if (rule) gsap.set(rule, { scaleX: 0 });
+  gsap.set(paras, { y: 24, opacity: 0 });
+
+  ScrollTrigger.create({
+    trigger: copy,
+    start: 'top 85%',
+    once: true,
+    onEnter: () => {
+      const tl = gsap.timeline({ delay: 0.35 }); // lets the headline lead
+      if (rule) tl.to(rule, { scaleX: 1, duration: 0.9, ease: 'power3.out' });
+      tl.to(paras, {
+        y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.12,
+      }, '-=0.6');
+    },
+  });
+}
+
 export function initAllAnimations() {
   initTextReveals();
+  initAboutIntro();
   initFadeReveals();
   initSlideReveals();
   initParallax();

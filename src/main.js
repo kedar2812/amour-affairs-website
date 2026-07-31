@@ -31,7 +31,6 @@ import { initHero } from './js/hero.js';
 import { initHeroCanvas } from './js/hero-canvas.js';
 import { initPreloader, initAllAnimations, initCounters } from './js/animations.js';
 import { initInstagramFeed } from './js/gallery.js';
-import { initGlobe } from './js/globe.js';
 import { initFooterTyping } from './js/footer-typing.js';
 import { initTestimonials } from './js/testimonials.js';
 import { initLeadForm } from './js/lead-form.js';
@@ -136,7 +135,25 @@ loadSiteContent()
   })
   .catch(() => {});
 
-// ── Globe — initialise independently after layout settles ──
-window.addEventListener('load', () => {
-  setTimeout(() => initGlobe(), 200);
-});
+// ── About globe — lazy, and only once it is near the viewport ──
+// Code-split so the renderer never lands in the initial bundle, and mounted
+// only when the section approaches: the headline must paint (and be the LCP
+// element) long before any canvas work starts.
+(() => {
+  const canvas = document.getElementById('aboutGlobe');
+  if (!canvas) return;
+
+  const mount = () => {
+    import('./js/globe.js')
+      .then(({ initGlobe }) => initGlobe())
+      .catch(() => {}); // section reads fine without it
+  };
+
+  const io = new IntersectionObserver((entries) => {
+    if (!entries[0].isIntersecting) return;
+    io.disconnect();
+    mount();
+  }, { rootMargin: '400px 0px' });
+
+  window.addEventListener('load', () => io.observe(canvas));
+})();
