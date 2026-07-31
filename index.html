@@ -274,17 +274,29 @@
   </section>
 
   <!-- ═══════════════ ABOUT / INTRO (5.3) ═══════════════ -->
+  <!-- Two-column: copy left, revolving dot-matrix globe right. The globe is
+       decorative only — the section reads completely without it (canvas is
+       aria-hidden, and its box is reserved via aspect-ratio so nothing shifts
+       when the renderer mounts). The gold full stop after the headline is a
+       ::after on the last revealed word, so it animates in with the line. -->
   <section class="section section--alt about" id="about">
-    <!-- Champagne globe background -->
-    <canvas id="aboutGlobe" class="about__globe" aria-hidden="true"></canvas>
     <div class="container">
       <div class="about__inner">
-        <div class="about__header">
-          <h2 class="about__headline text-reveal">Wedding Photographer, Filmmakers & Storytellers.</h2>
+
+        <div class="about__copy">
+          <h2 class="about__headline text-reveal">Wedding Photographer, Filmmakers &amp; Storytellers</h2>
+          <div class="about__rule" aria-hidden="true"></div>
+          <div class="about__body">
+            <p class="about__text">At Amour Affairs, we're all about love. True to our name, we love blushing brides and dashing grooms. We love weddings and crying at weddings. We love couples in love and alluring emotions that truly capture the essence of your relationship.</p>
+            <p class="about__text">For 15+ years, founder Taher Husain and the best candid photography team in Pune have been trusted by couples across Maharashtra to keep memories that stand the test of time.</p>
+            <p class="about__text">We invite you to explore our world of creative and candid wedding photography &amp; videography and how we immortalize every special moment.</p>
+          </div>
         </div>
-        <div class="about__body slide-right">
-          <p class="about__text">At Amour Affairs, we're all about love. True to our name, we love blushing brides and dashing grooms. We love weddings and crying at weddings. We love couples in love and alluring emotions that truly capture the essence of your relationship. For 13+ years, founder Taher Husain and the best candid photography team in Pune have been trusted by couples across Maharashtra to keep memories that stand the test of time. We invite you to explore our world of creative and candid wedding photography & videography and how we immortalize every special moment.</p>
+
+        <div class="about__visual">
+          <canvas id="aboutGlobe" class="about__globe" aria-hidden="true"></canvas>
         </div>
+
       </div>
     </div>
   </section>

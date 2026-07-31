@@ -1,9 +1,12 @@
 /* ============================================================
    ABOUT.CSS — Intro/About Strip Section
    Amour Affairs · Premium Wedding Photography
+
+   Layout: copy left, revolving dot-matrix globe right (globe.js).
+   Colours and type come entirely from the existing tokens in
+   variables.css — this section introduces no new palette.
    ============================================================ */
 
-/* ── Globe canvas background ── */
 .about {
   background: var(--color-bg-alt);
   position: relative;
@@ -11,46 +14,103 @@
   padding-bottom: clamp(40px, 6vw, 80px);
 }
 
-.about__globe {
+/* Soft light streaks behind the globe — pure CSS, no WebGL.
+   Two heavily-blurred diagonal gold gradients that drift very slowly. */
+.about::before,
+.about::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
   pointer-events: none;
   z-index: 0;
+  background: linear-gradient(
+    104deg,
+    rgba(201, 169, 124, 0) 0%,
+    rgba(201, 169, 124, 0.26) 45%,
+    rgba(201, 169, 124, 0) 100%
+  );
+  filter: blur(38px);
+  opacity: 0.55;
 }
 
-/* Ensure content sits above the globe */
+.about::before {
+  top: -12%;
+  right: -6%;
+  width: 62%;
+  height: 70%;
+  transform: rotate(-14deg);
+  animation: about-streak-a 26s ease-in-out infinite alternate;
+}
+
+.about::after {
+  bottom: -18%;
+  right: 4%;
+  width: 54%;
+  height: 56%;
+  transform: rotate(9deg);
+  animation: about-streak-b 34s ease-in-out infinite alternate;
+}
+
+@keyframes about-streak-a {
+  from { transform: rotate(-14deg) translate3d(0, 0, 0); }
+  to   { transform: rotate(-11deg) translate3d(-3%, 4%, 0); }
+}
+
+@keyframes about-streak-b {
+  from { transform: rotate(9deg) translate3d(0, 0, 0); }
+  to   { transform: rotate(6deg) translate3d(4%, -3%, 0); }
+}
+
+/* Content sits above the streaks */
 .about .container {
   position: relative;
   z-index: 1;
 }
 
+/* ── Two-column shell ── */
 .about__inner {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
   align-items: center;
+  gap: clamp(32px, 5vw, 72px);
 }
 
-/* ── Headline — centred hero-style heading ── */
-.about__header {
-  width: 100%;
-  text-align: center;
+.about__copy {
+  min-width: 0;
 }
 
+/* ── Headline ── */
 .about__headline {
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 4.7vw, 4.7rem);
+  font-size: clamp(2.25rem, 4vw, 4rem);
   font-weight: 400;
   font-style: normal;
-  line-height: 1.15;
+  /* Roomier leading so ascenders/descenders clear the per-word clip box */
+  line-height: 1.3;
+  text-transform: uppercase;
   color: #3D2010;
 }
 
+/* The clip box is the word span itself, so it needs vertical slack the
+   line-height alone doesn't give — pad it out, then pull the extra back
+   with a negative margin so line spacing stays as designed. */
 .about__headline .word {
   display: inline-block;
   overflow: hidden;
   margin-right: 0.3em;
+  vertical-align: bottom;
+  padding: 0.12em 0 0.16em;
+  margin-bottom: -0.16em;
+}
+
+.about__headline .word:last-child {
+  margin-right: 0;
+}
+
+/* Gold full stop — lives on the last revealed word so it animates in with
+   the line rather than sitting there while the words are still hidden. */
+.about__headline .word:last-child .word-inner::after {
+  content: '.';
+  color: var(--color-accent);
 }
 
 .about__headline .word-inner {
@@ -59,12 +119,18 @@
   opacity: 0;
 }
 
-/* ── Body text — sits below the heading ── */
+/* ── Short gold rule under the headline ── */
+.about__rule {
+  width: 60px;
+  height: 1px;
+  background: var(--color-accent);
+  margin: clamp(20px, 2.4vw, 32px) 0 clamp(22px, 2.6vw, 34px);
+  transform-origin: left center;
+}
+
+/* ── Body text ── */
 .about__body {
-  width: 100%;
-  max-width: 800px;
-  text-align: center;
-  margin-top: clamp(20px, 3vw, 36px);
+  max-width: 34em; /* ~55–65 characters */
 }
 
 .about__text {
@@ -73,6 +139,40 @@
   font-weight: 400;
   line-height: 1.7;
   color: var(--color-text-dim);
+}
+
+.about__text + .about__text {
+  margin-top: 1.15em;
+}
+
+/* ── Globe column ──
+   The canvas box is reserved with aspect-ratio so the renderer mounting
+   can never shift the layout. It bleeds toward the right gutter so the
+   globe reads as an object in space, not a picture in a box. */
+.about__visual {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  margin-right: calc(var(--container-gutter) * -0.65);
+}
+
+.about__globe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  /* globe.js adds .is-ready once the point cloud is built */
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.about__globe.is-ready {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* ── Divider ── */
@@ -96,6 +196,19 @@
 .about__stat {
   text-align: center;
   padding: var(--gap-md) 0;
+  position: relative;
+}
+
+/* Hairline between figures, matching the divider weight above */
+.about__stat + .about__stat::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--gap-md) / -2);
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: var(--color-accent);
+  opacity: 0.2;
 }
 
 .about__stat-number {
@@ -116,23 +229,71 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .about__headline {
-    font-size: clamp(1.7rem, 5.6vw, 2.8rem);
+
+/* Tablet landscape — same two columns, everything a step down */
+@media (max-width: 1279px) {
+  .about__inner {
+    grid-template-columns: minmax(0, 48fr) minmax(0, 52fr);
+    gap: clamp(24px, 3.5vw, 48px);
+  }
+
+  .about__visual {
+    margin-right: calc(var(--container-gutter) * -0.4);
+  }
+}
+
+/* Tablet portrait and below — single column, globe under the copy.
+   Stacking rather than overlaying keeps the promise that the copy always
+   sits on clean ivory: at these widths a globe behind the text would cost
+   body-copy contrast for no design gain. */
+@media (max-width: 1023px) {
+  .about__inner {
+    display: flex;
+    flex-direction: column;
   }
 
   .about__body {
-    max-width: 100%;
+    max-width: 40em;
+  }
+
+  .about__visual {
+    order: 2;
+    width: min(100%, 520px);
+    margin: clamp(28px, 5vw, 56px) auto 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .about__headline {
+    /* Trimmed min (was 1.7rem) — capitals run wider, so this keeps the
+       headline to fewer lines on small phones. */
+    font-size: clamp(1.5rem, 5.6vw, 2.8rem);
   }
 
   .about__text {
     font-size: 1rem;
     line-height: 1.65;
-    text-align: left;
   }
 
   .about__stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Only the horizontal hairlines survive the 2-up grid */
+  .about__stat:nth-child(odd) + .about__stat::before {
+    display: block;
+  }
+
+  .about__stat:nth-child(even) + .about__stat::before {
+    display: none;
+  }
+}
+
+/* Phone — smaller globe, so it can never push the headline out of view */
+@media (max-width: 767px) {
+  .about__visual {
+    width: min(100%, 380px);
+    margin-top: clamp(24px, 6vw, 40px);
   }
 }
 
@@ -143,5 +304,13 @@
 
   .about__stat-number {
     font-size: clamp(1.88rem, 7.5vw, 2.8rem);
+  }
+}
+
+/* ── Reduced motion — kill the drifting streaks ── */
+@media (prefers-reduced-motion: reduce) {
+  .about::before,
+  .about::after {
+    animation: none;
   }
 }
