@@ -49,11 +49,14 @@ const LIGHT = (() => {
   return [v[0] / m, v[1] / m, v[2] / m];
 })();
 
+/* How far each ring's azimuth swings either side of its base angle */
+const RING_SWAY = 0.45;
+
 /* Orbit rings: radius scale, ellipse squash, inclination, azimuth, speed */
 const RINGS = [
   { r: 1.34, squash: 0.58, inc: -0.28, azi: 0.55, speed:  0.00042, w: 1.6, a: 0.95 },
   { r: 1.18, squash: 0.44, inc:  0.62, azi: -0.3, speed: -0.00031, w: 1.2, a: 0.80 },
-  { r: 1.55, squash: 0.36, inc:  0.18, azi: 1.15, speed:  0.00024, w: 1.4, a: 0.70 },
+  { r: 1.55, squash: 0.40, inc:  0.18, azi: 0.85, speed:  0.00024, w: 1.4, a: 0.70 },
   { r: 1.10, squash: 0.66, inc: -0.75, azi: 0.15, speed: -0.00018, w: 1.0, a: 0.62 },
 ];
 
@@ -136,7 +139,9 @@ export function initGlobe() {
   if (!ctx) return;
 
   const staticMode = isStaticMode();
-  const CANDIDATES = staticMode ? 9000 : 20000;
+  // ~1/3 of candidates survive the land mask. The static frame can afford a
+  // denser field since it is drawn exactly once.
+  const CANDIDATES = staticMode ? 26000 : 21000;
 
   let W = 0, H = 0, R = 0, cx = 0, cy = 0, dpr = 1;
   let points = null;          // Float32Array of land unit vectors
@@ -166,6 +171,7 @@ export function initGlobe() {
     cy = H / 2;
     // Leaves room for the widest orbit ring (1.55R) to stay inside the box
     R = Math.min(W, H) * 0.305;
+    glowLayer = null; // rebuilt lazily at the new size
     return true;
   }
 
@@ -191,33 +197,49 @@ export function initGlobe() {
     return [x2, y3, z3];
   }
 
-  /* ── Soft radial glow behind the sphere ── */
-  function drawGlow() {
+  /* ── Soft radial glow behind the sphere ──
+     Two full-canvas gradient fills a frame dominated the frame cost and
+     neither depends on the rotation, so they are baked once per resize
+     and blitted. */
+  let glowLayer = null;
+
+  function buildGlow() {
+    glowLayer = document.createElement('canvas');
+    glowLayer.width = Math.round(W * dpr);
+    glowLayer.height = Math.round(H * dpr);
+    const g2 = glowLayer.getContext('2d');
+    g2.setTransform(dpr, 0, 0, dpr, 0, 0);
+
     // Broad bloom
-    const g = ctx.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.7);
+    const g = g2.createRadialGradient(cx, cy, R * 0.2, cx, cy, R * 1.7);
     g.addColorStop(0, `rgba(${GOLD_LIGHT.join(',')},0.26)`);
     g.addColorStop(0.45, `rgba(${GOLD_LIGHT.join(',')},0.11)`);
     g.addColorStop(1, `rgba(${GOLD_LIGHT.join(',')},0)`);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 1.7, 0, TAU);
-    ctx.fill();
+    g2.fillStyle = g;
+    g2.beginPath();
+    g2.arc(cx, cy, R * 1.7, 0, TAU);
+    g2.fill();
 
     // Offset highlight on the lit side — gives the sphere a light source
     const lx = cx + LIGHT[0] * R * 0.55;
     const ly = cy - LIGHT[1] * R * 0.55;
-    const hl = ctx.createRadialGradient(lx, ly, 0, lx, ly, R * 1.05);
+    const hl = g2.createRadialGradient(lx, ly, 0, lx, ly, R * 1.05);
     hl.addColorStop(0, `rgba(${GOLD_LIGHT.join(',')},0.22)`);
     hl.addColorStop(1, `rgba(${GOLD_LIGHT.join(',')},0)`);
-    ctx.fillStyle = hl;
-    ctx.beginPath();
-    ctx.arc(lx, ly, R * 1.05, 0, TAU);
-    ctx.fill();
+    g2.fillStyle = hl;
+    g2.beginPath();
+    g2.arc(lx, ly, R * 1.05, 0, TAU);
+    g2.fill();
+  }
+
+  function drawGlow() {
+    if (!glowLayer) buildGlow();
+    ctx.drawImage(glowLayer, 0, 0, W, H);
   }
 
   /* ── Faint lat/long wireframe — holds the silhouette ── */
   function drawWireframe(sinS, cosS) {
-    const LAT = 11, LON = 16, SEG = 72;
+    const LAT = 9, LON = 13, SEG = 52;
 
     const stroke = (pts, alpha, lw) => {
       ctx.beginPath();
@@ -288,15 +310,22 @@ export function initGlobe() {
     const paths = [];
     for (let b = 0; b < BUCKETS; b++) paths.push([]);
 
-    const baseR = Math.max(0.7, R * 0.0094);
+    const baseR = Math.max(0.7, R * 0.0104);
 
     for (let i = 0; i < n; i++) {
       const [x, y, z] = rotate(points[i * 3], points[i * 3 + 1], points[i * 3 + 2], sinS, cosS);
 
       // Lambert-ish term against the light, then a hard falloff for the far side
       const lambert = x * LIGHT[0] + y * LIGHT[1] + z * LIGHT[2];
-      let lum = 0.22 + 0.86 * Math.max(0, lambert);
-      if (z < 0) lum *= 0.13 + 0.15 * (1 + z); // behind the sphere: barely there
+      // Generous ambient floor, modest directional term: with a strongly
+      // directional light the globe's density tracks whichever hemisphere
+      // happens to face the light, and the object pulses over a revolution.
+      let lum = 0.46 + 0.54 * Math.max(0, lambert);
+      // Behind the sphere: dim, but not absent — with a continuous
+      // revolution, a Pacific-facing frame has very little land up front,
+      // and killing the far side entirely makes the globe wash out for a
+      // third of every turn.
+      if (z < 0) lum *= 0.34 + 0.22 * (1 + z);
       lum *= sizeJitter[i * 2 + 1];
       if (lum < 0.04) continue;
 
@@ -317,8 +346,15 @@ export function initGlobe() {
       ctx.beginPath();
       for (let i = 0; i < arr.length; i += 3) {
         const px = arr[i], py = arr[i + 1], pr = arr[i + 2];
-        ctx.moveTo(px + pr, py);
-        ctx.arc(px, py, pr, 0, TAU);
+        // Below ~1.3px a circle and a square are indistinguishable on screen,
+        // and rects are markedly cheaper to path — which matters at ~10k dots
+        if (pr < 0.65) {
+          const d = pr * 2;
+          ctx.rect(px - pr, py - pr, d, d);
+        } else {
+          ctx.moveTo(px + pr, py);
+          ctx.arc(px, py, pr, 0, TAU);
+        }
       }
       ctx.fill();
     }
@@ -330,10 +366,14 @@ export function initGlobe() {
      soft pass and a narrow bright one, which reads like a lit tube. */
   function ringPoints(ring, phase) {
     const pts = [];
-    const SEG = 190;
+    const SEG = 130;
+    // The azimuth sways within a bounded arc instead of revolving fully: a
+    // free revolution takes every ring edge-on twice a cycle, where it
+    // collapses to a line and the composition loses its orbits.
+    const ang = ring.azi + Math.sin(phase * ring.speed) * RING_SWAY;
     const ci = Math.cos(ring.inc), si = Math.sin(ring.inc);
-    const ca = Math.cos(ring.azi + phase * ring.speed);
-    const sa = Math.sin(ring.azi + phase * ring.speed);
+    const ca = Math.cos(ang);
+    const sa = Math.sin(ang);
 
     for (let i = 0; i <= SEG; i++) {
       const t = (i / SEG) * TAU;
