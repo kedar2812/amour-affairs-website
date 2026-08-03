@@ -595,11 +595,16 @@
 @media (min-width: 769px) and (max-height: 720px) {
   .hero__eyebrow { margin-bottom: 14px; }
 
-  .hero__headline { font-size: clamp(2.1rem, 4.5vw, 3.5rem); }
+  /* The headline is the hero — tighten the rhythm around it, not the type
+     itself. A flat cap here shrank it ~24% on an ordinary 1366x768 laptop
+     (measured: 56px where the desktop scale gives 76px) for space the hero
+     did not actually need. Keep the desktop scale and merely add a height
+     ceiling, so only genuinely tiny viewports pay anything. */
+  .hero__headline { font-size: clamp(2.45rem, min(5.6vw, 13vh), 6.1rem); }
 
   .hero__desc {
     margin-top: 14px;
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     line-height: 1.55;
   }
 
