@@ -186,6 +186,54 @@ switch ($action) {
         break;
 
 
+    // ─────────────────────────────────────
+    // CHANGE PASSWORD  (authenticated user changes their own password)
+    // ─────────────────────────────────────
+    case 'change-password':
+        if (getMethod() !== 'POST') sendError('Method not allowed', 405);
+
+        $payload = requireAuth();
+
+        // Throttle guessing of the current password even for a logged-in session.
+        checkRateLimit('change_password_' . $payload['sub'], 10, 900);
+
+        $body = getJSONBody();
+        $current = (string)($body['current_password'] ?? '');
+        $new     = (string)($body['new_password'] ?? '');
+
+        if ($current === '' || $new === '') {
+            sendError('Current and new password are required', 400);
+        }
+        if (strlen($new) < 8) {
+            sendError('New password must be at least 8 characters', 400);
+        }
+        if (strlen($new) > 200) {
+            sendError('New password is too long', 400);
+        }
+
+        $db = getDB();
+        $stmt = $db->prepare('SELECT id, password_hash FROM admin_users WHERE id = ?');
+        $stmt->execute([$payload['sub']]);
+        $user = $stmt->fetch();
+        if (!$user) sendError('User not found', 404);
+
+        if (!password_verify($current, $user['password_hash'])) {
+            auditLog('password_change_failed', 'admin_users', $user['id']);
+            sendError('Current password is incorrect', 401);
+        }
+        if (password_verify($new, $user['password_hash'])) {
+            sendError('New password must be different from your current one', 400);
+        }
+
+        $hash = password_hash($new, PASSWORD_BCRYPT, ['cost' => 12]);
+        $stmt = $db->prepare('UPDATE admin_users SET password_hash = ? WHERE id = ?');
+        $stmt->execute([$hash, $user['id']]);
+
+        auditLog('password_changed', 'admin_users', $user['id']);
+        sendJSON(['message' => 'Password updated successfully']);
+        break;
+
+
     default:
-        sendError('Invalid action. Use: login, refresh, logout, me', 400);
+        sendError('Invalid action. Use: login, refresh, logout, me, change-password', 400);
 }

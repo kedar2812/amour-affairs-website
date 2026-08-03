@@ -132,6 +132,64 @@ body {
 
 
 /* ══════════════════════════════════════════════════
+   "BLACK & GOLDEN" STATEMENT HEADINGS
+   Convention: a display statement split into a dark
+   main part + a golden <em>. Across every page these
+   read as ALL CAPS with only the golden fragment
+   italic. The golden <em> already carries
+   font-style: italic + accent colour in each page's
+   own stylesheet; here we uniformly capitalise the
+   whole statement so the treatment is consistent
+   site-wide. Colours & fonts are left untouched.
+   (Hero titles also set this inline alongside their
+   own font-size; listed here too as the canonical
+   reference for the convention.)
+   ══════════════════════════════════════════════════ */
+.wpage-hero__title,
+.cpage-hero__title,
+.fpage-hero__title,
+.tpage-hero__title,
+.ipage-hero__title,
+.ppage-hero__title,
+.about-hero__title,
+.contact-hero__title,
+.cp-hero__title,
+.hero__headline,
+.testimonials__title,
+.press__headline,
+.process__title,
+.inquiry__title,
+.footer__tagline,
+.team-section__title,
+.wpage-archive__heading,
+.wpage-types__heading,
+.wpage-testi__heading,
+.wpage-card__title,
+.wpage-album__title,
+.cpage-archive__heading,
+.cpage-session__heading,
+.cpage-card__title,
+.cpage-album__title,
+.ppage-archive__heading,
+.ppage-craft__heading,
+.ppage-cta__heading,
+.ppage-card__title,
+.ppage-album__title,
+.fpage-gallery__heading,
+.fpage-cta__heading,
+.ipage-split__heading,
+.ipage-cta__heading,
+.lm-heading,
+.contact-aside__heading,
+.contact-formwrap__title,
+.page-hero__headline,
+.sp-heading,
+.sp-cta-strip__title {
+  text-transform: uppercase;
+}
+
+
+/* ══════════════════════════════════════════════════
    PREMIUM FLOATING WHATSAPP BUTTON
    ══════════════════════════════════════════════════ */
 .floating-whatsapp {

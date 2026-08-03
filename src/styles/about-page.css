@@ -166,8 +166,9 @@
 
 .about-hero__title {
   font-family: var(--font-display);
-  font-size: clamp(2.6rem, 6.5vw, 6rem);
+  font-size: clamp(2.63rem, 6.1vw, 5.15rem);
   font-weight: 400;
+  text-transform: uppercase;
   letter-spacing: 0.02em;
   color: #3D2010;
   line-height: 1.1;

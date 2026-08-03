@@ -20,6 +20,8 @@ import { decodeEntities } from "@/lib/utils";
 interface PackageRow { label: string; value: string }
 interface SessionPackage { name: string; tagline: string; rows: PackageRow[] }
 
+interface WeddingType { title: string; text: string }
+
 interface StatItem { number: string; suffix: string; label: string }
 
 interface EnquiryCopy { label: string; title: string; text: string; button: string }
@@ -77,6 +79,30 @@ const DEFAULT_COUPLE_ENQ: EnquiryCopy = {
     "the two of you and we’ll get back within 24 hours with dates, locations and ideas.",
   button: "Send Inquiry",
 };
+
+const DEFAULT_WTYPES_EYEBROW = "How We Shoot";
+const DEFAULT_WTYPES_HEADING = "One Studio, *Every Kind of Wedding*";
+
+const DEFAULT_WTYPES: WeddingType[] = [
+  {
+    title: "Candid Wedding Photography",
+    text:
+      "Unposed and unhurried — our candid wedding photographers move quietly through your day, " +
+      "catching the glances, tears and laughter you didn’t know were being kept.",
+  },
+  {
+    title: "Traditional Wedding Photography",
+    text:
+      "The rituals, the family portraits, the moments your grandparents will ask for — traditional " +
+      "wedding photography done with care, so no one and nothing is missed.",
+  },
+  {
+    title: "Destination Weddings",
+    text:
+      "From Goa’s beaches to Udaipur’s palaces, we travel as your destination wedding photographer — " +
+      "one team, familiar faces, the same eye wherever you celebrate.",
+  },
+];
 
 const DEFAULT_PKG_EYEBROW = "What to Expect";
 const DEFAULT_PKG_HEADING = "Choose Your *Session*";
@@ -275,6 +301,9 @@ export default function WebsiteContentPage() {
   const [stats, setStats] = useState<StatItem[]>(DEFAULT_STATS);
   const [weddingsEnq, setWeddingsEnq] = useState<EnquiryCopy>(DEFAULT_WEDDINGS_ENQ);
   const [coupleEnq, setCoupleEnq] = useState<EnquiryCopy>(DEFAULT_COUPLE_ENQ);
+  const [wtypesEyebrow, setWtypesEyebrow] = useState(DEFAULT_WTYPES_EYEBROW);
+  const [wtypesHeading, setWtypesHeading] = useState(DEFAULT_WTYPES_HEADING);
+  const [wtypes, setWtypes] = useState<WeddingType[]>(DEFAULT_WTYPES);
   const [pkgEyebrow, setPkgEyebrow] = useState(DEFAULT_PKG_EYEBROW);
   const [pkgHeading, setPkgHeading] = useState(DEFAULT_PKG_HEADING);
   const [packages, setPackages] = useState<SessionPackage[]>(DEFAULT_PACKAGES);
@@ -323,6 +352,20 @@ export default function WebsiteContentPage() {
         text: s.site_couple_enq_text || DEFAULT_COUPLE_ENQ.text,
         button: s.site_couple_enq_button || DEFAULT_COUPLE_ENQ.button,
       });
+      setWtypesEyebrow(s.site_weddings_types_eyebrow || DEFAULT_WTYPES_EYEBROW);
+      setWtypesHeading(s.site_weddings_types_heading || DEFAULT_WTYPES_HEADING);
+      if (s.site_weddings_types_json) {
+        try {
+          const parsed = JSON.parse(s.site_weddings_types_json);
+          if (parsed && Array.isArray(parsed.types) && parsed.types.length > 0) {
+            setWtypes(parsed.types.map((t: Partial<WeddingType>) => ({
+              title: String(t.title ?? ""),
+              text: String(t.text ?? ""),
+            })));
+          }
+        } catch { /* keep defaults on malformed JSON */ }
+      }
+
       setPkgEyebrow(s.site_couple_pkg_eyebrow || DEFAULT_PKG_EYEBROW);
       setPkgHeading(s.site_couple_pkg_heading || DEFAULT_PKG_HEADING);
       if (s.site_couple_packages_json) {
@@ -368,6 +411,14 @@ export default function WebsiteContentPage() {
     setPackages(prev => prev.map((p, idx) => idx === i ? pkg : p));
   };
 
+  const updateWtype = (i: number, patch: Partial<WeddingType>) => {
+    setWtypes(prev => prev.map((t, idx) => idx === i ? { ...t, ...patch } : t));
+  };
+
+  const addWtype = () => setWtypes(prev => [...prev, { title: "", text: "" }]);
+
+  const removeWtype = (i: number) => setWtypes(prev => prev.filter((_, idx) => idx !== i));
+
   const updateRow = (pkgIdx: number, rowIdx: number, row: PackageRow) => {
     setPackages(prev => prev.map((p, i) =>
       i === pkgIdx ? { ...p, rows: p.rows.map((r, j) => j === rowIdx ? row : r) } : p
@@ -407,6 +458,15 @@ export default function WebsiteContentPage() {
         return;
       }
 
+      const cleanedWtypes = wtypes
+        .map(t => ({ title: t.title.trim(), text: t.text.trim() }))
+        .filter(t => t.title && t.text);
+
+      if (cleanedWtypes.length === 0) {
+        setError("Add at least one wedding photography style (a title and a description).");
+        return;
+      }
+
       const cleanedStats = stats.map((s) => ({
         number: s.number.trim(),
         suffix: s.suffix.trim(),
@@ -428,6 +488,9 @@ export default function WebsiteContentPage() {
         site_couple_enq_title: coupleEnq.title.trim(),
         site_couple_enq_text: coupleEnq.text.trim(),
         site_couple_enq_button: coupleEnq.button.trim(),
+        site_weddings_types_eyebrow: wtypesEyebrow.trim(),
+        site_weddings_types_heading: wtypesHeading.trim(),
+        site_weddings_types_json: JSON.stringify({ types: cleanedWtypes }),
         site_couple_pkg_eyebrow: pkgEyebrow.trim(),
         site_couple_pkg_heading: pkgHeading.trim(),
         site_couple_packages_json: JSON.stringify({ packages: cleanedPackages }),
@@ -520,6 +583,44 @@ export default function WebsiteContentPage() {
               </p>
             </div>
             <EnquiryEditor copy={weddingsEnq} onChange={setWeddingsEnq} />
+          </div>
+
+          {/* Weddings photography styles ("How We Shoot" cards) */}
+          <div className="dash-card p-6 md:p-8 space-y-6">
+            <div>
+              <h2 className="dash-card-title">Weddings — Photography Styles</h2>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                The cards in the &ldquo;How We Shoot&rdquo; section on the Weddings page — each with a
+                title and a short description. Add, edit, reorder-by-removing, or remove cards freely.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Field label="Section Eyebrow" value={wtypesEyebrow} onChange={setWtypesEyebrow} />
+              <Field label="Section Heading" value={wtypesHeading} onChange={setWtypesHeading}
+                hint="Wrap a word in *asterisks* for the italic accent, e.g. One Studio, *Every Kind of Wedding*" />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {wtypes.map((t, i) => (
+                <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Card {i + 1}</span>
+                    <button onClick={() => removeWtype(i)} title="Remove card"
+                      className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <Field label="Title" value={t.title} onChange={(v) => updateWtype(i, { title: v })} />
+                  <Field label="Description" value={t.text} onChange={(v) => updateWtype(i, { text: v })} textarea />
+                </div>
+              ))}
+            </div>
+
+            <button onClick={addWtype}
+              className="inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:opacity-80 transition-opacity">
+              <Plus className="h-3.5 w-3.5" /> Add Card
+            </button>
           </div>
 
           {/* Couple shoots enquiry */}

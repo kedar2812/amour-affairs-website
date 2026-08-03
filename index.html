@@ -226,8 +226,10 @@
 
       <!-- Eyebrow label — doubles as the page h1 (primary keyword), styled
            identically to the old span so the design is unchanged -->
+      <!-- The middot binds forward with an nbsp so a phone-width wrap never
+           leaves it dangling at the end of the first line. -->
       <h1 class="hero__eyebrow">
-        Best Wedding Photographer in Pune &middot; Weddings &amp; Films
+        Best Wedding Photographer in Pune &middot;&nbsp;Weddings &amp; Films
       </h1>
 
       <!-- Main headline (visual display text — h1 lives on the eyebrow) -->
@@ -256,11 +258,13 @@
 
       <!-- Social proof strip -->
       <div class="hero__proof">
-        <span class="hero__proof-stat">500<sup>+</sup> Weddings</span>
+        <!-- Figure and label are wrapped so phones can stack them into an even
+             three-up grid; inline on desktop, so the wide layout is unchanged. -->
+        <span class="hero__proof-stat"><span class="hero__proof-num">500<sup>+</sup></span> <span class="hero__proof-label">Weddings</span></span>
         <span class="hero__proof-sep" aria-hidden="true">|</span>
-        <span class="hero__proof-stat">15<sup>+</sup> Years</span>
+        <span class="hero__proof-stat"><span class="hero__proof-num">15<sup>+</sup></span> <span class="hero__proof-label">Years</span></span>
         <span class="hero__proof-sep" aria-hidden="true">|</span>
-        <span class="hero__proof-stat">1000<sup>+</sup> Happy Couples</span>
+        <span class="hero__proof-stat"><span class="hero__proof-num">1000<sup>+</sup></span> <span class="hero__proof-label">Happy Couples</span></span>
       </div>
 
     </div>

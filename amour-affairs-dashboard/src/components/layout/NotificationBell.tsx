@@ -4,9 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Globe, Camera, Phone, Users, Mail, Inbox, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { leadsAPI, getStoredToken } from "@/lib/api";
+import { leadsAPI, familiesAPI, getStoredToken } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
 import { istTime, formatISTDate } from "@/lib/datetime";
+import {
+  FamilyFestival, FamilyOccasion, FamiliesUpcomingResponse,
+  daysUntilLabel, occasionTitle,
+} from "@/lib/families";
 
 interface NotifLead {
   id: number;
@@ -62,6 +66,8 @@ export function NotificationBell() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [leads, setLeads] = useState<NotifLead[]>([]);
+  const [occasions, setOccasions] = useState<FamilyOccasion[]>([]);
+  const [festivals, setFestivals] = useState<FamilyFestival[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastSeen, setLastSeen] = useState(0);
   const [clearedBefore, setClearedBefore] = useState(0);
@@ -79,6 +85,14 @@ export function NotificationBell() {
       /* leave list as-is on transient errors */
     } finally {
       setLoading(false);
+    }
+    // CRM reminders: occasions due in the next 7 days ride along with leads
+    try {
+      const crm = (await familiesAPI.upcoming(7)) as FamiliesUpcomingResponse;
+      setOccasions((crm.occasions || []).filter((o) => !o.sent));
+      setFestivals(crm.festivals || []);
+    } catch {
+      /* CRM feed is best-effort — never block lead notifications */
     }
   }, []);
 
@@ -108,7 +122,11 @@ export function NotificationBell() {
 
   // Hide notifications the user has cleared; the underlying lead stays intact.
   const visibleLeads = leads.filter((l) => leadTime(l.created_at) > clearedBefore);
-  const unread = visibleLeads.filter((l) => leadTime(l.created_at) > lastSeen).length;
+  // Occasions due today (not yet wished) count toward the badge so a birthday
+  // is impossible to miss even without opening the panel.
+  const dueToday = occasions.filter((o) => o.days_until <= 0).length +
+    festivals.filter((f) => f.days_until <= 0).length;
+  const unread = visibleLeads.filter((l) => leadTime(l.created_at) > lastSeen).length + dueToday;
 
   const clearAll = () => {
     const now = Date.now();
@@ -133,6 +151,28 @@ export function NotificationBell() {
     setOpen(false);
     router.push("/leads");
   };
+
+  const goToCrm = () => {
+    setOpen(false);
+    router.push("/crm");
+  };
+
+  const occasionRows = [
+    ...occasions.map((o) => ({
+      key: o.occasion_key,
+      emoji: o.occasion === "anniversary" ? "💍" : o.kind === "child_birthday" ? "🎈" : "🎂",
+      title: `${decodeEntities(o.family.display_name)} — ${occasionTitle(o)}`,
+      when: daysUntilLabel(o.days_until),
+      days: o.days_until,
+    })),
+    ...festivals.map((f) => ({
+      key: `f-${f.id}`,
+      emoji: f.emoji || "✨",
+      title: `${decodeEntities(f.name)} — festival wishes`,
+      when: daysUntilLabel(f.days_until),
+      days: f.days_until,
+    })),
+  ].sort((a, b) => a.days - b.days).slice(0, 6);
 
   return (
     <div className="relative" ref={ref}>
@@ -173,11 +213,34 @@ export function NotificationBell() {
             </div>
 
             <div className="flex-1 overflow-y-auto">
+              {occasionRows.length > 0 && (
+                <div className="border-b border-border/50">
+                  <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Occasions</p>
+                  <ul>
+                    {occasionRows.map((row) => (
+                      <li key={row.key}>
+                        <button
+                          onClick={goToCrm}
+                          className={`w-full text-left px-4 py-2.5 flex gap-3 items-center hover:bg-muted/40 transition-colors ${row.days <= 0 ? "bg-primary/[0.05]" : ""}`}
+                        >
+                          <span className="h-8 w-8 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center text-[15px]">{row.emoji}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-[13px] font-semibold text-foreground truncate">{row.title}</span>
+                            <span className={`block text-[11px] mt-0.5 ${row.days <= 0 ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                              {row.when} · tap to send wishes
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {loading ? (
                 <div className="flex items-center justify-center py-10">
                   <Loader2 className="h-5 w-5 text-primary animate-spin" />
                 </div>
-              ) : visibleLeads.length === 0 ? (
+              ) : visibleLeads.length === 0 && occasionRows.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                   <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mb-3">
                     <Inbox className="h-6 w-6 text-muted-foreground" />

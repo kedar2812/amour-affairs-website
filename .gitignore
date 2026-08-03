@@ -15,6 +15,15 @@ hero section background video frames/
 services cover photos/
 2nd section photos/
 
+# One-time migration runners carry a hardcoded shared-secret token and are
+# deleted from the server the moment they've run. The schema they apply is
+# documented in api/migrations.sql, so keeping them out of a public repo
+# costs nothing. (api/_migrate_seo.php predates this rule and is already
+# tracked; removing it now would not scrub it from history anyway.)
+api/_migrate_crm.php
+api/_migrate_crm2.php
+api/_migrate_crm_emoji_fix.php
+
 # Local-only: server backups (contain real secrets) and hosting credentials.
 # Never commit these — config.secrets.php.live + handover_report.md hold live
 # JWT/DB/FTP secrets.

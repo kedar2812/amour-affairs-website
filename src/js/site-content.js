@@ -165,6 +165,34 @@ export const SITE_CONTENT_DEFAULTS = {
     'the two of you and we’ll get back within 24 hours with dates, locations and ideas.',
   site_couple_enq_button: 'Send Inquiry',
 
+  site_weddings_types_eyebrow: 'How We Shoot',
+  site_weddings_types_heading: 'One Studio, *Every Kind of Wedding*',
+  site_weddings_types_json: {
+    types: [
+      {
+        title: 'Candid Wedding Photography',
+        text:
+          'Unposed and unhurried — our candid wedding photographers move quietly ' +
+          'through your day, catching the glances, tears and laughter you didn’t ' +
+          'know were being kept.',
+      },
+      {
+        title: 'Traditional Wedding Photography',
+        text:
+          'The rituals, the family portraits, the moments your grandparents will ' +
+          'ask for — traditional wedding photography done with care, so no one and ' +
+          'nothing is missed.',
+      },
+      {
+        title: 'Destination Weddings',
+        text:
+          'From Goa’s beaches to Udaipur’s palaces, we travel as your destination ' +
+          'wedding photographer — one team, familiar faces, the same eye wherever ' +
+          'you celebrate.',
+      },
+    ],
+  },
+
   site_couple_pkg_eyebrow: 'What to Expect',
   site_couple_pkg_heading: 'Choose Your *Session*',
   site_couple_packages_json: {
@@ -301,4 +329,40 @@ export function renderSessionPackages(content = {}) {
   }
 
   mount.innerHTML = packages.map(packageCardHTML).join('');
+}
+
+/* ── Weddings "How We Shoot" style cards ── */
+
+const weddingTypeCardHTML = (type) => `
+  <div class="wpage-types__item">
+    <h3 class="wpage-types__title">${escapeHTML(type.title)}</h3>
+    <p class="wpage-types__text">${escapeHTML(type.text)}</p>
+  </div>`;
+
+export function renderWeddingTypes(content = {}) {
+  const mount = document.getElementById('weddingTypes');
+  if (!mount) return;
+
+  const data = content.site_weddings_types_json;
+  const types =
+    data && Array.isArray(data.types) && data.types.length > 0
+      ? data.types
+      : SITE_CONTENT_DEFAULTS.site_weddings_types_json.types;
+
+  const eyebrowEl = document.querySelector('[data-wtypes="eyebrow"]');
+  const headingEl = document.querySelector('[data-wtypes="heading"]');
+  if (eyebrowEl) {
+    eyebrowEl.textContent =
+      content.site_weddings_types_eyebrow || SITE_CONTENT_DEFAULTS.site_weddings_types_eyebrow;
+  }
+  if (headingEl) {
+    headingEl.innerHTML = emphasize(
+      content.site_weddings_types_heading || SITE_CONTENT_DEFAULTS.site_weddings_types_heading
+    );
+  }
+
+  mount.innerHTML = types
+    .filter((type) => type && type.title)
+    .map(weddingTypeCardHTML)
+    .join('');
 }

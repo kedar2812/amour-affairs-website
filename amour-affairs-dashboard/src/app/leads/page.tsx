@@ -1,30 +1,25 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Search, Plus, Phone, Mail, Camera, Globe, Users, Loader2, X, Trash2, MessageSquare } from 'lucide-react';
+import { Search, Plus, Phone, Mail, Camera, Globe, Users, Loader2, X, Trash2, MessageSquare, Pencil, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { leadsAPI, getStoredToken } from '@/lib/api';
-import { decodeEntities, isValidIndianPhone, isValidEmail } from '@/lib/utils';
+import { leadsAPI, crmAPI, getStoredToken } from '@/lib/api';
+import { decodeEntities, isValidEmail } from '@/lib/utils';
+import { isValidStoredPhone, formatPhone } from '@/lib/phone';
 import { parseIST, istTime, formatISTDate, formatISTDateTime, nowISTStamp } from '@/lib/datetime';
 import { leads as mockLeads } from '@/data/mockData';
 import { Drawer } from '@/components/ui/Drawer';
+import { LeadForm, LeadFormState, EMPTY_LEAD_FORM } from '@/components/leads/LeadForm';
+import { LeadMessageDrawer } from '@/components/leads/LeadMessageDrawer';
+import { LeadPresetsDrawer } from '@/components/leads/LeadPresetsDrawer';
+import { WhatsAppIcon } from '@/components/crm/WhatsAppIcon';
+import { LEAD_STAGES, LeadNote, leadRecipients } from '@/lib/leadTemplates';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const LEAD_STAGES = ["New Inquiry", "Contacted", "Consultation Scheduled", "Proposal Sent", "Won", "Lost"] as const;
-const LEAD_SOURCES = ["Website", "Instagram", "WhatsApp", "Google", "Referral", "Other"] as const;
-const EVENT_TYPES = ["Wedding", "Pre-Wedding", "Couple Shoot", "Engagement", "Corporate", "Other"];
 
 /* Shape returned by api/leads.php — website enquiries land here as
    source "Website" / stage "New Inquiry", with the visitor's message
    stored as the first note. */
-interface LeadNote {
-  content: string;
-  author?: string;
-  authorId?: string;
-  date: string;
-}
-
 interface APILead {
   id: number;
   lead_ref: string;
@@ -32,6 +27,13 @@ interface APILead {
   phone: string | null;
   email: string | null;
   instagram: string | null;
+  bride_name?: string | null;
+  bride_phone?: string | null;
+  bride_whatsapp?: string | null;
+  groom_name?: string | null;
+  groom_phone?: string | null;
+  groom_whatsapp?: string | null;
+  referrer_name?: string | null;
   event_type: string;
   event_date: string | null;
   venue: string | null;
@@ -74,13 +76,18 @@ const isMockMode = () => {
 
 // Decode once on load — visitor names/messages arrive HTML-encoded
 // from the PHP sanitizer (e.g. "Priya &amp; Rahul", "We&apos;d love…")
+const dec = (v: string | null | undefined) => (v ? decodeEntities(v) : v ?? null);
 const decodeLead = (l: APILead): APILead => ({
   ...l,
   client_name: decodeEntities(l.client_name),
   event_type: decodeEntities(l.event_type),
-  venue: l.venue ? decodeEntities(l.venue) : l.venue,
-  guest_count: l.guest_count ? decodeEntities(l.guest_count) : l.guest_count,
-  budget_range: l.budget_range ? decodeEntities(l.budget_range) : l.budget_range,
+  venue: dec(l.venue),
+  guest_count: dec(l.guest_count),
+  budget_range: dec(l.budget_range),
+  instagram: dec(l.instagram),
+  bride_name: dec(l.bride_name),
+  groom_name: dec(l.groom_name),
+  referrer_name: dec(l.referrer_name),
   notes: (l.notes || []).map(n => ({
     ...n,
     content: decodeEntities(n.content),
@@ -108,24 +115,6 @@ const cardItemVariants = {
   visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 25 } }
 };
 
-interface LeadFormState {
-  client_name: string;
-  phone: string;
-  email: string;
-  event_type: string;
-  event_date: string;
-  venue: string;
-  guest_count: string;
-  budget_range: string;
-  source: string;
-  note: string;
-}
-
-const EMPTY_LEAD_FORM: LeadFormState = {
-  client_name: "", phone: "", email: "", event_type: "Wedding",
-  event_date: "", venue: "", guest_count: "", budget_range: "", source: "Other", note: "",
-};
-
 export default function LeadsPage() {
   const [activeTab, setActiveTab] = useState<"Pipeline" | "List">("Pipeline");
   const [searchQuery, setSearchQuery] = useState("");
@@ -140,6 +129,19 @@ export default function LeadsPage() {
   const [addForm, setAddForm] = useState<LeadFormState>(EMPTY_LEAD_FORM);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Edit-lead drawer — the same form, pre-filled from a lead, saving in place
+  const [editLead, setEditLead] = useState<APILead | null>(null);
+  const [editForm, setEditForm] = useState<LeadFormState>(EMPTY_LEAD_FORM);
+  const [editNotes, setEditNotes] = useState<LeadNote[]>([]);
+  const [editStage, setEditStage] = useState<string>("New Inquiry");
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  // WhatsApp presets — the three funnel messages, editable from the header.
+  const [messageLead, setMessageLead] = useState<APILead | null>(null);
+  const [showPresets, setShowPresets] = useState(false);
+  const [templates, setTemplates] = useState<Record<string, string>>({});
 
   const fetchLeads = useCallback(async () => {
     setIsLoading(true);
@@ -162,6 +164,15 @@ export default function LeadsPage() {
   }, []);
 
   React.useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  // Saved preset overrides. Failing to load is non-fatal — composeLeadMessage
+  // falls back to the built-in copy, so messaging still works.
+  React.useEffect(() => {
+    if (isMockMode()) return;
+    crmAPI.templates.get()
+      .then(res => setTemplates(res.templates || {}))
+      .catch(() => {});
+  }, []);
 
   // Global search deep link: /leads/?q=priya pre-fills the search box
   React.useEffect(() => {
@@ -222,6 +233,26 @@ export default function LeadsPage() {
     }
   };
 
+  /* Called by the message drawer once a preset has gone out: moves the lead to
+     the stage the studio picked and (optionally) files the message under the
+     lead's notes. Errors bubble up so the drawer can show them in place. */
+  const handleMessageSubmit = async (lead: APILead, payload: { stage: string; note: LeadNote | null }) => {
+    if (usingMockData) {
+      throw new Error("Connect to the live API to update leads — demo data is read-only.");
+    }
+    const body: Record<string, unknown> = { stage: payload.stage };
+    if (payload.note) body.notes = [...(lead.notes || []), payload.note];
+    const updated = await leadsAPI.update(lead.id, body) as APILead;
+    const decoded = decodeLead(updated);
+    setLeads(ls => ls.map(l => l.id === lead.id ? decoded : l));
+    setSelectedLead(s => (s && s.id === lead.id ? decoded : s));
+  };
+
+  const openMessage = (lead: APILead) => {
+    setSelectedLead(null); // don't stack drawers
+    setMessageLead(lead);
+  };
+
   const handleDelete = async (lead: APILead) => {
     if (!confirm(`Delete lead ${lead.lead_ref} (${lead.client_name})? This cannot be undone.`)) return;
     try {
@@ -233,17 +264,109 @@ export default function LeadsPage() {
     }
   };
 
-  const validateLead = () => {
+  // Shared validation for both the add and edit forms.
+  const validateLeadForm = (form: LeadFormState, setErrs: (e: Record<string, string>) => void) => {
     const errs: Record<string, string> = {};
-    if (!addForm.client_name.trim()) errs.client_name = "Please enter the client's name.";
-    if (addForm.phone.trim() && !isValidIndianPhone(addForm.phone)) errs.phone = "Enter a valid 10-digit Indian mobile number.";
-    if (addForm.email.trim() && !isValidEmail(addForm.email)) errs.email = "Enter a valid email address.";
-    setFieldErrors(errs);
+    if (!form.client_name.trim()) errs.client_name = "Please enter the couple's name.";
+    const phoneCheck = (v: string, key: string) => {
+      if (v.trim() && !isValidStoredPhone(v)) errs[key] = "Check the country code and digits, or leave it blank.";
+    };
+    phoneCheck(form.phone, "phone");
+    phoneCheck(form.bride_phone, "bride_phone");
+    phoneCheck(form.bride_whatsapp, "bride_whatsapp");
+    phoneCheck(form.groom_phone, "groom_phone");
+    phoneCheck(form.groom_whatsapp, "groom_whatsapp");
+    if (form.email.trim() && !isValidEmail(form.email)) errs.email = "Enter a valid email address.";
+    if (form.source === "Referral" && !form.referrer_name.trim()) errs.referrer_name = "Who referred them?";
+    setErrs(errs);
     return Object.keys(errs).length === 0;
   };
 
+  // Open the edit drawer, pre-filled from a lead. `lead` is already decoded
+  // (fetchLeads runs decodeLead), so the form holds plain text — the PHP
+  // sanitizer re-encodes once on save, so there is no double-encoding.
+  const openEdit = (lead: APILead) => {
+    setEditLead(lead);
+    setEditForm({
+      client_name: lead.client_name || "",
+      phone: lead.phone || "",
+      email: lead.email || "",
+      instagram: lead.instagram || "",
+      bride_name: lead.bride_name || "",
+      bride_phone: lead.bride_phone || "",
+      bride_whatsapp: lead.bride_whatsapp || "",
+      groom_name: lead.groom_name || "",
+      groom_phone: lead.groom_phone || "",
+      groom_whatsapp: lead.groom_whatsapp || "",
+      event_type: lead.event_type || "Wedding",
+      event_date: lead.event_date || "",
+      venue: lead.venue || "",
+      guest_count: lead.guest_count || "",
+      budget_range: lead.budget_range || "",
+      source: lead.source || "Other",
+      referrer_name: lead.referrer_name || "",
+      note: "",
+    });
+    setEditNotes((lead.notes || []).map(n => ({ ...n })));
+    setEditStage(lead.stage || "New Inquiry");
+    setEditErrors({});
+    setSelectedLead(null); // avoid stacking the detail drawer under the editor
+  };
+
+  const handleEditLead = async () => {
+    if (!editLead) return;
+    if (!validateLeadForm(editForm, setEditErrors)) return;
+    if (usingMockData) {
+      setError("Connect to the live API to edit leads — demo data is read-only.");
+      return;
+    }
+    setIsSavingEdit(true);
+    setError("");
+    try {
+      // Keep only notes with content; append the "add note" field if used.
+      const notes: LeadNote[] = editNotes
+        .map(n => ({ ...n, content: n.content.trim() }))
+        .filter(n => n.content.length > 0);
+      if (editForm.note.trim()) {
+        notes.push({ content: editForm.note.trim(), author: "Dashboard", date: nowISTStamp() });
+      }
+      // Primary phone stays populated for the list/contact view; prefer the
+      // explicit field, else fall back to the couple's numbers.
+      const primaryPhone = editForm.phone.trim() || editForm.bride_phone.trim() || editForm.groom_phone.trim();
+      const updated = await leadsAPI.update(editLead.id, {
+        client_name: editForm.client_name.trim(),
+        phone: primaryPhone,
+        email: editForm.email.trim(),
+        instagram: editForm.instagram.trim(),
+        bride_name: editForm.bride_name.trim(),
+        bride_phone: editForm.bride_phone.trim(),
+        bride_whatsapp: editForm.bride_whatsapp.trim(),
+        groom_name: editForm.groom_name.trim(),
+        groom_phone: editForm.groom_phone.trim(),
+        groom_whatsapp: editForm.groom_whatsapp.trim(),
+        referrer_name: editForm.source === "Referral" ? editForm.referrer_name.trim() : "",
+        event_type: editForm.event_type,
+        event_date: editForm.event_date || null,
+        venue: editForm.venue.trim(),
+        guest_count: editForm.guest_count.trim(),
+        budget_range: editForm.budget_range.trim(),
+        source: editForm.source,
+        stage: editStage,
+        notes,
+      }) as APILead;
+      // Reflect the saved record (decoded) in the list immediately.
+      const decoded = decodeLead(updated);
+      setLeads(ls => ls.map(l => l.id === editLead.id ? decoded : l));
+      setEditLead(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save changes");
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   const handleAddLead = async () => {
-    if (!validateLead()) return;
+    if (!validateLeadForm(addForm, setFieldErrors)) return;
     setIsSubmitting(true);
     setError("");
     try {
@@ -254,10 +377,21 @@ export default function LeadsPage() {
         setError("Connect to the live API to add leads — demo data is read-only.");
         return;
       }
+      // Keep the top-level phone populated for the list/contact view — prefer
+      // the explicit primary phone, else the bride's number, then the groom's.
+      const primaryPhone = addForm.phone.trim() || addForm.bride_phone.trim() || addForm.groom_phone.trim();
       await leadsAPI.create({
         client_name: addForm.client_name.trim(),
-        phone: addForm.phone.trim(),
+        phone: primaryPhone,
         email: addForm.email.trim(),
+        instagram: addForm.instagram.trim(),
+        bride_name: addForm.bride_name.trim(),
+        bride_phone: addForm.bride_phone.trim(),
+        bride_whatsapp: addForm.bride_whatsapp.trim(),
+        groom_name: addForm.groom_name.trim(),
+        groom_phone: addForm.groom_phone.trim(),
+        groom_whatsapp: addForm.groom_whatsapp.trim(),
+        referrer_name: addForm.source === "Referral" ? addForm.referrer_name.trim() : "",
         event_type: addForm.event_type,
         event_date: addForm.event_date || null,
         venue: addForm.venue.trim(),
@@ -300,6 +434,15 @@ export default function LeadsPage() {
               className="h-10 w-[240px] pl-9 pr-4 bg-card border border-border/50 rounded-xl text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowPresets(true)}
+            className="h-10 px-4 rounded-xl border-border/50"
+            title="Edit the three WhatsApp funnel messages"
+          >
+            <Settings2 className="h-4 w-4 mr-2" />
+            Message Presets
+          </Button>
           <Button onClick={() => { setAddForm(EMPTY_LEAD_FORM); setFieldErrors({}); setShowAddForm(true); }} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none shadow-sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Lead
@@ -401,13 +544,29 @@ export default function LeadsPage() {
                               className="dash-card p-4 cursor-pointer hover:bg-muted/30 transition-colors"
                             >
                               <div className="flex items-start justify-between mb-2">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
                                   <Avatar className="h-6 w-6">
                                     <AvatarFallback className="bg-primary/20 text-primary text-[9px] font-bold">{lead.client_name.substring(0, 2).toUpperCase()}</AvatarFallback>
                                   </Avatar>
                                   <span className="font-semibold text-[13px] text-foreground truncate max-w-[120px]">{lead.client_name}</span>
                                 </div>
-                                {hasMessage && <MessageSquare className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {hasMessage && <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />}
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); openMessage(lead); }}
+                                    className="text-muted-foreground hover:text-[#1DA851] transition-colors"
+                                    title="Send a WhatsApp message"
+                                  >
+                                    <WhatsAppIcon className="h-3.5 w-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); openEdit(lead); }}
+                                    className="text-muted-foreground hover:text-primary transition-colors"
+                                    title="Edit lead"
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
                               </div>
 
                               <p className="text-[11px] text-muted-foreground font-medium mb-3">
@@ -447,6 +606,7 @@ export default function LeadsPage() {
                     {["Ref", "Client", "Contact", "Event", "Source", "Stage", "Received"].map(h => (
                       <th key={h} className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">{h}</th>
                     ))}
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -470,10 +630,26 @@ export default function LeadsPage() {
                       <td className="px-4 py-3 text-[12px] text-muted-foreground whitespace-nowrap">
                         {lead.created_at ? formatISTDate(lead.created_at) : "—"}
                       </td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openMessage(lead); }}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-[#1DA851] hover:bg-muted transition-colors"
+                          title="Send a WhatsApp message"
+                        >
+                          <WhatsAppIcon className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openEdit(lead); }}
+                          className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+                          title="Edit lead"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {filteredLeads.length === 0 && (
-                    <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No leads found.</td></tr>
+                    <tr><td colSpan={8} className="px-4 py-10 text-center text-sm text-muted-foreground">No leads found.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -493,11 +669,31 @@ export default function LeadsPage() {
               </span>
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => openMessage(selectedLead)}
+                disabled={leadRecipients(selectedLead).length === 0}
+                title={leadRecipients(selectedLead).length === 0 ? "No usable WhatsApp number on this lead" : "Send a preset WhatsApp message"}
+                className="h-10 rounded-xl bg-[#25D366]/10 text-[#1DA851] border border-[#25D366]/25 hover:bg-[#25D366]/20 transition-colors font-bold text-[13px] flex items-center justify-center gap-2 disabled:opacity-40 disabled:hover:bg-[#25D366]/10"
+              >
+                <WhatsAppIcon className="h-4 w-4" /> Send Message
+              </button>
+              <Button
+                onClick={() => openEdit(selectedLead)}
+                className="h-10 rounded-xl bg-primary text-primary-foreground font-bold"
+              >
+                <Pencil className="h-4 w-4 mr-2" /> Edit Lead
+              </Button>
+            </div>
+
             <div>
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Came From</h4>
               <div className="bg-muted/30 border border-border/50 p-4 rounded-xl flex items-center gap-2">
                 {getSourceIcon(selectedLead.source)}
                 <span className="text-[14px] text-foreground font-semibold">{selectedLead.source || "Unknown"}</span>
+                {selectedLead.referrer_name && (
+                  <span className="text-[13px] text-muted-foreground">· referred by {selectedLead.referrer_name}</span>
+                )}
               </div>
             </div>
 
@@ -511,6 +707,25 @@ export default function LeadsPage() {
                 {LEAD_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
+
+            {(selectedLead.bride_name || selectedLead.bride_phone || selectedLead.groom_name || selectedLead.groom_phone) && (
+              <div>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Couple</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { role: "Bride", name: selectedLead.bride_name, phone: selectedLead.bride_phone, wa: selectedLead.bride_whatsapp },
+                    { role: "Groom", name: selectedLead.groom_name, phone: selectedLead.groom_phone, wa: selectedLead.groom_whatsapp },
+                  ].map((p) => (
+                    <div key={p.role} className="bg-muted/30 border border-border/50 p-3 rounded-xl">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{p.role}</p>
+                      <p className="text-[13px] font-semibold text-foreground truncate">{p.name || "—"}</p>
+                      {p.phone && <p className="text-[12px] text-muted-foreground font-mono mt-1">{formatPhone(p.phone)}</p>}
+                      {p.wa && p.wa !== p.phone && <p className="text-[12px] text-muted-foreground font-mono">WA {formatPhone(p.wa)}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Contact</h4>
@@ -582,66 +797,7 @@ export default function LeadsPage() {
       {/* Add lead drawer */}
       <Drawer isOpen={showAddForm} onClose={() => setShowAddForm(false)} width="440px" title="Add Lead">
         <div className="p-6 space-y-5">
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Client Name *</label>
-            <input type="text" value={addForm.client_name} onChange={(e) => setAddForm(f => ({ ...f, client_name: e.target.value }))} placeholder="Priya & Rahul"
-              className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.client_name ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
-            {fieldErrors.client_name && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.client_name}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Phone</label>
-              <input type="tel" value={addForm.phone} onChange={(e) => setAddForm(f => ({ ...f, phone: e.target.value }))} placeholder="98765 43210"
-                className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.phone ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
-              {fieldErrors.phone && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.phone}</p>}
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Email</label>
-              <input type="email" value={addForm.email} onChange={(e) => setAddForm(f => ({ ...f, email: e.target.value }))} placeholder="name@email.com"
-                className={`w-full h-10 px-3 bg-muted/30 border rounded-lg text-sm text-foreground focus:outline-none ${fieldErrors.email ? "border-red-500 ring-2 ring-red-500/20" : "border-border/50 focus:border-primary/50"}`} />
-              {fieldErrors.email && <p className="text-red-500 text-[12px] font-medium mt-1.5">{fieldErrors.email}</p>}
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Event Type</label>
-              <select value={addForm.event_type} onChange={(e) => setAddForm(f => ({ ...f, event_type: e.target.value }))}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50">
-                {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Event Date</label>
-              <input type="date" value={addForm.event_date} onChange={(e) => setAddForm(f => ({ ...f, event_date: e.target.value }))}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Source</label>
-              <select value={addForm.source} onChange={(e) => setAddForm(f => ({ ...f, source: e.target.value }))}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50">
-                {LEAD_SOURCES.map(s => <option key={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Budget Range</label>
-              <input type="text" value={addForm.budget_range} onChange={(e) => setAddForm(f => ({ ...f, budget_range: e.target.value }))} placeholder="₹1,00,000 – ₹1,50,000"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Venue / City</label>
-              <input type="text" value={addForm.venue} onChange={(e) => setAddForm(f => ({ ...f, venue: e.target.value }))} placeholder="Taj, Goa"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Guest Count</label>
-              <input type="text" value={addForm.guest_count} onChange={(e) => setAddForm(f => ({ ...f, guest_count: e.target.value }))} placeholder="100–300"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50" />
-            </div>
-          </div>
+          <LeadForm form={addForm} setForm={setAddForm} fieldErrors={fieldErrors} />
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Note (optional)</label>
             <textarea value={addForm.note} onChange={(e) => setAddForm(f => ({ ...f, note: e.target.value }))} rows={3} placeholder="How did this enquiry come in?"
@@ -652,6 +808,100 @@ export default function LeadsPage() {
           </Button>
         </div>
       </Drawer>
+
+      {/* Edit lead drawer — the same enquiry form, pre-filled and saved in place */}
+      <Drawer isOpen={!!editLead} onClose={() => setEditLead(null)} width="460px" title={editLead ? `Edit — ${editLead.client_name}` : "Edit Lead"}>
+        {editLead && (
+          <div className="p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] font-bold text-muted-foreground">{editLead.lead_ref}</span>
+              <span className="text-[11px] text-muted-foreground">
+                Received {editLead.created_at ? formatISTDate(editLead.created_at) : "—"}
+              </span>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Stage</label>
+              <select
+                value={editStage}
+                onChange={(e) => setEditStage(e.target.value)}
+                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50"
+              >
+                {LEAD_STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            <LeadForm form={editForm} setForm={setEditForm} fieldErrors={editErrors} />
+
+            {/* Messages & notes — full control over what came in */}
+            <div className="space-y-3">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Messages &amp; Notes</label>
+              {editNotes.length === 0 && (
+                <p className="text-[12px] text-muted-foreground">No messages yet — add one below.</p>
+              )}
+              {editNotes.map((n, i) => (
+                <div key={i} className="p-3 rounded-xl bg-muted/20 border border-border/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {n.author || n.authorId || "Note"}{n.date ? ` · ${formatISTDateTime(n.date)}` : ""}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setEditNotes(ns => ns.filter((_, j) => j !== i))}
+                      className="text-muted-foreground hover:text-red-500 transition-colors"
+                      title="Remove this note"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <textarea
+                    value={n.content}
+                    onChange={(e) => setEditNotes(ns => ns.map((m, j) => j === i ? { ...m, content: e.target.value } : m))}
+                    rows={3}
+                    className="w-full p-2.5 bg-background border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none"
+                  />
+                </div>
+              ))}
+              <div>
+                <label className="text-[11px] font-medium text-muted-foreground mb-1.5 block">Add a note</label>
+                <textarea
+                  value={editForm.note}
+                  onChange={(e) => setEditForm(f => ({ ...f, note: e.target.value }))}
+                  rows={2}
+                  placeholder="Add context, a call summary, next steps…"
+                  className="w-full p-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-1">
+              <Button variant="outline" onClick={() => setEditLead(null)} className="flex-1 h-10 rounded-xl border-border/50">
+                Cancel
+              </Button>
+              <Button onClick={handleEditLead} disabled={isSavingEdit || !editForm.client_name.trim()} className="flex-1 h-10 rounded-xl bg-primary text-primary-foreground font-bold">
+                {isSavingEdit ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : "Save Changes"}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Send a stage preset on WhatsApp, then move the lead */}
+      <LeadMessageDrawer
+        lead={messageLead}
+        templates={templates}
+        onClose={() => setMessageLead(null)}
+        onSubmit={async (payload) => { if (messageLead) await handleMessageSubmit(messageLead, payload); }}
+        onEditPresets={() => { setMessageLead(null); setShowPresets(true); }}
+      />
+
+      {/* Edit the three funnel messages */}
+      <LeadPresetsDrawer
+        isOpen={showPresets}
+        onClose={() => setShowPresets(false)}
+        templates={templates}
+        onSaved={setTemplates}
+      />
     </div>
   );
 }

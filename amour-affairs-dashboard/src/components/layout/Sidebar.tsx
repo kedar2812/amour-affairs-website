@@ -26,6 +26,7 @@ import {
   Newspaper,
   Sparkles,
   Gift,
+  Heart,
   LogOut,
 } from "lucide-react";
 
@@ -45,6 +46,7 @@ const MENU_ITEMS: { name: string; href: string; icon: any; badge?: string }[] = 
   { name: "Gallery", href: "/gallery", icon: Image },
   { name: "Bookings", href: "/bookings", icon: CalendarDays },
   { name: "Clients", href: "/clients", icon: Users },
+  { name: "CRM", href: "/crm", icon: Heart },
   { name: "Packages", href: "/packages", icon: Package },
   { name: "Payments", href: "/payments", icon: CircleDollarSign },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },

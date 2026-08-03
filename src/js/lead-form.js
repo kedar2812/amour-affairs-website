@@ -15,12 +15,17 @@ const WHATSAPP_FALLBACK =
   '<a href="https://wa.me/919921000052" target="_blank" rel="noopener">WhatsApp</a> ' +
   'or call +91 9921000052.';
 
+// Wire every inquiry form on the page. A page may carry more than one
+// (e.g. the Weddings page has a folder-overlay form and a page-foot form);
+// each is bound independently with its own submit button and status line.
 export function initLeadForm() {
-  const form = document.getElementById('inquiryForm');
-  if (!form) return;
+  document.querySelectorAll('form.inquiry__form').forEach(bindLeadForm);
+}
 
-  const submitBtn = document.getElementById('inquirySubmit');
-  const status = document.getElementById('inquiryStatus');
+function bindLeadForm(form) {
+  const submitBtn = form.querySelector('.inquiry__submit');
+  const status = form.querySelector('.inquiry__status');
+  if (!submitBtn || !status) return;
   let isSubmitting = false;
 
   const fieldEl = (input) => input.closest('.inquiry__field');

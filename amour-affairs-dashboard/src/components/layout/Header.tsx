@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Mail } from "lucide-react";
+import { Plus, Mail, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { ExportMenu } from "@/components/ui/ExportMenu";
@@ -137,6 +137,16 @@ export function Header() {
         <div className="mr-1">
           <NotificationBell />
         </div>
+
+        {/* Settings — jumps to the studio settings page */}
+        <button
+          onClick={() => router.push("/settings")}
+          title="Settings"
+          aria-label="Settings"
+          className="h-10 w-10 flex items-center justify-center rounded-xl border border-border/50 bg-card/10 hover:bg-card/20 backdrop-blur-md transition-colors"
+        >
+          <Settings className="h-[18px] w-[18px] text-foreground" strokeWidth={1.7} />
+        </button>
 
         {/* Theme Toggle replaces User Avatar */}
         <div className="flex items-center pl-3 border-l border-border/50">

@@ -49,6 +49,7 @@
   font-family: var(--font-display);
   font-size: clamp(2.63rem, 6.1vw, 5.15rem);
   font-weight: 400;
+  text-transform: uppercase;
   line-height: 1.15;
   color: #3D2010;
   max-width: 700px;

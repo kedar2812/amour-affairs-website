@@ -259,7 +259,15 @@ export const authAPI = {
     apiRequest('auth.php?action=logout', { method: 'POST' }),
 
   me: () =>
-    apiRequest<{ user: AuthResponse['user'] }>('auth.php?action=me'),
+    apiRequest<{ user: AuthResponse['user'] & { last_login?: string | null; created_at?: string | null } }>(
+      'auth.php?action=me'
+    ),
+
+  changePassword: (current_password: string, new_password: string) =>
+    apiRequest<{ message: string }>('auth.php?action=change-password', {
+      method: 'POST',
+      body: { current_password, new_password },
+    }),
 
   refresh: () => refreshAccessToken(),
 };
@@ -487,7 +495,77 @@ export const clientsAPI = {
   get: (id: number) => api.get(`clients.php?id=${id}`),
   create: (data: Record<string, unknown>) => api.post('clients.php', data),
   update: (id: number, data: Record<string, unknown>) => api.put(`clients.php?id=${id}`, data),
-  delete: (id: number) => api.delete(`clients.php?id=${id}`),
+  /** What a delete would touch — drives the confirmation dialog. */
+  impact: (id: number) => api.get<ClientDeleteImpact>(`clients.php?id=${id}&action=impact`),
+  /** mode "keep" detaches bookings/invoices/payments; "all" deletes them too. */
+  delete: (id: number, mode: 'keep' | 'all' = 'keep') =>
+    api.delete<{ message: string; mode: string; removed: Record<string, number> }>(`clients.php?id=${id}&mode=${mode}`),
+};
+
+export interface ClientDeleteImpact {
+  client_id: number;
+  name: string;
+  bookings: number;
+  invoices: number;
+  transactions: number;
+  payments_total: number;
+  special_dates: number;
+  greetings: number;
+}
+
+// CRM — client special dates, festivals, greeting templates & send log.
+// Response shapes live in @/lib/crm (UpcomingResponse, ClientDate, Festival).
+export const crmAPI = {
+  upcoming: (days = 30) => api.get(`crm.php?action=upcoming&days=${days}`),
+  dates: {
+    list: (clientId: number) => api.get<{ dates: unknown[] }>(`crm.php?action=dates&client_id=${clientId}`),
+    create: (data: Record<string, unknown>) => api.post('crm.php?action=dates', data),
+    update: (id: number, data: Record<string, unknown>) => api.put(`crm.php?action=dates&id=${id}`, data),
+    delete: (id: number) => api.delete(`crm.php?action=dates&id=${id}`),
+  },
+  festivals: {
+    list: () => api.get<{ festivals: unknown[] }>('crm.php?action=festivals'),
+    create: (data: Record<string, unknown>) => api.post('crm.php?action=festivals', data),
+    update: (id: number, data: Record<string, unknown>) => api.put(`crm.php?action=festivals&id=${id}`, data),
+    delete: (id: number) => api.delete(`crm.php?action=festivals&id=${id}`),
+  },
+  greetings: (festivalId: number, year: number) =>
+    api.get<{ client_ids: number[]; year: number }>(`crm.php?action=greetings&festival_id=${festivalId}&year=${year}`),
+  logSend: (data: {
+    client_date_id?: number;
+    festival_id?: number;
+    client_id?: number;
+    occasion_year: number;
+    message: string;
+  }) => api.post('crm.php?action=log', data as unknown as Record<string, unknown>),
+  templates: {
+    get: () => api.get<{ templates: Record<string, string> }>('crm.php?action=templates'),
+    save: (templates: Record<string, string>) =>
+      api.put<{ templates: Record<string, string> }>('crm.php?action=templates', { templates }),
+  },
+};
+
+// CRM Families — one record per family with husband/wife/child members.
+// Response shapes live in @/lib/families. Festivals + templates are shared
+// config served by crmAPI (crm.php).
+export const familiesAPI = {
+  list: (search?: string) => {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+    return api.get<{ families: unknown[]; total: number }>(`families.php${qs}`);
+  },
+  get: (id: number) => api.get(`families.php?id=${id}`),
+  create: (data: Record<string, unknown>) => api.post("families.php", data),
+  update: (id: number, data: Record<string, unknown>) => api.put(`families.php?id=${id}`, data),
+  delete: (id: number) => api.delete(`families.php?id=${id}`),
+  upcoming: (days = 30) => api.get(`families.php?action=upcoming&days=${days}`),
+  logSend: (data: {
+    family_id: number;
+    occasion: "birthday" | "anniversary" | "festival";
+    family_member_id?: number;
+    festival_id?: number;
+    occasion_year: number;
+    message: string;
+  }) => api.post("families.php?action=log", data as unknown as Record<string, unknown>),
 };
 
 export const paymentsAPI = {

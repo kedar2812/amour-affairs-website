@@ -1,15 +1,19 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, Plus, Star, Copy, Users, Loader2, Check } from 'lucide-react';
+import { Search, Plus, Star, Copy, Users, Loader2, Check, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useClients } from '@/lib/useData';
 import { clientsAPI } from '@/lib/api';
-import { isValidIndianPhone, isValidEmail } from '@/lib/utils';
+import { isValidEmail } from '@/lib/utils';
+import { isValidStoredPhone, formatPhone, waLink } from '@/lib/phone';
+import { PhoneInput } from '@/components/ui/PhoneInput';
+import { WhatsAppIcon } from '@/components/crm/WhatsAppIcon';
 import { ExportMenu } from '@/components/ui/ExportMenu';
 import { flattenClients } from '@/lib/exportUtils';
 import { Drawer } from '@/components/ui/Drawer';
+import { DeleteClientModal } from '@/components/clients/DeleteClientModal';
 import { motion } from 'framer-motion';
 
 const EMPTY_ADD = { name: "", phone: "", email: "", whatsapp: "", city: "", type: "Wedding", tags: "", notes: "" };
@@ -37,7 +41,7 @@ const cardVariants = {
 };
 
 type ClientRow = {
-  id: number | string; name: string; type: string; phone: string; email: string;
+  id: number | string; dbId: number; name: string; type: string; phone: string; email: string;
   whatsapp: string; city: string; totalBookings: number; totalSpend: number;
   tags: string[]; notes: string;
 };
@@ -54,21 +58,51 @@ export default function ClientsPage() {
     if (q) setSearchQuery(q);
   }, []);
 
-  // Add-client form state
+  // Add / edit client form state (one drawer serves both modes)
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [addForm, setAddForm] = useState({ ...EMPTY_ADD });
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState("");
   const [addedOk, setAddedOk] = useState(false);
   const setField = (k: string, v: string) => setAddForm((p) => ({ ...p, [k]: v }));
 
+  // Delete confirmation — the modal owns the keep-vs-delete-everything choice.
+  const [deletingClient, setDeletingClient] = useState<ClientRow | null>(null);
+
+  const openAddDrawer = () => {
+    setEditingId(null);
+    setAddForm({ ...EMPTY_ADD });
+    setAddError("");
+    setAddedOk(false);
+    setIsAddOpen(true);
+  };
+
+  const openEditDrawer = (client: ClientRow) => {
+    setEditingId(client.dbId);
+    setAddForm({
+      name: client.name,
+      phone: client.phone,
+      email: client.email,
+      whatsapp: client.whatsapp,
+      city: client.city === "—" ? "" : client.city,
+      type: client.type,
+      tags: client.tags.join(", "),
+      notes: client.notes,
+    });
+    setAddError("");
+    setAddedOk(false);
+    setIsAddOpen(true);
+  };
+
   const handleAddSubmit = async () => {
     if (!addForm.name.trim()) { setAddError("Please enter the client's name."); return; }
-    if (addForm.phone.trim() && !isValidIndianPhone(addForm.phone)) { setAddError("Enter a valid 10-digit Indian mobile number, or leave the phone blank."); return; }
+    if (addForm.phone.trim() && !isValidStoredPhone(addForm.phone)) { setAddError("That phone number doesn't look complete — check the country code and digits, or leave it blank."); return; }
+    if (addForm.whatsapp.trim() && !isValidStoredPhone(addForm.whatsapp)) { setAddError("That WhatsApp number doesn't look complete — check the country code and digits, or leave it blank."); return; }
     if (addForm.email.trim() && !isValidEmail(addForm.email)) { setAddError("Enter a valid email address, or leave the email blank."); return; }
     setAdding(true); setAddError("");
     try {
-      await clientsAPI.create({
+      const payload = {
         name: addForm.name.trim(),
         phone: addForm.phone.trim(),
         email: addForm.email.trim(),
@@ -77,12 +111,21 @@ export default function ClientsPage() {
         type: addForm.type,
         tags: addForm.tags.split(",").map((t) => t.trim()).filter(Boolean),
         notes: addForm.notes.trim(),
-      });
+      };
+      if (editingId) {
+        await clientsAPI.update(editingId, payload);
+      } else {
+        await clientsAPI.create(payload);
+      }
       await refetch();
+      // Keep the open detail drawer in sync with what was just saved
+      if (editingId && selectedClient && selectedClient.dbId === editingId) {
+        setSelectedClient({ ...selectedClient, ...payload, city: payload.city || "—" });
+      }
       setAddedOk(true);
-      setTimeout(() => { setAddedOk(false); setIsAddOpen(false); setAddForm({ ...EMPTY_ADD }); }, 900);
+      setTimeout(() => { setAddedOk(false); setIsAddOpen(false); setAddForm({ ...EMPTY_ADD }); setEditingId(null); }, 900);
     } catch (e: any) {
-      setAddError(e?.message || "Couldn't add client — please try again.");
+      setAddError(e?.message || "Couldn't save the client — please try again.");
     } finally {
       setAdding(false);
     }
@@ -92,6 +135,7 @@ export default function ClientsPage() {
   // page renders real client records correctly and never crashes on nulls.
   const clients: ClientRow[] = (rawClients as any[]).map((c) => ({
     id: c.id,
+    dbId: Number(c.dbId ?? c.id) || 0,
     name: c.name || "Unnamed client",
     type: c.type || "Client",
     phone: c.phone || "",
@@ -122,20 +166,22 @@ export default function ClientsPage() {
     setSelectedClient(client);
   };
 
+  const inputCls = "w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50";
+
   return (
     <div className="flex flex-col gap-6 max-w-[1540px] mx-auto w-full h-full">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 shrink-0">
         <div>
           <h1 className="dash-h1">Clients</h1>
-          <p className="text-[14px] text-muted-foreground mt-1">Your client relationships and history.</p>
+          <p className="text-[14px] text-muted-foreground mt-1">Your client relationships, special dates and history.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search by name or phone..." 
+            <input
+              type="text"
+              placeholder="Search by name or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-10 w-[280px] pl-9 pr-4 bg-card border border-border/50 rounded-xl text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -147,7 +193,7 @@ export default function ClientsPage() {
             pdfTitle="Clients Export"
             variant="inline"
           />
-          <Button onClick={() => { setAddError(""); setAddedOk(false); setIsAddOpen(true); }} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none">
+          <Button onClick={openAddDrawer} className="h-10 px-4 rounded-xl bg-primary text-primary-foreground border-none">
             <Plus className="h-4 w-4 mr-2" />
             Add Client
           </Button>
@@ -155,19 +201,19 @@ export default function ClientsPage() {
       </div>
 
       {/* Grid Layout */}
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
         className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 content-start pb-12"
       >
         {filteredClients.map(client => (
-          <motion.div 
-            key={client.id} 
+          <motion.div
+            key={client.id}
             variants={cardVariants}
             whileHover={{ y: -4, scale: 1.01, boxShadow: "0 12px 24px -10px rgba(0,0,0,0.08)" }}
             whileTap={{ scale: 0.995 }}
-            onClick={() => handleClientClick(client)} 
+            onClick={() => handleClientClick(client)}
             className="dash-card p-6 cursor-pointer group"
           >
             <div className="flex items-start justify-between mb-4">
@@ -176,14 +222,26 @@ export default function ClientsPage() {
                   {client.name.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${getAvatarColor(client.type)} border-opacity-50`}>
-                {client.type}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${getAvatarColor(client.type)} border-opacity-50`}>
+                  {client.type}
+                </span>
+                {/* Revealed on hover so the card stays calm; the confirm dialog
+                    is the real guard against a mis-click. */}
+                <button
+                  onClick={(e) => { e.stopPropagation(); setDeletingClient(client); }}
+                  title={`Delete ${client.name}`}
+                  aria-label={`Delete ${client.name}`}
+                  className="h-7 w-7 rounded-lg grid place-items-center text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
-            
+
             <h3 className="font-bold text-[16px] text-foreground mb-1 group-hover:text-primary transition-colors">{client.name}</h3>
-            <p className="text-[13px] text-muted-foreground font-mono">{client.phone}</p>
-            
+            <p className="text-[13px] text-muted-foreground font-mono">{formatPhone(client.phone)}</p>
+
             <div className="flex items-center gap-4 mt-5 pt-4 border-t border-border/50">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Bookings</p>
@@ -227,18 +285,34 @@ export default function ClientsPage() {
               <Avatar className="h-16 w-16 shadow-lg">
                 <AvatarFallback className={`text-xl font-bold ${getAvatarColor(selectedClient.type)}`}>{selectedClient.name.substring(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
-              <div>
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl font-bold text-foreground">{selectedClient.name}</h2>
+                  <h2 className="text-xl font-bold text-foreground truncate">{selectedClient.name}</h2>
                   {selectedClient.tags.includes("VIP") && (
-                    <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                    <Star className="h-4 w-4 fill-amber-500 text-amber-500 shrink-0" />
                   )}
                 </div>
                 <div className="flex items-center gap-3 text-[13px] text-muted-foreground">
-                  <span className="font-mono">{selectedClient.phone}</span>
-                  <span className="w-1 h-1 rounded-full bg-border" />
-                  <span>{selectedClient.email}</span>
+                  <span className="font-mono">{formatPhone(selectedClient.phone)}</span>
+                  {selectedClient.email && <span className="w-1 h-1 rounded-full bg-border" />}
+                  <span className="truncate">{selectedClient.email}</span>
                 </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={() => { openEditDrawer(selectedClient); }}
+                  title="Edit client details"
+                  className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-border/50 transition-colors"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setDeletingClient(selectedClient)}
+                  title="Delete this client"
+                  className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 border border-border/50 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
 
@@ -254,7 +328,7 @@ export default function ClientsPage() {
                   >
                     {tab}
                     {isActive && (
-                      <motion.div 
+                      <motion.div
                         layoutId="client-drawer-tab"
                         className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary"
                         transition={{ type: "spring", stiffness: 350, damping: 30 }}
@@ -279,15 +353,31 @@ export default function ClientsPage() {
                       <p className="text-2xl font-bold text-foreground">{selectedClient.totalBookings}</p>
                     </div>
                   </div>
-                  
+
                   <div>
                     <h4 className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Contact Details</h4>
                     <div className="dash-card border border-border/50 rounded-xl divide-y divide-border/50">
                       <div className="flex items-center justify-between p-3">
                         <span className="text-[13px] text-muted-foreground font-medium">WhatsApp</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-mono text-foreground">{selectedClient.whatsapp}</span>
-                          <Button variant="ghost" size="icon" className="h-6 w-6"><Copy className="h-3 w-3" /></Button>
+                          <span className="text-[13px] font-mono text-foreground">{formatPhone(selectedClient.whatsapp)}</span>
+                          {selectedClient.whatsapp && (
+                            <a
+                              href={waLink(selectedClient.whatsapp, "")}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Open chat in WhatsApp"
+                              className="h-6 w-6 rounded flex items-center justify-center text-[#1DA851] hover:bg-[#25D366]/15 transition-colors"
+                            >
+                              <WhatsAppIcon className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                          <Button
+                            variant="ghost" size="icon" className="h-6 w-6" title="Copy number"
+                            onClick={() => navigator.clipboard?.writeText(selectedClient.whatsapp || selectedClient.phone || "")}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
                       <div className="flex items-center justify-between p-3">
@@ -318,53 +408,44 @@ export default function ClientsPage() {
         )}
       </Drawer>
 
-      {/* Add Client form */}
-      <Drawer isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} width="480px" title="Add Client">
+      {/* Add / Edit client form */}
+      <Drawer isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} width="480px" title={editingId ? "Edit Client" : "Add Client"}>
         <div className="p-6 space-y-4">
           {addError && (
             <div className="text-[13px] text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{addError}</div>
           )}
           <div>
             <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Name *</label>
-            <input value={addForm.name} onChange={(e) => setField("name", e.target.value)} placeholder="Client name"
-              className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
+            <input value={addForm.name} onChange={(e) => setField("name", e.target.value)} placeholder="Client name" className={inputCls} />
+          </div>
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Phone</label>
+            <PhoneInput value={addForm.phone} onChange={(v) => setField("phone", v)} />
+          </div>
+          <div>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">WhatsApp <span className="normal-case font-medium text-muted-foreground/70">— if different from phone</span></label>
+            <PhoneInput value={addForm.whatsapp} onChange={(v) => setField("whatsapp", v)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Phone</label>
-              <input value={addForm.phone} onChange={(e) => setField("phone", e.target.value)} placeholder="+91…"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Email</label>
+              <input type="email" value={addForm.email} onChange={(e) => setField("email", e.target.value)} placeholder="name@email.com" className={inputCls} />
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Type</label>
-              <select value={addForm.type} onChange={(e) => setField("type", e.target.value)}
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50">
+              <select value={addForm.type} onChange={(e) => setField("type", e.target.value)} className={inputCls}>
                 {["Wedding", "Pre-Wedding", "Corporate", "Portrait", "Other"].map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Email</label>
-              <input type="email" value={addForm.email} onChange={(e) => setField("email", e.target.value)} placeholder="name@email.com"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
-            </div>
-            <div>
-              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">WhatsApp</label>
-              <input value={addForm.whatsapp} onChange={(e) => setField("whatsapp", e.target.value)} placeholder="Defaults to phone"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">City</label>
-              <input value={addForm.city} onChange={(e) => setField("city", e.target.value)} placeholder="Pune"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
+              <input value={addForm.city} onChange={(e) => setField("city", e.target.value)} placeholder="Pune" className={inputCls} />
             </div>
             <div>
               <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">Tags</label>
-              <input value={addForm.tags} onChange={(e) => setField("tags", e.target.value)} placeholder="VIP, Referral (comma-sep)"
-                className="w-full h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50" />
+              <input value={addForm.tags} onChange={(e) => setField("tags", e.target.value)} placeholder="VIP, Referral (comma-sep)" className={inputCls} />
             </div>
           </div>
           <div>
@@ -372,15 +453,33 @@ export default function ClientsPage() {
             <textarea value={addForm.notes} onChange={(e) => setField("notes", e.target.value)} rows={3} placeholder="Anything worth remembering…"
               className="w-full px-3 py-2 bg-muted/30 border border-border/50 rounded-lg text-foreground text-[14px] focus:outline-none focus:border-primary/50 resize-none" />
           </div>
+
           <div className="flex items-center justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setIsAddOpen(false)} className="h-10 px-4 rounded-xl border-border/50">Cancel</Button>
             <Button onClick={handleAddSubmit} disabled={adding || addedOk} className="h-10 px-5 rounded-xl bg-primary text-primary-foreground font-bold">
               {adding ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : addedOk ? <Check className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
-              {addedOk ? "Added" : "Add Client"}
+              {addedOk ? "Saved" : editingId ? "Save Changes" : "Add Client"}
             </Button>
           </div>
         </div>
       </Drawer>
+
+      {/* Delete confirmation — keep their records, or remove everything */}
+      <DeleteClientModal
+        client={deletingClient}
+        onClose={() => setDeletingClient(null)}
+        onDeleted={() => {
+          // The record is gone — drop any open drawer pointing at it, then reload.
+          if (selectedClient && deletingClient && selectedClient.dbId === deletingClient.dbId) {
+            setSelectedClient(null);
+          }
+          if (editingId && deletingClient && editingId === deletingClient.dbId) {
+            setIsAddOpen(false);
+            setEditingId(null);
+          }
+          refetch();
+        }}
+      />
     </div>
   );
 }

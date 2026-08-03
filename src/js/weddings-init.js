@@ -25,7 +25,7 @@ import { albums as fallbackAlbums } from './weddings-albums-data.js';
 import { loadArchiveAlbums, loadWeddingsTestimonials, loadSiteContent } from './api.js';
 import { fallbackWeddingsTestimonials } from './weddings-testimonials-data.js';
 import { testimonialCardHTML } from './testimonial-cards.js';
-import { applyEnquiryContent } from './site-content.js';
+import { applyEnquiryContent, renderWeddingTypes } from './site-content.js';
 import { initLeadForm } from './lead-form.js';
 
 /* ── Testimonial marquee ─────────────────────────────────── */
@@ -71,16 +71,27 @@ function renderMarquee(testimonials) {
 const testimonialsPromise = loadWeddingsTestimonials(STOCK_PHOTOS).catch(() => null);
 const siteContentPromise = loadSiteContent().catch(() => null);
 
+// Paint the bundled "How We Shoot" style cards immediately so the section is
+// present before scroll reveals are measured; CMS overrides re-render below.
+renderWeddingTypes({});
+
 loadArchiveAlbums('wedding', fallbackAlbums).then((albums) => {
   initArchivePage({
     albums,
     prefix: 'wpage',
     filmLabel: 'The Wedding Film',
+    cardChip: false, // no "Folder 01" chip on the grid thumbnails
+    cardMetaMode: 'location', // under the couple name, show the location only
+
     onReady: async ({ ScrollTrigger }) => {
       // The enquiry form inside the opened folder feeds the leads pipeline
       initLeadForm();
       siteContentPromise.then((content) => {
-        if (content) applyEnquiryContent('site_weddings_enq', content);
+        if (content) {
+          applyEnquiryContent('site_weddings_enq', content);
+          renderWeddingTypes(content);
+          if (ScrollTrigger) ScrollTrigger.refresh();
+        }
       });
 
       const cms = await testimonialsPromise;

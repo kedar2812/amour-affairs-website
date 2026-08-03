@@ -30,6 +30,9 @@
 .cpage-cta__btn,
 .tpage-cta__btn,
 .ppage-cta__btn,
+.wpage-album__next,
+.cpage-album__next,
+.ppage-album__next,
 .testi__read-more,
 .inquiry__submit,
 .footer__cta {
@@ -64,6 +67,9 @@
 .cpage-cta__btn:hover,
 .tpage-cta__btn:hover,
 .ppage-cta__btn:hover,
+.wpage-album__next:hover,
+.cpage-album__next:hover,
+.ppage-album__next:hover,
 .testi__read-more:hover,
 .footer__cta:hover,
 .inquiry__submit:hover:not(:disabled) {
@@ -92,4 +98,14 @@
 .footer__cta:hover .footer__cta-arrow,
 .inquiry__submit:hover:not(:disabled) .inquiry__submit-arrow {
   transform: translateX(5px);
+}
+
+/* Album "Continue Browsing" buttons render their arrow as a bare, class-less
+   <span> — nudge it too so their hover matches every other button exactly. */
+.wpage-album__next:hover span,
+.cpage-album__next:hover span,
+.ppage-album__next:hover span {
+  display: inline-block;
+  transform: translateX(5px);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }

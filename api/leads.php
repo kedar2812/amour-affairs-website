@@ -203,9 +203,16 @@ switch ($method) {
         $nextId = $stmt->fetch()['next_id'];
         $leadRef = '#LD-' . $nextId;
 
+        // Referrer name only meaningful when the source is a referral
+        $sourceIn = sanitize($body['source'] ?? 'Website');
+        $referrerName = (stripos($sourceIn, 'Referral') !== false)
+            ? sanitize($body['referrer_name'] ?? '') : null;
+
         $stmt = $db->prepare(
-            'INSERT INTO leads (lead_ref, client_name, phone, email, instagram, event_type, event_date, venue, guest_count, budget_range, source, stage, assigned_to, last_activity, moved_to_stage_at, notes)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
+            'INSERT INTO leads (lead_ref, client_name, phone, email, instagram, event_type, event_date, venue, guest_count, budget_range,
+                                bride_name, bride_phone, bride_whatsapp, groom_name, groom_phone, groom_whatsapp, referrer_name,
+                                source, stage, assigned_to, last_activity, moved_to_stage_at, notes)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
         );
         $stmt->execute([
             $leadRef,
@@ -218,7 +225,14 @@ switch ($method) {
             sanitize($body['venue'] ?? ''),
             sanitize($body['guest_count'] ?? ''),
             sanitize($body['budget_range'] ?? ''),
-            sanitize($body['source'] ?? 'Website'),
+            sanitize($body['bride_name'] ?? ''),
+            sanitize($body['bride_phone'] ?? ''),
+            sanitize($body['bride_whatsapp'] ?? ''),
+            sanitize($body['groom_name'] ?? ''),
+            sanitize($body['groom_phone'] ?? ''),
+            sanitize($body['groom_whatsapp'] ?? ''),
+            $referrerName,
+            $sourceIn,
             sanitize($body['stage'] ?? 'New Inquiry'),
             $body['assigned_to'] ?? null,
             json_encode($body['notes'] ?? [])
@@ -249,7 +263,8 @@ switch ($method) {
         $fields = [];
         $params = [];
 
-        $stringFields = ['client_name', 'phone', 'email', 'instagram', 'event_type', 'venue', 'guest_count', 'budget_range', 'source', 'stage'];
+        $stringFields = ['client_name', 'phone', 'email', 'instagram', 'event_type', 'venue', 'guest_count', 'budget_range', 'source', 'stage',
+            'bride_name', 'bride_phone', 'bride_whatsapp', 'groom_name', 'groom_phone', 'groom_whatsapp', 'referrer_name'];
         $dateFields = ['event_date', 'last_activity', 'moved_to_stage_at'];
         $numericFields = ['assigned_to'];
         $jsonFields = ['notes'];

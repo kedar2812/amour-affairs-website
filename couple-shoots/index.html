@@ -98,8 +98,7 @@
   <section class="cpage-archive" id="archive">
     <div class="cpage-archive__inner">
       <div class="cpage-archive__header">
-        <span class="cpage-archive__eyebrow">From Our Sessions</span>
-        <h2 class="cpage-archive__heading">Browse by <em>Couple</em></h2>
+        <h2 class="cpage-archive__heading cpage-archive__heading--caps">From Our <em>Sessions</em></h2>
       </div>
       <div class="cpage-archive__grid" id="archiveGrid">
         <!-- Folder cards rendered by couple-shoots-init.js from couple-shoots-albums-data.js -->
@@ -120,18 +119,129 @@
     </div>
   </section>
 
-  <!-- ═══════════ CTA ═══════════ -->
-  <section class="cpage-cta">
-    <span class="cpage-cta__label">Your Folder Awaits</span>
-    <h2 class="cpage-cta__heading">Every Great Wedding Album Starts With <em>This</em></h2>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="cpage-cta__btn">Book Your Session <span class="cpage-cta__btn-arrow" aria-hidden="true">&#8594;</span></a>
+  <!-- ═══════════ ENQUIRY ═══════════ -->
+  <!-- Page-foot enquiry — submits to the same lead pipeline as the home-page
+       form (leads.php → dashboard). Kept independent of the folder-overlay
+       form: unique field IDs, its own submit + status. -->
+  <section class="section section--alt inquiry" id="enquire">
+    <div class="container">
+      <div class="inquiry__inner">
+
+        <!-- Left: invitation copy + direct contacts -->
+        <div class="inquiry__info">
+          <span class="inquiry__label">Your Folder Awaits</span>
+          <h2 class="inquiry__title">Every Great Wedding Album Starts With <em>This</em></h2>
+          <p class="inquiry__text">Tell us about the two of you and we&rsquo;ll get back within 24 hours &mdash; with dates, locations and ideas for your session.</p>
+          <div class="inquiry__contacts">
+            <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="inquiry__contact-link">+91 9921000052</a>
+            <a href="mailto:info@amouraffairs.in" class="inquiry__contact-link">info@amouraffairs.in</a>
+          </div>
+        </div>
+
+        <!-- Right: the form -->
+        <form class="inquiry__form" id="coupleInquiryForm" data-source="Website (Couples)" novalidate>
+
+          <!-- Honeypot — humans never see or fill this -->
+          <div class="inquiry__hp" aria-hidden="true">
+            <label>Website
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqName">Your Name *</label>
+              <input class="inquiry__input" type="text" id="cInqName" name="client_name" autocomplete="name" maxlength="200" required>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqPhone">Phone *</label>
+              <input class="inquiry__input" type="tel" id="cInqPhone" name="phone" autocomplete="tel" maxlength="20" placeholder="+91">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqEmail">Email</label>
+              <input class="inquiry__input" type="email" id="cInqEmail" name="email" autocomplete="email" maxlength="255">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqEventType">Occasion</label>
+              <select class="inquiry__input inquiry__select" id="cInqEventType" name="event_type">
+                <option value="Couple Shoot" selected>Couple Shoot</option>
+                <option value="Pre-Wedding">Pre-Wedding</option>
+                <option value="Engagement">Engagement</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+              <input class="inquiry__input" type="date" id="cInqDate" name="event_date">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqVenue">Venue / City <span class="inquiry__optional">(optional)</span></label>
+              <input class="inquiry__input" type="text" id="cInqVenue" name="venue" autocomplete="off" maxlength="255" placeholder="e.g. Lonavala">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqGuests">Guest Count <span class="inquiry__optional">(approx.)</span></label>
+              <select class="inquiry__input inquiry__select" id="cInqGuests" name="guest_count">
+                <option value="">Select…</option>
+                <option value="Under 100">Under 100</option>
+                <option value="100–300">100–300</option>
+                <option value="300–500">300–500</option>
+                <option value="500–1000">500–1000</option>
+                <option value="1000+">1000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="cInqBudget">Budget <span class="inquiry__optional">(optional)</span></label>
+              <select class="inquiry__input inquiry__select" id="cInqBudget" name="budget_range">
+                <option value="">Select…</option>
+                <option value="Under ₹1,00,000">Under ₹1,00,000</option>
+                <option value="₹1,00,000 – ₹2,00,000">₹1,00,000 – ₹2,00,000</option>
+                <option value="₹2,00,000 – ₹4,00,000">₹2,00,000 – ₹4,00,000</option>
+                <option value="₹4,00,000 – ₹7,00,000">₹4,00,000 – ₹7,00,000</option>
+                <option value="₹7,00,000+">₹7,00,000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__field">
+            <label class="inquiry__field-label" for="cInqMessage">Tell Us More <span class="inquiry__optional">(your story, plans, anything)</span></label>
+            <textarea class="inquiry__input inquiry__textarea" id="cInqMessage" name="message" rows="4" maxlength="2000"></textarea>
+            <span class="inquiry__field-error" aria-live="polite"></span>
+          </div>
+
+          <button type="submit" class="inquiry__submit" id="coupleInquirySubmit">
+            Send Inquiry <span class="inquiry__submit-arrow" aria-hidden="true">&#8594;</span>
+          </button>
+
+          <p class="inquiry__status" id="coupleInquiryStatus" role="status" aria-live="polite"></p>
+        </form>
+
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════ ALBUM OVERLAY (opened folder) ═══════════ -->
   <div class="cpage-album" id="albumOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Couple shoot album">
     <div class="cpage-album__scroll" id="albumOverlayScroll" data-lenis-prevent>
       <div class="cpage-album__bar">
-        <span class="cpage-album__chip" id="overlayFolderLabel">Folder 01</span>
         <button class="cpage-album__close" id="overlayClose" aria-label="Close album">Close &#10005;</button>
       </div>
       <header class="cpage-album__head">

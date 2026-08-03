@@ -13,6 +13,11 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+05:30";
+-- Force a 4-byte-capable client connection so emoji in the seed data
+-- (festival icons, greeting templates) store intact. Without this, an
+-- import over a latin1/utf8(3-byte) client silently turns every 4-byte
+-- emoji (🎂 🎉 🪔 …) into a literal "?" even though the columns are utf8mb4.
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
 -- 1. ADMIN USERS (Authentication)
@@ -285,7 +290,14 @@ CREATE TABLE IF NOT EXISTS `leads` (
   `venue` VARCHAR(255) DEFAULT NULL,
   `guest_count` VARCHAR(50) DEFAULT NULL,
   `budget_range` VARCHAR(100) DEFAULT NULL,
-  `source` ENUM('Instagram','WhatsApp','Google','Referral','Website','Other') NOT NULL DEFAULT 'Website',
+  `bride_name` VARCHAR(200) DEFAULT NULL,
+  `bride_phone` VARCHAR(30) DEFAULT NULL,
+  `bride_whatsapp` VARCHAR(30) DEFAULT NULL,
+  `groom_name` VARCHAR(200) DEFAULT NULL,
+  `groom_phone` VARCHAR(30) DEFAULT NULL,
+  `groom_whatsapp` VARCHAR(30) DEFAULT NULL,
+  `referrer_name` VARCHAR(200) DEFAULT NULL,
+  `source` VARCHAR(120) NOT NULL DEFAULT 'Website',
   `stage` ENUM('New Inquiry','Contacted','Consultation Scheduled','Proposal Sent','Won','Lost') NOT NULL DEFAULT 'New Inquiry',
   `assigned_to` INT UNSIGNED DEFAULT NULL,
   `last_activity` DATETIME DEFAULT NULL,
@@ -597,6 +609,82 @@ CREATE TABLE IF NOT EXISTS `page_views` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────
+-- 24. CRM — client special dates, festivals, greeting log
+-- (curated WhatsApp wishes for birthdays / anniversaries /
+-- kids' birthdays / festivals, driven from the dashboard)
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `client_dates` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `client_id` INT UNSIGNED NOT NULL,
+  `occasion` VARCHAR(30) NOT NULL DEFAULT 'birthday', -- birthday | anniversary | kid_birthday | other
+  `label` VARCHAR(150) DEFAULT NULL,
+  `person_name` VARCHAR(150) DEFAULT NULL,
+  `occasion_date` DATE NOT NULL,
+  `year_known` TINYINT(1) NOT NULL DEFAULT 1,
+  `notes` VARCHAR(255) DEFAULT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_cd_client` (`client_id`, `is_active`),
+  KEY `idx_cd_date` (`occasion_date`),
+  CONSTRAINT `fk_cd_client` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `festivals` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(120) NOT NULL,
+  `emoji` VARCHAR(8) DEFAULT NULL,
+  `festival_date` DATE NOT NULL,
+  `is_movable` TINYINT(1) NOT NULL DEFAULT 0, -- lunar festival: confirm the date each year
+  `message_template` TEXT DEFAULT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_festival_name` (`name`),
+  KEY `idx_festival_active` (`is_active`, `festival_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `crm_greetings` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `client_id` INT UNSIGNED DEFAULT NULL,
+  `client_date_id` INT UNSIGNED DEFAULT NULL,
+  `festival_id` INT UNSIGNED DEFAULT NULL,
+  `occasion_year` SMALLINT UNSIGNED NOT NULL,
+  `message` TEXT DEFAULT NULL,
+  `sent_by` INT UNSIGNED DEFAULT NULL,
+  `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_g_date` (`client_date_id`, `occasion_year`),
+  KEY `idx_g_festival` (`festival_id`, `occasion_year`),
+  KEY `idx_g_client` (`client_id`),
+  CONSTRAINT `fk_g_client` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_g_date` FOREIGN KEY (`client_date_id`) REFERENCES `client_dates` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_g_festival` FOREIGN KEY (`festival_id`) REFERENCES `festivals` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Starter festival calendar (2026 dates; movable ones confirmed yearly)
+INSERT IGNORE INTO `festivals` (`name`, `emoji`, `festival_date`, `is_movable`) VALUES
+('New Year', '🎉', '2026-01-01', 0),
+('Valentine''s Day', '❤️', '2026-02-14', 0),
+('Holi', '🎨', '2026-03-04', 1),
+('Eid al-Fitr', '🌙', '2026-03-20', 1),
+('Raksha Bandhan', '💛', '2026-08-28', 1),
+('Ganesh Chaturthi', '🙏', '2026-09-14', 1),
+('Diwali', '🪔', '2026-11-08', 1),
+('Christmas', '🎄', '2026-12-25', 0);
+
+-- Default CRM greeting templates ({name} {person} {label} {festival}
+-- placeholders are filled at send time; dashboard-editable)
+INSERT IGNORE INTO `settings` (`setting_key`, `setting_value`, `setting_group`) VALUES
+('crm_tpl_birthday', 'Dear {name}, wishing you a very happy birthday from all of us at Amour Affairs! 🎂 May your year ahead be filled with love, laughter and beautiful moments.', 'crm'),
+('crm_tpl_anniversary', 'Happy anniversary, {name}! 💍 It was our honour to capture your special day — wishing you both a lifetime of love and happiness. — Team Amour Affairs', 'crm'),
+('crm_tpl_kid_birthday', 'Dear {name}, a very happy birthday to {person}! 🎈 Wishing your little one a day full of joy and wonder. With love, Team Amour Affairs', 'crm'),
+('crm_tpl_festival', 'Dear {name}, warm wishes to you and your family on {festival}! ✨ May the celebrations bring you happiness and light. — Team Amour Affairs', 'crm'),
+('crm_tpl_other', 'Dear {name}, warm wishes on {label}! — Team Amour Affairs', 'crm');
+
+-- ────────────────────────────────────────────────────────────
 -- POST-SEED DEFAULTS
 -- The seed INSERTs above leave the curation flags at their
 -- column defaults — give a fresh install sensible starting values.
@@ -608,5 +696,62 @@ UPDATE `testimonials` SET `show_on_weddings` = 1 WHERE `is_active` = 1;
 -- Spread unassigned reviews evenly across the three testimonials-page
 -- marquee rows (0 = unassigned, so curated rows are never reshuffled)
 UPDATE `testimonials` SET `marquee_row` = ((`id` - 1) % 3) + 1 WHERE `marquee_row` = 0;
+
+-- ────────────────────────────────────────────────────────────
+-- CRM v2 — family records (fresh-install schema).
+-- On an existing live DB the bride/groom lead columns are added
+-- by api/_migrate_crm2.php (information_schema-guarded); here
+-- they are part of the leads CREATE TABLE above.
+-- ────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS `families` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `display_name` VARCHAR(200) NOT NULL,
+  `anniversary_date` DATE DEFAULT NULL,
+  `anniversary_year_known` TINYINT(1) NOT NULL DEFAULT 1,
+  `notes` TEXT DEFAULT NULL,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_fam_active` (`is_active`),
+  KEY `idx_fam_anniv` (`anniversary_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `family_members` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `family_id` INT UNSIGNED NOT NULL,
+  `role` VARCHAR(20) NOT NULL DEFAULT 'husband',
+  `name` VARCHAR(200) NOT NULL,
+  `dob` DATE DEFAULT NULL,
+  `dob_year_known` TINYINT(1) NOT NULL DEFAULT 1,
+  `phone` VARCHAR(30) DEFAULT NULL,
+  `whatsapp` VARCHAR(30) DEFAULT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_fm_family` (`family_id`),
+  KEY `idx_fm_dob` (`dob`),
+  CONSTRAINT `fk_fm_family` FOREIGN KEY (`family_id`) REFERENCES `families` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `family_greetings` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `family_id` INT UNSIGNED NOT NULL,
+  `family_member_id` INT UNSIGNED DEFAULT NULL,
+  `festival_id` INT UNSIGNED DEFAULT NULL,
+  `occasion` VARCHAR(20) NOT NULL DEFAULT 'birthday',
+  `occasion_year` SMALLINT UNSIGNED NOT NULL,
+  `message` TEXT DEFAULT NULL,
+  `sent_by` INT UNSIGNED DEFAULT NULL,
+  `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_fg_family` (`family_id`, `occasion_year`),
+  KEY `idx_fg_member` (`family_member_id`, `occasion_year`),
+  KEY `idx_fg_festival` (`festival_id`, `occasion_year`),
+  CONSTRAINT `fk_fg_family` FOREIGN KEY (`family_id`) REFERENCES `families` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_fg_member` FOREIGN KEY (`family_member_id`) REFERENCES `family_members` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_fg_festival` FOREIGN KEY (`festival_id`) REFERENCES `festivals` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;

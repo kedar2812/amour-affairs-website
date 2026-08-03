@@ -98,8 +98,7 @@
   <section class="wpage-archive" id="archive">
     <div class="wpage-archive__inner">
       <div class="wpage-archive__header">
-        <span class="wpage-archive__eyebrow">From Our Collection</span>
-        <h2 class="wpage-archive__heading">Browse by <em>Couple</em></h2>
+        <h2 class="wpage-archive__heading wpage-archive__heading--caps">From Our <em>Collection</em></h2>
       </div>
       <div class="wpage-archive__grid" id="archiveGrid">
         <!-- Folder cards rendered by weddings-init.js from weddings-albums-data.js -->
@@ -111,10 +110,13 @@
   <section class="wpage-types" aria-label="Wedding photography services">
     <div class="wpage-types__inner">
       <div class="wpage-types__header">
-        <span class="wpage-types__eyebrow">How We Shoot</span>
-        <h2 class="wpage-types__heading">One Studio, <em>Every Kind of Wedding</em></h2>
+        <span class="wpage-types__eyebrow" data-wtypes="eyebrow">How We Shoot</span>
+        <h2 class="wpage-types__heading" data-wtypes="heading">One Studio, <em>Every Kind of Wedding</em></h2>
       </div>
-      <div class="wpage-types__grid">
+      <!-- Cards rendered by weddings-init.js from site-content.js defaults /
+           dashboard "Website Content → Weddings — Photography Styles" overrides.
+           Baked markup below is the no-JS fallback and is replaced on load. -->
+      <div class="wpage-types__grid" id="weddingTypes">
         <div class="wpage-types__item">
           <h3 class="wpage-types__title">Candid Wedding Photography</h3>
           <p class="wpage-types__text">Unposed and unhurried — our candid wedding photographers move quietly through your day, catching the glances, tears and laughter you didn't know were being kept.</p>
@@ -126,10 +128,6 @@
         <div class="wpage-types__item">
           <h3 class="wpage-types__title">Destination Weddings</h3>
           <p class="wpage-types__text">From Goa's beaches to Udaipur's palaces, we travel as your destination wedding photographer — one team, familiar faces, the same eye wherever you celebrate.</p>
-        </div>
-        <div class="wpage-types__item">
-          <h3 class="wpage-types__title">NRI Weddings</h3>
-          <p class="wpage-types__text">Planning from abroad? Our NRI wedding photography couples plan everything over video calls and WhatsApp, then deliver galleries and films to wherever home is.</p>
         </div>
       </div>
     </div>
@@ -146,18 +144,129 @@
     </div>
   </section>
 
-  <!-- ═══════════ CTA ═══════════ -->
-  <section class="wpage-cta">
-    <span class="wpage-cta__label">Your Folder Awaits</span>
-    <h2 class="wpage-cta__heading">The Next Folder Could Be <em>Yours</em></h2>
-    <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="wpage-cta__btn">Book Your Date <span class="wpage-cta__btn-arrow" aria-hidden="true">&#8594;</span></a>
+  <!-- ═══════════ ENQUIRY ═══════════ -->
+  <!-- Page-foot enquiry — submits to the same lead pipeline as the home-page
+       form (leads.php → dashboard). Kept independent of the folder-overlay
+       form: unique field IDs, its own submit + status. -->
+  <section class="section section--alt inquiry" id="enquire">
+    <div class="container">
+      <div class="inquiry__inner">
+
+        <!-- Left: invitation copy + direct contacts -->
+        <div class="inquiry__info">
+          <span class="inquiry__label">Your Folder Awaits</span>
+          <h2 class="inquiry__title">The Next Folder Could Be <em>Yours</em></h2>
+          <p class="inquiry__text">Tell us about your celebration and we&rsquo;ll get back within 24 hours &mdash; with ideas, availability and a fair quote.</p>
+          <div class="inquiry__contacts">
+            <a href="https://wa.me/919921000052" target="_blank" rel="noopener" class="inquiry__contact-link">+91 9921000052</a>
+            <a href="mailto:info@amouraffairs.in" class="inquiry__contact-link">info@amouraffairs.in</a>
+          </div>
+        </div>
+
+        <!-- Right: the form -->
+        <form class="inquiry__form" id="weddingInquiryForm" data-source="Website (Weddings)" novalidate>
+
+          <!-- Honeypot — humans never see or fill this -->
+          <div class="inquiry__hp" aria-hidden="true">
+            <label>Website
+              <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqName">Your Name *</label>
+              <input class="inquiry__input" type="text" id="wInqName" name="client_name" autocomplete="name" maxlength="200" required>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqPhone">Phone *</label>
+              <input class="inquiry__input" type="tel" id="wInqPhone" name="phone" autocomplete="tel" maxlength="20" placeholder="+91">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqEmail">Email</label>
+              <input class="inquiry__input" type="email" id="wInqEmail" name="email" autocomplete="email" maxlength="255">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqEventType">Occasion</label>
+              <select class="inquiry__input inquiry__select" id="wInqEventType" name="event_type">
+                <option value="Wedding">Wedding</option>
+                <option value="Pre-Wedding">Pre-Wedding</option>
+                <option value="Couple Shoot">Couple Shoot</option>
+                <option value="Engagement">Engagement</option>
+                <option value="Corporate">Corporate</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqDate">Event Date <span class="inquiry__optional">(if you have one)</span></label>
+              <input class="inquiry__input" type="date" id="wInqDate" name="event_date">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqVenue">Venue / City <span class="inquiry__optional">(optional)</span></label>
+              <input class="inquiry__input" type="text" id="wInqVenue" name="venue" autocomplete="off" maxlength="255" placeholder="e.g. Taj, Goa">
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__row">
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqGuests">Guest Count <span class="inquiry__optional">(approx.)</span></label>
+              <select class="inquiry__input inquiry__select" id="wInqGuests" name="guest_count">
+                <option value="">Select…</option>
+                <option value="Under 100">Under 100</option>
+                <option value="100–300">100–300</option>
+                <option value="300–500">300–500</option>
+                <option value="500–1000">500–1000</option>
+                <option value="1000+">1000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+            <div class="inquiry__field">
+              <label class="inquiry__field-label" for="wInqBudget">Budget <span class="inquiry__optional">(optional)</span></label>
+              <select class="inquiry__input inquiry__select" id="wInqBudget" name="budget_range">
+                <option value="">Select…</option>
+                <option value="Under ₹1,00,000">Under ₹1,00,000</option>
+                <option value="₹1,00,000 – ₹2,00,000">₹1,00,000 – ₹2,00,000</option>
+                <option value="₹2,00,000 – ₹4,00,000">₹2,00,000 – ₹4,00,000</option>
+                <option value="₹4,00,000 – ₹7,00,000">₹4,00,000 – ₹7,00,000</option>
+                <option value="₹7,00,000+">₹7,00,000+</option>
+              </select>
+              <span class="inquiry__field-error" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <div class="inquiry__field">
+            <label class="inquiry__field-label" for="wInqMessage">Tell Us More <span class="inquiry__optional">(your story, plans, anything)</span></label>
+            <textarea class="inquiry__input inquiry__textarea" id="wInqMessage" name="message" rows="4" maxlength="2000"></textarea>
+            <span class="inquiry__field-error" aria-live="polite"></span>
+          </div>
+
+          <button type="submit" class="inquiry__submit" id="weddingInquirySubmit">
+            Send Inquiry <span class="inquiry__submit-arrow" aria-hidden="true">&#8594;</span>
+          </button>
+
+          <p class="inquiry__status" id="weddingInquiryStatus" role="status" aria-live="polite"></p>
+        </form>
+
+      </div>
+    </div>
   </section>
 
   <!-- ═══════════ ALBUM OVERLAY (opened folder) ═══════════ -->
   <div class="wpage-album" id="albumOverlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Wedding album">
     <div class="wpage-album__scroll" id="albumOverlayScroll" data-lenis-prevent>
       <div class="wpage-album__bar">
-        <span class="wpage-album__chip" id="overlayFolderLabel">Folder 01</span>
         <button class="wpage-album__close" id="overlayClose" aria-label="Close album">Close &#10005;</button>
       </div>
       <header class="wpage-album__head">

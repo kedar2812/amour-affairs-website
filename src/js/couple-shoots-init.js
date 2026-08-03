@@ -38,6 +38,8 @@ loadArchiveAlbums('couple_shoot', fallbackAlbums).then((albums) => initArchivePa
   prefix: 'cpage',
   filmLabel: 'The Couple Film',
   photoWord: 'pre-wedding shoot',
+  cardChip: false, // no "Folder 01" chip on the grid thumbnails
+  cardMetaMode: 'location', // under the couple name, show the location only
   onReady({ gsap, ScrollTrigger }) {
     // The enquiry form inside the opened folder feeds the leads pipeline
     initLeadForm();

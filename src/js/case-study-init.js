@@ -11,13 +11,15 @@ import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
 import '../styles/info-page.css';
 import '../styles/content-pages.css';
+import '../styles/sections/inquiry.css';
 import '../styles/buttons.css';
 
 import { fetchFromAPI, assetUrl } from './api.js';
 import {
   createLenis, finishBoot, renderMarkdown, plainText, escapeHtml,
-  injectJsonLd, setMeta, decodeDeep,
+  injectJsonLd, setMeta, decodeDeep, initAnchorScroll,
 } from './content-page.js';
+import { initLeadForm } from './lead-form.js';
 import { initLightbox } from './lightbox.js';
 
 const SITE = 'https://www.amouraffairs.in';
@@ -96,15 +98,15 @@ async function render() {
     ${factsMarkup(cs)}
     <div class="cp-prose">${renderMarkdown(cs.body)}</div>
     ${filmMarkup(cs.film_youtube_id)}
-    ${galleryMarkup(cs.gallery, cs)}
-    <div class="cp-cta">
-      <h2 class="cp-cta__title">Your Story <em>Next?</em></h2>
-      <p class="cp-cta__sub">We'd love to hear about your wedding. Share a few details and we'll be in touch within 24 hours.</p>
-      <a href="/#contact" class="ipage-cta__btn">Start the Conversation <span aria-hidden="true">&rarr;</span></a>
-    </div>`;
+    ${galleryMarkup(cs.gallery, cs)}`;
 
   // Click-to-view: cover, gallery and any prose images open in the zoomable lightbox.
   initLightbox(root, '.cp-article__cover, .cp-gallery img, .cp-prose img');
+
+  // Tag the enquiry form (static in the template) with the exact story so the
+  // dashboard sees which case study the lead came from.
+  const form = document.getElementById('inquiryForm');
+  if (form) form.dataset.page = `/case-studies/${cs.slug}/`;
 
   const description = cs.meta_description || cs.summary || plainText(cs.body, 155);
   const url = `${SITE}/case-studies/${cs.slug}/`;
@@ -155,6 +157,8 @@ function notFound() {
 async function init() {
   const lenis = createLenis();
   await render();
+  initLeadForm();
+  initAnchorScroll(lenis);
   await finishBoot(lenis);
 }
 

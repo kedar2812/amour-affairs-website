@@ -48,6 +48,8 @@ export function initArchivePage({
   openWord = 'Open Folder',
   filmLabel = 'The Wedding Film',
   photoWord = 'wedding photography',
+  cardChip = true, // show the "Folder 01" chip on each grid thumbnail
+  cardMetaMode = 'full', // 'full' = location · date · count; 'location' = location only
 }) {
   const p = prefix;
 
@@ -104,20 +106,24 @@ export function initArchivePage({
     if (!grid) return;
 
     grid.innerHTML = albums
-      .map((album, i) => `
+      .map((album, i) => {
+        const chip = cardChip ? `<span class="${p}-card__chip">${folderWord} ${pad2(i)}</span>` : '';
+        const caption = cardMetaMode === 'location' ? (album.location || '') : albumMeta(album);
+        return `
         <article class="${p}-card" data-album="${i}" tabindex="0" role="button"
                  aria-label="${openWord}: ${album.couple}">
           <div class="${p}-card__thumb">
             <img src="${album.cover}" alt="${altFor(album)}" loading="lazy" />
-            <span class="${p}-card__chip">${folderWord} ${pad2(i)}</span>
+            ${chip}
             <span class="${p}-card__open">${openWord} <span aria-hidden="true">&#8594;</span></span>
           </div>
           <div class="${p}-card__body">
             <span class="${p}-card__title">${formatCouple(album.couple)}</span>
-            <span class="${p}-card__caption">${albumMeta(album)}</span>
+            ${caption ? `<span class="${p}-card__caption">${caption}</span>` : ''}
           </div>
         </article>
-      `)
+      `;
+      })
       .join('');
 
     grid.querySelectorAll(`.${p}-card`).forEach((card) => {
@@ -186,7 +192,8 @@ export function initArchivePage({
     currentAlbumIndex = index;
     if (sourceCard) lastFocusedCard = sourceCard;
 
-    document.getElementById('overlayFolderLabel').textContent = `${folderWord} ${pad2(index)}`;
+    const folderLabel = document.getElementById('overlayFolderLabel');
+    if (folderLabel) folderLabel.textContent = `${folderWord} ${pad2(index)}`;
     document.getElementById('overlayTitle').innerHTML = formatCouple(album.couple);
     document.getElementById('overlayMeta').innerHTML = albumMeta(album);
     document.getElementById('overlayDesc').textContent = album.description;
