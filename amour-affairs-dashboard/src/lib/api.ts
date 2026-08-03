@@ -321,7 +321,36 @@ export const albumsAPI = {
   setCover: (id: number, formData: FormData) => api.post(`albums.php?action=cover&id=${id}`, formData),
   reorder: (orders: { id: number; sort_order: number }[]) =>
     api.post('albums.php?action=reorder', { orders } as unknown as Record<string, unknown>),
+
+  // Sections — the ritual filters inside a folder (Haldi, Mehendi, …).
+  // Note the id in update/remove is the SECTION id, not the album id.
+  sections: {
+    create: (albumId: number, name: string) =>
+      api.post<AlbumSection>(`albums.php?action=sections&id=${albumId}`, { name }),
+    update: (sectionId: number, data: { name?: string; is_active?: number; sort_order?: number }) =>
+      api.put<AlbumSection>(`albums.php?action=sections&id=${sectionId}`, data),
+    /** Deleting a section releases its photos to unsorted — it never deletes them. */
+    remove: (sectionId: number) =>
+      api.delete<{ message: string; released: number }>(`albums.php?action=sections&id=${sectionId}`),
+    reorder: (albumId: number, orders: { id: number; sort_order: number }[]) =>
+      api.post(`albums.php?action=sections_reorder&id=${albumId}`, { orders } as unknown as Record<string, unknown>),
+    /** Move photos into a section, or back to unsorted with sectionId null. */
+    assign: (albumId: number, photoIds: number[], sectionId: number | null) =>
+      api.post<{ moved: number; section_id: number | null }>(
+        `albums.php?action=assign&id=${albumId}`,
+        { photo_ids: photoIds, section_id: sectionId } as unknown as Record<string, unknown>,
+      ),
+  },
 };
+
+export interface AlbumSection {
+  id: number;
+  album_id: number;
+  name: string;
+  sort_order: number;
+  is_active: number;
+  photo_count?: number;
+}
 
 export const filmsAPI = {
   list: (params?: { featured?: number; all?: boolean }) => {

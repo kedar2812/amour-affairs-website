@@ -444,4 +444,30 @@ CREATE TABLE IF NOT EXISTS `family_greetings` (
   CONSTRAINT `fk_fg_festival` FOREIGN KEY (`festival_id`) REFERENCES `festivals` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- ────────────────────────────────────────────────────────────
+-- ALBUM SECTIONS (2026-08-03)
+-- Ritual/segment filters inside a folder: Haldi, Mehendi, Sangeet…
+-- A photo belongs to at most one section; section_id NULL means
+-- "unsorted", which still shows under the website's "All" filter.
+-- ────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `album_sections` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `album_id` INT UNSIGNED NOT NULL,
+  `name` VARCHAR(80) NOT NULL,
+  `sort_order` INT NOT NULL DEFAULT 0,
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_sec_album` (`album_id`, `sort_order`),
+  CONSTRAINT `fk_sec_album` FOREIGN KEY (`album_id`) REFERENCES `albums` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ON DELETE SET NULL is deliberate: removing a section must never destroy
+-- photographs — they simply fall back to unsorted.
+ALTER TABLE `gallery_images`
+  ADD COLUMN `section_id` INT UNSIGNED DEFAULT NULL AFTER `album_id`,
+  ADD KEY `idx_gi_section` (`section_id`),
+  ADD CONSTRAINT `fk_gi_section` FOREIGN KEY (`section_id`) REFERENCES `album_sections` (`id`) ON DELETE SET NULL;
+
 COMMIT;

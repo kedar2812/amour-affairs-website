@@ -102,7 +102,19 @@ export async function loadArchiveAlbums(type, fallback) {
       description: decodeEntities(a.description),
       film: a.film_youtube_id || '',
       cover: assetUrl(a.cover),
-      photos: a.photos.map((p) => assetUrl(p.file_path)),
+      // Ritual/segment filters inside the folder (Haldi, Mehendi, …).
+      // Empty for folders the studio hasn't sectioned — the archive page
+      // then renders no filter row at all.
+      sections: Array.isArray(a.sections)
+        ? a.sections.map((s) => ({ id: Number(s.id), name: decodeEntities(s.name) }))
+        : [],
+      // Objects rather than bare URLs so each photo carries its section.
+      // archive-page.js accepts both shapes, so the bundled fallback albums
+      // (plain URL strings) keep working unchanged.
+      photos: a.photos.map((p) => ({
+        src: assetUrl(p.file_path),
+        section: p.section_id == null ? null : Number(p.section_id),
+      })),
     }));
 
   // An empty archive looks broken — keep the fallback until real albums exist

@@ -17,6 +17,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { initNav } from './nav.js';
 import { initPreloader } from './animations.js';
+import { photoSrc, usableSections, filterPhotos } from './album-sections.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -30,6 +31,8 @@ const albumMeta = (album) =>
   [album.location, album.date, `${album.photos.length} Photographs`]
     .filter(Boolean)
     .join(' &middot; ');
+
+const escapeAttr = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 // Normalise a YouTube URL or bare ID to its 11-char video id ('' if none)
 const youtubeId = (input) => {
@@ -98,6 +101,10 @@ export function initArchivePage({
   let currentAlbumIndex = -1;
   let currentPhotoIndex = 0;
   let lastFocusedCard = null;
+  // The photographs actually on screen — the whole album, or one section of it.
+  // The lightbox walks this list, so prev/next never jump to a hidden photo.
+  let currentPhotos = [];
+  let currentFilter = 'all';
 
   /* ── Folder grid ── */
 
@@ -183,6 +190,90 @@ export function initArchivePage({
     return true;
   }
 
+  /* ── Section filters (Haldi, Mehendi, Sangeet…) ──
+     The row is built once and reused; it lives directly above the masonry and
+     is hidden entirely for folders the studio hasn't sectioned. */
+
+  let filterRow = null;
+
+  function ensureFilterRow() {
+    if (filterRow || !masonry || !masonry.parentNode) return filterRow;
+    filterRow = document.createElement('div');
+    filterRow.className = `${p}-album__filters`;
+    filterRow.setAttribute('role', 'group');
+    filterRow.setAttribute('aria-label', 'Filter photographs by ritual');
+    masonry.parentNode.insertBefore(filterRow, masonry);
+    return filterRow;
+  }
+
+  function renderFilters(album) {
+    const sections = usableSections(album);
+    const row = ensureFilterRow();
+    if (!row) return sections;
+
+    if (sections.length === 0) {
+      row.hidden = true;
+      row.innerHTML = '';
+      return sections;
+    }
+
+    row.hidden = false;
+    const chip = (key, label, count, isActive) => `
+      <button class="${p}-album__filter${isActive ? ' is-active' : ''}"
+              type="button" data-filter="${escapeAttr(key)}" aria-pressed="${isActive}">
+        ${escapeAttr(label)} <span class="${p}-album__filter-count">${count}</span>
+      </button>`;
+
+    row.innerHTML = [
+      chip('all', 'All', album.photos.length, currentFilter === 'all'),
+      ...sections.map((s) => chip(String(s.id), s.name, s.count, currentFilter === String(s.id))),
+    ].join('');
+
+    row.querySelectorAll(`.${p}-album__filter`).forEach((btn) => {
+      btn.addEventListener('click', () => applyFilter(album, btn.dataset.filter));
+    });
+    return sections;
+  }
+
+  /** Switch the visible set without reopening the folder. */
+  function applyFilter(album, key) {
+    if (currentFilter === key) return;
+    currentFilter = key;
+
+    const row = filterRow;
+    if (row) {
+      row.querySelectorAll(`.${p}-album__filter`).forEach((btn) => {
+        const on = btn.dataset.filter === key;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-pressed', String(on));
+      });
+    }
+
+    renderMasonry(album);
+    gsap.fromTo(
+      `.${p}-album__photo`,
+      { y: 24, opacity: 0 },
+      { y: 0, opacity: 1, stagger: 0.035, duration: 0.6, ease: 'power3.out' }
+    );
+  }
+
+  /** Paint the masonry from the current filter and cache the visible list. */
+  function renderMasonry(album) {
+    currentPhotos = filterPhotos(album, currentFilter);
+
+    masonry.innerHTML = currentPhotos
+      .map((photo, i) => `
+        <button class="${p}-album__photo" data-photo="${i}" aria-label="View photograph ${i + 1} of ${escapeAttr(album.couple)}">
+          <img src="${photoSrc(photo)}" alt="${escapeAttr(altFor(album))} — photograph ${i + 1}" loading="lazy" />
+        </button>
+      `)
+      .join('');
+
+    masonry.querySelectorAll(`.${p}-album__photo`).forEach((btn) => {
+      btn.addEventListener('click', () => openLightbox(Number(btn.dataset.photo)));
+    });
+  }
+
   /* ── Album view (the opened folder) ── */
 
   function openAlbum(index, sourceCard = null) {
@@ -204,17 +295,11 @@ export function initArchivePage({
     document.getElementById('overlayNext').innerHTML =
       `${next.couple} <span aria-hidden="true">&#8594;</span>`;
 
-    masonry.innerHTML = album.photos
-      .map((src, i) => `
-        <button class="${p}-album__photo" data-photo="${i}" aria-label="View photograph ${i + 1} of ${album.couple}">
-          <img src="${src}" alt="${altFor(album)} — photograph ${i + 1}" loading="lazy" />
-        </button>
-      `)
-      .join('');
-
-    masonry.querySelectorAll(`.${p}-album__photo`).forEach((btn) => {
-      btn.addEventListener('click', () => openLightbox(Number(btn.dataset.photo)));
-    });
+    // Every folder opens on "All" — a remembered filter from the previous
+    // folder would silently hide photographs here.
+    currentFilter = 'all';
+    renderFilters(album);
+    renderMasonry(album);
 
     albumScroll.scrollTop = 0;
     albumView.classList.add('is-open');
@@ -254,13 +339,16 @@ export function initArchivePage({
 
   /* ── Photo lightbox ── */
 
+  // Walks the *visible* set, so with a section filter on, prev/next stay
+  // inside that ritual and the counter reads "3 / 12", not "3 / 240".
   function showPhoto(index) {
     const album = albums[currentAlbumIndex];
-    if (!album) return;
-    currentPhotoIndex = (index + album.photos.length) % album.photos.length;
-    lightboxImg.src = album.photos[currentPhotoIndex];
+    if (!album || currentPhotos.length === 0) return;
+    const total = currentPhotos.length;
+    currentPhotoIndex = ((index % total) + total) % total;
+    lightboxImg.src = photoSrc(currentPhotos[currentPhotoIndex]);
     lightboxImg.alt = `${album.couple} — photograph ${currentPhotoIndex + 1}`;
-    lightboxCounter.textContent = `${currentPhotoIndex + 1} / ${album.photos.length}`;
+    lightboxCounter.textContent = `${currentPhotoIndex + 1} / ${total}`;
     gsap.fromTo(lightboxImg, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power2.out' });
   }
 

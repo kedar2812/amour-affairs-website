@@ -12,16 +12,28 @@
  *        ?type=wedding|couple_shoot|premium_album
  *        ?all=1            include hidden albums (dashboard)
  *        ?with_photos=1    embed each album's photos (website)
- * GET    /api/albums.php?id=X                  — Single album + photos
+ * GET    /api/albums.php?id=X                  — Single album + photos + sections
  * POST   /api/albums.php                       — Create album, multipart w/ optional `cover` (auth)
- * POST   /api/albums.php?action=photos&id=X    — Add photos, multipart `photos[]` (auth)
+ * POST   /api/albums.php?action=photos&id=X    — Add photos, multipart `photos[]` (+ optional section_id) (auth)
  * POST   /api/albums.php?action=cover&id=X     — Replace cover, multipart `cover` (auth)
  * POST   /api/albums.php?action=reorder        — Bulk reorder albums (auth)
  * PUT    /api/albums.php?id=X                  — Update album meta (auth)
  * DELETE /api/albums.php?id=X                  — Delete album + photos + files (auth)
  *
+ * Sections — the ritual/segment filters inside a folder (Haldi, Mehendi, …):
+ * POST   /api/albums.php?action=sections&id=X          — Create section on album X (auth)
+ * PUT    /api/albums.php?action=sections&id=<sectionId>— Rename / toggle / reorder (auth)
+ * DELETE /api/albums.php?action=sections&id=<sectionId>— Delete section; its photos
+ *                                                        fall back to unsorted, never deleted (auth)
+ * POST   /api/albums.php?action=sections_reorder&id=X  — Bulk reorder an album's sections (auth)
+ * POST   /api/albums.php?action=assign&id=X            — Move photos into a section
+ *                                                        {photo_ids:[], section_id:n|null} (auth)
+ *
  * Individual photos are managed through gallery.php
  * (update / delete / reorder by gallery image id).
+ *
+ * NOTE: must stay PHP 7.3 compatible (live host) — no arrow
+ * functions, no str_contains, no PHP 8 syntax.
  * ============================================================
  */
 
@@ -84,7 +96,7 @@ function fetchPhotosByAlbum(PDO $db, array $albumIds, bool $activeOnly): array {
     $activeSQL = $activeOnly ? 'AND is_active = 1' : '';
 
     $stmt = $db->prepare(
-        "SELECT id, album_id, title, caption, file_path, thumbnail_path, width, height, sort_order, is_active
+        "SELECT id, album_id, section_id, title, caption, file_path, thumbnail_path, width, height, sort_order, is_active
          FROM gallery_images
          WHERE album_id IN ({$placeholders}) {$activeSQL}
          ORDER BY sort_order ASC, id ASC"
@@ -93,9 +105,67 @@ function fetchPhotosByAlbum(PDO $db, array $albumIds, bool $activeOnly): array {
 
     $grouped = [];
     foreach ($stmt->fetchAll() as $photo) {
+        $photo['section_id'] = $photo['section_id'] !== null ? (int)$photo['section_id'] : null;
         $grouped[$photo['album_id']][] = $photo;
     }
     return $grouped;
+}
+
+/**
+ * Sections for a set of albums, grouped by album id.
+ * Tolerates the table not existing yet (pre-migration) by returning [] —
+ * albums must keep working whether or not sections have been rolled out.
+ */
+function fetchSectionsByAlbum(PDO $db, array $albumIds, bool $activeOnly): array {
+    if (empty($albumIds)) return [];
+
+    $placeholders = implode(',', array_fill(0, count($albumIds), '?'));
+    $activeSQL = $activeOnly ? 'AND is_active = 1' : '';
+
+    try {
+        $stmt = $db->prepare(
+            "SELECT id, album_id, name, sort_order, is_active
+             FROM album_sections
+             WHERE album_id IN ({$placeholders}) {$activeSQL}
+             ORDER BY sort_order ASC, id ASC"
+        );
+        $stmt->execute($albumIds);
+    } catch (PDOException $e) {
+        return [];
+    }
+
+    $grouped = [];
+    foreach ($stmt->fetchAll() as $section) {
+        $section['id'] = (int)$section['id'];
+        $section['album_id'] = (int)$section['album_id'];
+        $grouped[$section['album_id']][] = $section;
+    }
+    return $grouped;
+}
+
+/** Count photos per section so the dashboard chips and website filters agree. */
+function withSectionCounts(array $sections, array $photos): array {
+    $counts = [];
+    foreach ($photos as $photo) {
+        if ($photo['section_id'] !== null) {
+            $key = $photo['section_id'];
+            $counts[$key] = isset($counts[$key]) ? $counts[$key] + 1 : 1;
+        }
+    }
+    foreach ($sections as &$section) {
+        $section['photo_count'] = isset($counts[$section['id']]) ? $counts[$section['id']] : 0;
+    }
+    unset($section);
+    return $sections;
+}
+
+/** Load a section row, verifying it exists. Sends 404 otherwise. */
+function findSection(PDO $db, int $sectionId): array {
+    $stmt = $db->prepare('SELECT * FROM album_sections WHERE id = ?');
+    $stmt->execute([$sectionId]);
+    $section = $stmt->fetch();
+    if (!$section) sendError('Section not found', 404);
+    return $section;
 }
 
 /**
@@ -121,9 +191,11 @@ switch ($method) {
             if ($activeOnly && !$album['is_active']) sendError('Album not found', 404);
 
             $photos = fetchPhotosByAlbum($db, [$id], $activeOnly)[$id] ?? [];
+            $sections = fetchSectionsByAlbum($db, [$id], $activeOnly)[$id] ?? [];
             $album = withEffectiveCover($album, $photos);
             $album['photos'] = $photos;
             $album['photo_count'] = count($photos);
+            $album['sections'] = withSectionCounts($sections, $photos);
             sendJSON($album);
         }
 
@@ -149,7 +221,9 @@ switch ($method) {
         $stmt->execute($params);
         $albums = $stmt->fetchAll();
 
-        $photosByAlbum = fetchPhotosByAlbum($db, array_column($albums, 'id'), $activeOnly);
+        $albumIds = array_column($albums, 'id');
+        $photosByAlbum = fetchPhotosByAlbum($db, $albumIds, $activeOnly);
+        $sectionsByAlbum = fetchSectionsByAlbum($db, $albumIds, $activeOnly);
 
         foreach ($albums as &$album) {
             $photos = $photosByAlbum[$album['id']] ?? [];
@@ -157,6 +231,8 @@ switch ($method) {
             $album['photo_count'] = count($photos);
             if ($withPhotos) {
                 $album['photos'] = $photos;
+                // Sections only mean anything alongside the photos they filter.
+                $album['sections'] = withSectionCounts($sectionsByAlbum[$album['id']] ?? [], $photos);
             }
         }
         unset($album);
@@ -188,6 +264,96 @@ switch ($method) {
             break;
         }
 
+        // ─ Create a section on an album ─
+        if ($action === 'sections') {
+            if (!$id) sendError('Album ID is required', 400);
+            findAlbum($db, $id);
+
+            $body = getJSONBody();
+            $name = sanitize($body['name'] ?? '');
+            if ($name === '') sendError('Section name is required', 400);
+            if (mb_strlen($name) > 80) sendError('Section name is too long (80 characters max)', 400);
+
+            // Names are the visitor-facing filter labels, so keep them unique
+            // per album — two "Haldi" chips would be meaningless.
+            $stmt = $db->prepare('SELECT id FROM album_sections WHERE album_id = ? AND name = ?');
+            $stmt->execute([$id, $name]);
+            if ($stmt->fetch()) sendError('That section already exists in this folder', 409);
+
+            $stmt = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM album_sections WHERE album_id = ?');
+            $stmt->execute([$id]);
+            $nextOrder = (int)$stmt->fetch()['next_order'];
+
+            $stmt = $db->prepare('INSERT INTO album_sections (album_id, name, sort_order) VALUES (?, ?, ?)');
+            $stmt->execute([$id, $name, $nextOrder]);
+            $sectionId = (int)$db->lastInsertId();
+
+            auditLog('create_section', 'albums', $id, ['section_id' => $sectionId, 'name' => $name], $auth['sub']);
+            sendJSON([
+                'id' => $sectionId,
+                'album_id' => $id,
+                'name' => $name,
+                'sort_order' => $nextOrder,
+                'is_active' => 1,
+                'photo_count' => 0,
+            ], 201);
+        }
+
+        // ─ Reorder an album's sections ─
+        if ($action === 'sections_reorder') {
+            if (!$id) sendError('Album ID is required', 400);
+            $body = getJSONBody();
+            $orders = $body['orders'] ?? [];
+            if (empty($orders) || !is_array($orders)) sendError('orders array is required', 400);
+
+            // Scoped to this album so a stray id can't reorder someone else's folder.
+            $stmt = $db->prepare('UPDATE album_sections SET sort_order = ? WHERE id = ? AND album_id = ?');
+            foreach ($orders as $item) {
+                if (isset($item['id'], $item['sort_order'])) {
+                    $stmt->execute([(int)$item['sort_order'], (int)$item['id'], $id]);
+                }
+            }
+            auditLog('reorder_sections', 'albums', $id, ['count' => count($orders)], $auth['sub']);
+            sendJSON(['message' => 'Section order updated', 'count' => count($orders)]);
+        }
+
+        // ─ Move photos into a section (or back to unsorted with section_id null) ─
+        if ($action === 'assign') {
+            if (!$id) sendError('Album ID is required', 400);
+            findAlbum($db, $id);
+
+            $body = getJSONBody();
+            $photoIds = $body['photo_ids'] ?? [];
+            if (empty($photoIds) || !is_array($photoIds)) sendError('photo_ids array is required', 400);
+
+            $sectionId = null;
+            if (array_key_exists('section_id', $body) && $body['section_id'] !== null && $body['section_id'] !== '') {
+                $sectionId = (int)$body['section_id'];
+                $section = findSection($db, $sectionId);
+                // A photo can only join a section of its own album.
+                if ((int)$section['album_id'] !== $id) {
+                    sendError('That section belongs to a different folder', 400);
+                }
+            }
+
+            $ids = [];
+            foreach ($photoIds as $pid) {
+                $pid = (int)$pid;
+                if ($pid > 0) $ids[] = $pid;
+            }
+            if (empty($ids)) sendError('photo_ids must contain at least one valid id', 400);
+
+            // Scoped to this album — the WHERE album_id guard means a photo id
+            // from another folder is silently ignored rather than moved.
+            $placeholders = implode(',', array_fill(0, count($ids), '?'));
+            $stmt = $db->prepare("UPDATE gallery_images SET section_id = ? WHERE album_id = ? AND id IN ({$placeholders})");
+            $stmt->execute(array_merge([$sectionId, $id], $ids));
+            $moved = $stmt->rowCount();
+
+            auditLog('assign_section', 'albums', $id, ['section_id' => $sectionId, 'photos' => count($ids)], $auth['sub']);
+            sendJSON(['message' => $moved . ' photo(s) moved', 'moved' => $moved, 'section_id' => $sectionId]);
+        }
+
         // ─ Add photos to an album (batch upload) ─
         if ($action === 'photos') {
             if (!$id) sendError('Album ID is required', 400);
@@ -209,13 +375,24 @@ switch ($method) {
             // Album photos share the gallery category of their album type
             $category = $album['type'];
 
+            // Uploading while a section is open drops the photos straight into
+            // it, so the studio never has to sort a fresh batch by hand.
+            $sectionId = null;
+            if (isset($_POST['section_id']) && $_POST['section_id'] !== '') {
+                $sectionId = (int)$_POST['section_id'];
+                $section = findSection($db, $sectionId);
+                if ((int)$section['album_id'] !== $id) {
+                    sendError('That section belongs to a different folder', 400);
+                }
+            }
+
             $stmt = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 as next_order FROM gallery_images WHERE album_id = ?');
             $stmt->execute([$id]);
             $nextOrder = (int)$stmt->fetch()['next_order'];
 
             $insert = $db->prepare(
-                'INSERT INTO gallery_images (category, album_id, title, caption, file_path, thumbnail_path, original_filename, file_size, width, height, sort_order, uploaded_by)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                'INSERT INTO gallery_images (category, album_id, section_id, title, caption, file_path, thumbnail_path, original_filename, file_size, width, height, sort_order, uploaded_by)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
 
             $created = [];
@@ -232,6 +409,7 @@ switch ($method) {
                 $insert->execute([
                     $category,
                     $id,
+                    $sectionId,
                     '',
                     '',
                     $imageData['file_path'],
@@ -338,6 +516,43 @@ switch ($method) {
         if (!$id) sendError('Album ID is required', 400);
 
         $db = getDB();
+
+        // ─ Rename / show / hide a section (id here is the SECTION id) ─
+        if ($action === 'sections') {
+            $section = findSection($db, $id);
+            $body = getJSONBody();
+
+            $fields = [];
+            $params = [];
+
+            if (array_key_exists('name', $body)) {
+                $name = sanitize($body['name']);
+                if ($name === '') sendError('Section name cannot be empty', 400);
+                if (mb_strlen($name) > 80) sendError('Section name is too long (80 characters max)', 400);
+
+                $stmt = $db->prepare('SELECT id FROM album_sections WHERE album_id = ? AND name = ? AND id <> ?');
+                $stmt->execute([$section['album_id'], $name, $id]);
+                if ($stmt->fetch()) sendError('That section already exists in this folder', 409);
+
+                $fields[] = 'name = ?';
+                $params[] = $name;
+            }
+            foreach (['sort_order', 'is_active'] as $field) {
+                if (array_key_exists($field, $body)) {
+                    $fields[] = "{$field} = ?";
+                    $params[] = (int)$body[$field];
+                }
+            }
+            if (empty($fields)) sendError('No fields to update', 400);
+
+            $params[] = $id;
+            $stmt = $db->prepare('UPDATE album_sections SET ' . implode(', ', $fields) . ' WHERE id = ?');
+            $stmt->execute($params);
+
+            auditLog('update_section', 'albums', (int)$section['album_id'], array_merge(['section_id' => $id], $body), $auth['sub']);
+            sendJSON(findSection($db, $id));
+        }
+
         findAlbum($db, $id);
 
         $body = getJSONBody();
@@ -398,6 +613,32 @@ switch ($method) {
         if (!$id) sendError('Album ID is required', 400);
 
         $db = getDB();
+
+        // ─ Delete a section (id here is the SECTION id) ─
+        // Photographs are NEVER deleted with it: the FK is ON DELETE SET NULL,
+        // so the section's photos simply return to unsorted and keep showing
+        // under the website's "All" filter. Losing a label must not lose work.
+        if ($action === 'sections') {
+            $section = findSection($db, $id);
+
+            $stmt = $db->prepare('SELECT COUNT(*) FROM gallery_images WHERE section_id = ?');
+            $stmt->execute([$id]);
+            $released = (int)$stmt->fetchColumn();
+
+            // Explicit, so the behaviour holds even if the FK isn't in place.
+            $stmt = $db->prepare('UPDATE gallery_images SET section_id = NULL WHERE section_id = ?');
+            $stmt->execute([$id]);
+
+            $stmt = $db->prepare('DELETE FROM album_sections WHERE id = ?');
+            $stmt->execute([$id]);
+
+            auditLog('delete_section', 'albums', (int)$section['album_id'], ['section_id' => $id, 'name' => $section['name'], 'released' => $released], $auth['sub']);
+            sendJSON([
+                'message' => 'Section removed',
+                'released' => $released,
+            ]);
+        }
+
         $album = findAlbum($db, $id);
 
         // Collect every file owned by this album before removing rows

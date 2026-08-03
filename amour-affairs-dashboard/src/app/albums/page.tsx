@@ -1,20 +1,21 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   Search, Plus, Upload, Trash2, X, Loader2, ArrowLeft,
-  Pencil, ImagePlus, FolderOpen, GripVertical,
+  Pencil, ImagePlus, FolderOpen, GripVertical, Check, SlidersHorizontal, Tags,
 } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import {
-  SortableContext, rectSortingStrategy, useSortable, arrayMove,
+  SortableContext, rectSortingStrategy, verticalListSortingStrategy,
+  useSortable, arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
-import { albumsAPI, galleryAPI, assetUrl } from "@/lib/api";
+import { albumsAPI, galleryAPI, assetUrl, type AlbumSection } from "@/lib/api";
 import { decodeEntities } from "@/lib/utils";
 
 // Premium Albums are a different product (handcrafted physical
@@ -30,11 +31,16 @@ const MAX_FILE_SIZE = 64 * 1024 * 1024; // 64MB — full-res wedding photos
 interface AlbumPhoto {
   id: number;
   album_id: number;
+  /** null = unsorted; still shown under the website's "All" filter. */
+  section_id: number | null;
   file_path: string;
   thumbnail_path: string;
   sort_order: number;
   is_active: number;
 }
+
+/** Which chip the photo grid is filtered by. */
+type SectionFilter = "all" | "unsorted" | number;
 
 interface Album {
   id: number;
@@ -51,6 +57,7 @@ interface Album {
   is_active: number;
   created_at: string;
   photos?: AlbumPhoto[];
+  sections?: AlbumSection[];
 }
 
 interface AlbumFormState {
@@ -76,6 +83,11 @@ const decodeAlbum = (a: Album): Album => ({
   description: decodeEntities(a.description),
 });
 
+// Section names go through the PHP sanitizer, so "Haldi & Mehendi" comes back
+// encoded — decode on read, and the sanitizer re-encodes once on save.
+const decodeSections = (list: AlbumSection[] | undefined): AlbumSection[] =>
+  (list || []).map(s => ({ ...s, name: decodeEntities(s.name) }));
+
 export default function AlbumsPage() {
   const [albums, setAlbums] = useState<Album[]>([]);
   const [activeType, setActiveType] = useState("wedding");
@@ -88,6 +100,14 @@ export default function AlbumsPage() {
   const [openAlbum, setOpenAlbum] = useState<Album | null>(null);
   const [photos, setPhotos] = useState<AlbumPhoto[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
+
+  // Sections — the ritual filters inside a folder (Haldi, Mehendi, Sangeet…)
+  const [sections, setSections] = useState<AlbumSection[]>([]);
+  const [activeSection, setActiveSection] = useState<SectionFilter>("all");
+  const [selected, setSelected] = useState<number[]>([]);
+  const [showSectionManager, setShowSectionManager] = useState(false);
+  const [newSectionName, setNewSectionName] = useState("");
+  const [isSectionBusy, setIsSectionBusy] = useState(false);
 
   // Sequential photo upload queue
   const [uploadQueue, setUploadQueue] = useState<{ done: number; total: number } | null>(null);
@@ -121,10 +141,13 @@ export default function AlbumsPage() {
   const openAlbumDetail = async (album: Album) => {
     setOpenAlbum(album);
     setIsLoadingPhotos(true);
+    setActiveSection("all");
+    setSelected([]);
     try {
       const fresh = decodeAlbum(await albumsAPI.get(album.id) as Album);
       setOpenAlbum(fresh);
       setPhotos(fresh.photos || []);
+      setSections(decodeSections(fresh.sections));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load album");
     } finally {
@@ -136,6 +159,7 @@ export default function AlbumsPage() {
     const fresh = decodeAlbum(await albumsAPI.get(albumId) as Album);
     setOpenAlbum(fresh);
     setPhotos(fresh.photos || []);
+    setSections(decodeSections(fresh.sections));
   };
 
   const filteredAlbums = albums.filter(a =>
@@ -241,6 +265,109 @@ export default function AlbumsPage() {
     }
   };
 
+  // ── Sections ──
+
+  // Counts are derived from the photos in state rather than the API's snapshot,
+  // so chips update the instant a photo is moved or deleted.
+  const sectionCounts = useMemo(() => {
+    const counts = new Map<number, number>();
+    let unsorted = 0;
+    for (const p of photos) {
+      if (p.section_id == null) unsorted++;
+      else counts.set(p.section_id, (counts.get(p.section_id) || 0) + 1);
+    }
+    return { counts, unsorted };
+  }, [photos]);
+
+  const visiblePhotos = useMemo(() => {
+    if (activeSection === "all") return photos;
+    if (activeSection === "unsorted") return photos.filter(p => p.section_id == null);
+    return photos.filter(p => p.section_id === activeSection);
+  }, [photos, activeSection]);
+
+  const activeSectionId = typeof activeSection === "number" ? activeSection : null;
+
+  const handleCreateSection = async () => {
+    const name = newSectionName.trim();
+    if (!name || !openAlbum) return;
+    setIsSectionBusy(true);
+    setError("");
+    try {
+      const created = await albumsAPI.sections.create(openAlbum.id, name);
+      setSections(prev => [...prev, { ...created, name: decodeEntities(created.name) }]);
+      setNewSectionName("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't add that section");
+    } finally {
+      setIsSectionBusy(false);
+    }
+  };
+
+  const handleRenameSection = async (section: AlbumSection, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === section.name) return;
+    const prev = section.name;
+    setSections(list => list.map(s => s.id === section.id ? { ...s, name: trimmed } : s));
+    try {
+      await albumsAPI.sections.update(section.id, { name: trimmed });
+    } catch (err) {
+      setSections(list => list.map(s => s.id === section.id ? { ...s, name: prev } : s));
+      setError(err instanceof Error ? err.message : "Rename failed");
+    }
+  };
+
+  const handleDeleteSection = async (section: AlbumSection) => {
+    const count = sectionCounts.counts.get(section.id) || 0;
+    const msg = count
+      ? `Remove the "${section.name}" section? Its ${count} photo${count === 1 ? "" : "s"} stay in the folder and become unsorted — nothing is deleted.`
+      : `Remove the "${section.name}" section?`;
+    if (!confirm(msg)) return;
+    try {
+      await albumsAPI.sections.remove(section.id);
+      setSections(list => list.filter(s => s.id !== section.id));
+      // Mirror the server's SET NULL locally so the grid updates immediately.
+      setPhotos(list => list.map(p => p.section_id === section.id ? { ...p, section_id: null } : p));
+      if (activeSection === section.id) setActiveSection("all");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't remove that section");
+    }
+  };
+
+  const handleSectionDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !openAlbum) return;
+    const oldIndex = sections.findIndex(s => s.id === active.id);
+    const newIndex = sections.findIndex(s => s.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+
+    const reordered = arrayMove(sections, oldIndex, newIndex);
+    setSections(reordered);
+    try {
+      await albumsAPI.sections.reorder(openAlbum.id, reordered.map((s, i) => ({ id: s.id, sort_order: i + 1 })));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Reorder failed");
+      refreshOpenAlbum(openAlbum.id);
+    }
+  };
+
+  /** Move the current selection into a section (or back to unsorted). */
+  const handleAssignSelected = async (sectionId: number | null) => {
+    if (!openAlbum || selected.length === 0) return;
+    const ids = [...selected];
+    const before = photos;
+    setPhotos(list => list.map(p => ids.includes(p.id) ? { ...p, section_id: sectionId } : p));
+    setSelected([]);
+    try {
+      await albumsAPI.sections.assign(openAlbum.id, ids, sectionId);
+    } catch (err) {
+      setPhotos(before);
+      setError(err instanceof Error ? err.message : "Couldn't move those photos");
+    }
+  };
+
+  const toggleSelected = (photoId: number) =>
+    setSelected(prev => prev.includes(photoId) ? prev.filter(id => id !== photoId) : [...prev, photoId]);
+
   // ── Photo actions (detail view) ──
 
   // Upload one file per request: keeps each request small (shared-hosting
@@ -264,6 +391,8 @@ export default function AlbumsPage() {
       try {
         const fd = new FormData();
         fd.append("photos[]", file);
+        // Uploading with a section open files the batch straight into it.
+        if (activeSectionId !== null) fd.append("section_id", String(activeSectionId));
         await albumsAPI.addPhotos(openAlbum.id, fd);
       } catch (err) {
         failures.push(`${file.name}: ${err instanceof Error ? err.message : "upload failed"}`);
@@ -284,6 +413,7 @@ export default function AlbumsPage() {
     try {
       await galleryAPI.delete(photo.id);
       setPhotos(prev => prev.filter(p => p.id !== photo.id));
+      setSelected(prev => prev.filter(id => id !== photo.id));
       fetchAlbums();
     } catch (err) { setError(err instanceof Error ? err.message : "Delete failed"); }
   };
@@ -291,17 +421,26 @@ export default function AlbumsPage() {
   const handlePhotoDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    const oldIndex = photos.findIndex(p => p.id === active.id);
-    const newIndex = photos.findIndex(p => p.id === over.id);
+    // Drag happens within the filtered view, but sort_order is album-wide.
+    // Reorder the visible subset, then write it back into the slots those
+    // photos already occupy in the full list — photos hidden by the current
+    // filter keep their positions and never get shuffled by a section edit.
+    const oldIndex = visiblePhotos.findIndex(p => p.id === active.id);
+    const newIndex = visiblePhotos.findIndex(p => p.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
 
-    const reordered = arrayMove(photos, oldIndex, newIndex);
-    setPhotos(reordered);
+    const reorderedVisible = arrayMove(visiblePhotos, oldIndex, newIndex);
+    const visibleIds = new Set(visiblePhotos.map(p => p.id));
+    let cursor = 0;
+    const merged = photos.map(p => (visibleIds.has(p.id) ? reorderedVisible[cursor++] : p));
+
+    const before = photos;
+    setPhotos(merged);
     try {
-      await galleryAPI.reorder(reordered.map((p, i) => ({ id: p.id, sort_order: i + 1 })));
+      await galleryAPI.reorder(merged.map((p, i) => ({ id: p.id, sort_order: i + 1 })));
     } catch (err) {
+      setPhotos(before);
       setError(err instanceof Error ? err.message : "Reorder failed");
-      if (openAlbum) refreshOpenAlbum(openAlbum.id);
     }
   };
 
@@ -336,7 +475,10 @@ export default function AlbumsPage() {
                 <Pencil className="h-4 w-4 mr-2" /> Edit Details
               </Button>
               <label className={`inline-flex items-center h-10 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-medium shadow-sm ${uploadQueue ? "opacity-60 pointer-events-none" : "cursor-pointer hover:opacity-90"}`}>
-                <ImagePlus className="h-4 w-4 mr-2" /> Add Photos
+                <ImagePlus className="h-4 w-4 mr-2" />
+                {activeSectionId !== null
+                  ? `Add to ${sections.find(s => s.id === activeSectionId)?.name || "section"}`
+                  : "Add Photos"}
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleAddPhotos} disabled={!!uploadQueue} />
               </label>
             </>
@@ -380,12 +522,12 @@ export default function AlbumsPage() {
       )}
 
       {openAlbum ? (
-        /* ═══════════ DETAIL VIEW — photo grid ═══════════ */
+        /* ═══════════ DETAIL VIEW — sections + photo grid ═══════════ */
         isLoadingPhotos ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-6 w-6 text-primary animate-spin" />
           </div>
-        ) : photos.length === 0 ? (
+        ) : photos.length === 0 && sections.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
               <ImagePlus className="h-8 w-8 text-muted-foreground" />
@@ -399,18 +541,115 @@ export default function AlbumsPage() {
           </div>
         ) : (
           <>
+            {/* Section rail — the same filters visitors will see on the website */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <SectionChip
+                label="All photos"
+                count={photos.length}
+                active={activeSection === "all"}
+                onClick={() => setActiveSection("all")}
+              />
+              {sections.map(s => (
+                <SectionChip
+                  key={s.id}
+                  label={s.name}
+                  count={sectionCounts.counts.get(s.id) || 0}
+                  active={activeSection === s.id}
+                  onClick={() => setActiveSection(s.id)}
+                />
+              ))}
+              {/* Only worth showing once sections exist — before that, everything is unsorted */}
+              {sections.length > 0 && sectionCounts.unsorted > 0 && (
+                <SectionChip
+                  label="Unsorted"
+                  count={sectionCounts.unsorted}
+                  active={activeSection === "unsorted"}
+                  muted
+                  onClick={() => setActiveSection("unsorted")}
+                />
+              )}
+              <button
+                onClick={() => setShowSectionManager(true)}
+                className="h-8 px-3 rounded-full border border-dashed border-border text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors flex items-center gap-1.5"
+              >
+                {sections.length ? <SlidersHorizontal className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                {sections.length ? "Manage sections" : "Add sections"}
+              </button>
+            </div>
+
             <p className="text-[13px] text-muted-foreground -mt-2">
-              {photos.length} photo{photos.length === 1 ? "" : "s"} — drag to set the order they appear on the website.
+              {sections.length === 0 ? (
+                <>
+                  {photos.length} photo{photos.length === 1 ? "" : "s"} — drag to set the order they appear on the website.
+                  {" "}Add sections (Haldi, Mehendi, Sangeet…) to give visitors filters inside this folder.
+                </>
+              ) : (
+                <>
+                  Showing {visiblePhotos.length} of {photos.length} photo{photos.length === 1 ? "" : "s"} — drag to reorder,
+                  or select photos to file them under a section.
+                </>
+              )}
             </p>
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
-              <SortableContext items={photos.map(p => p.id)} strategy={rectSortingStrategy}>
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 pb-12">
-                  {photos.map(photo => (
-                    <SortablePhotoCard key={photo.id} photo={photo} onDelete={() => handleDeletePhoto(photo)} />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
+
+            {visiblePhotos.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-2xl">
+                <Tags className="h-8 w-8 text-muted-foreground/40 mb-3" />
+                <p className="text-[15px] font-semibold text-foreground">Nothing filed here yet</p>
+                <p className="text-[13px] text-muted-foreground mt-1 max-w-[420px]">
+                  Switch to <button onClick={() => setActiveSection("all")} className="text-primary font-semibold hover:underline">All photos</button>,
+                  select the ones that belong here, and move them across — or upload straight into this section.
+                </p>
+              </div>
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
+                <SortableContext items={visiblePhotos.map(p => p.id)} strategy={rectSortingStrategy}>
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 pb-28">
+                    {visiblePhotos.map(photo => (
+                      <SortablePhotoCard
+                        key={photo.id}
+                        photo={photo}
+                        sectionName={photo.section_id != null ? sections.find(s => s.id === photo.section_id)?.name : undefined}
+                        showSectionBadge={sections.length > 0 && activeSection === "all"}
+                        selected={selected.includes(photo.id)}
+                        selectionMode={selected.length > 0}
+                        onToggleSelect={() => toggleSelected(photo.id)}
+                        onDelete={() => handleDeletePhoto(photo)}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+            )}
+
+            {/* Selection action bar — appears only when something is selected */}
+            {selected.length > 0 && (
+              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-card border border-border shadow-2xl">
+                <span className="text-[13px] font-bold text-foreground whitespace-nowrap">
+                  {selected.length} selected
+                </span>
+                <span className="h-5 w-px bg-border" />
+                <label className="text-[12px] text-muted-foreground whitespace-nowrap">Move to</label>
+                <select
+                  value=""
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === "") return;
+                    handleAssignSelected(v === "unsorted" ? null : Number(v));
+                  }}
+                  className="h-9 px-3 bg-muted/40 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50 max-w-[200px]"
+                >
+                  <option value="">Choose a section…</option>
+                  {sections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  <option value="unsorted">Unsorted</option>
+                </select>
+                <button
+                  onClick={() => setSelected([])}
+                  className="h-9 px-3 rounded-lg text-[12px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
           </>
         )
       ) : (
@@ -459,6 +698,76 @@ export default function AlbumsPage() {
             </DndContext>
           )}
         </>
+      )}
+
+      {/* Section manager — add, rename, reorder, remove */}
+      {showSectionManager && openAlbum && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSectionManager(false)} />
+          <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-[480px] border border-border/50 max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-border/50 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold text-foreground">Sections</h2>
+                <p className="text-[13px] text-muted-foreground mt-0.5">
+                  Filters visitors can tap inside <span className="font-semibold text-foreground">{openAlbum.couple}</span> — Haldi,
+                  Mehendi, Sangeet, Reception…
+                </p>
+              </div>
+              <button onClick={() => setShowSectionManager(false)} className="h-8 w-8 shrink-0 rounded-lg hover:bg-muted flex items-center justify-center"><X className="h-4 w-4" /></button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={newSectionName}
+                  onChange={(e) => setNewSectionName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateSection(); } }}
+                  placeholder="Haldi"
+                  maxLength={80}
+                  className="flex-1 h-10 px-3 bg-muted/30 border border-border/50 rounded-lg text-sm text-foreground focus:outline-none focus:border-primary/50"
+                />
+                <Button
+                  onClick={handleCreateSection}
+                  disabled={isSectionBusy || !newSectionName.trim()}
+                  className="h-10 px-4 rounded-xl bg-primary text-primary-foreground font-bold shrink-0"
+                >
+                  {isSectionBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {sections.length === 0 ? (
+                <p className="text-[13px] text-muted-foreground text-center py-6">
+                  No sections yet. Every photo shows under &ldquo;All&rdquo; until you add some.
+                </p>
+              ) : (
+                <>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Drag to set the order visitors see
+                  </p>
+                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+                    <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2">
+                        {sections.map(s => (
+                          <SortableSectionRow
+                            key={s.id}
+                            section={s}
+                            count={sectionCounts.counts.get(s.id) || 0}
+                            onRename={(name) => handleRenameSection(s, name)}
+                            onDelete={() => handleDeleteSection(s)}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DndContext>
+                  <p className="text-[12px] text-muted-foreground">
+                    Removing a section keeps its photographs — they just become unsorted.
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Create / Edit Modal */}
@@ -605,25 +914,136 @@ function SortableAlbumCard({ album, onOpen, onEdit, onDelete, onToggleActive }: 
 }
 
 
+/* ── Section filter chip ── */
+function SectionChip({ label, count, active, muted = false, onClick }: {
+  label: string;
+  count: number;
+  active: boolean;
+  muted?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`h-8 pl-3 pr-2 rounded-full text-[12px] font-semibold flex items-center gap-2 border transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground border-primary"
+          : muted
+            ? "bg-muted/30 text-muted-foreground border-border/50 hover:text-foreground"
+            : "bg-card text-foreground border-border/50 hover:border-primary/40"
+      }`}
+    >
+      <span className="truncate max-w-[160px]">{label}</span>
+      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${active ? "bg-black/15" : "bg-muted"}`}>
+        {count}
+      </span>
+    </button>
+  );
+}
+
+
+/* ── Section row in the manager modal ── */
+function SortableSectionRow({ section, count, onRename, onDelete }: {
+  section: AlbumSection;
+  count: number;
+  onRename: (name: string) => void;
+  onDelete: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  const [draft, setDraft] = useState(section.name);
+
+  // Follow renames that land from elsewhere (e.g. a failed save rolling back).
+  const [lastName, setLastName] = useState(section.name);
+  if (section.name !== lastName) {
+    setLastName(section.name);
+    setDraft(section.name);
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-2 p-2 rounded-xl bg-muted/20 border border-border/50 ${isDragging ? "z-10 shadow-xl opacity-90" : ""}`}>
+      <span {...attributes} {...listeners}
+        className="h-8 w-7 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted cursor-grab active:cursor-grabbing"
+        title="Drag to reorder">
+        <GripVertical className="h-4 w-4" />
+      </span>
+      <input
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => onRename(draft)}
+        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
+        maxLength={80}
+        className="flex-1 min-w-0 h-8 px-2 bg-transparent border border-transparent hover:border-border/50 focus:border-primary/50 focus:bg-background rounded-lg text-sm font-semibold text-foreground focus:outline-none"
+      />
+      <span className="shrink-0 text-[11px] font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+        {count}
+      </span>
+      <button onClick={onDelete}
+        className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors"
+        title="Remove section (photos are kept)">
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+
 /* ── Sortable photo card ── */
-function SortablePhotoCard({ photo, onDelete }: { photo: AlbumPhoto; onDelete: () => void }) {
+function SortablePhotoCard({ photo, sectionName, showSectionBadge, selected, selectionMode, onToggleSelect, onDelete }: {
+  photo: AlbumPhoto;
+  sectionName?: string;
+  showSectionBadge: boolean;
+  selected: boolean;
+  selectionMode: boolean;
+  onToggleSelect: () => void;
+  onDelete: () => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: photo.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
 
+  // The card body stays the drag handle; the checkbox and delete button stop
+  // pointer events so a click on them never starts a drag.
+  const stop = (e: React.PointerEvent) => e.stopPropagation();
+
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}
-      className={`dash-card overflow-hidden group relative cursor-grab active:cursor-grabbing ${isDragging ? "z-10 shadow-2xl opacity-90" : ""}`}>
+      className={`dash-card overflow-hidden group relative cursor-grab active:cursor-grabbing transition-shadow ${
+        isDragging ? "z-10 shadow-2xl opacity-90" : ""
+      } ${selected ? "ring-2 ring-primary" : ""}`}>
       <div className="aspect-square bg-muted overflow-hidden">
         <img src={assetUrl(photo.thumbnail_path || photo.file_path)} alt=""
           className="w-full h-full object-cover" loading="lazy" draggable={false} />
       </div>
+
+      {/* Select — always visible once a selection is running, so the bar can be trusted */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
+        onPointerDown={stop}
+        className={`absolute top-2 left-2 h-7 w-7 rounded-lg flex items-center justify-center border transition-all shadow-sm ${
+          selected
+            ? "bg-primary text-primary-foreground border-primary opacity-100"
+            : `bg-white/90 text-transparent border-white/60 hover:text-foreground ${selectionMode ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`
+        }`}
+        title={selected ? "Deselect" : "Select"}>
+        <Check className="h-4 w-4" />
+      </button>
+
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        onPointerDown={(e) => e.stopPropagation()}
+        onPointerDown={stop}
         className="absolute top-2 right-2 h-8 w-8 rounded-lg bg-white/90 text-foreground hover:bg-red-500 hover:text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-sm"
         title="Delete photo">
         <Trash2 className="h-4 w-4" />
       </button>
+
+      {showSectionBadge && (
+        <span className={`absolute bottom-2 left-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-bold truncate text-center ${
+          sectionName ? "bg-black/60 text-white" : "bg-amber-500/85 text-white"
+        }`}>
+          {sectionName || "Unsorted"}
+        </span>
+      )}
     </div>
   );
 }

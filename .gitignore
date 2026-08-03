@@ -23,6 +23,7 @@ services cover photos/
 api/_migrate_crm.php
 api/_migrate_crm2.php
 api/_migrate_crm_emoji_fix.php
+api/_migrate_sections.php
 
 # Local-only: server backups (contain real secrets) and hosting credentials.
 # Never commit these — config.secrets.php.live + handover_report.md hold live

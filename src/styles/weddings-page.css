@@ -363,12 +363,66 @@
   margin: 0 auto;
 }
 
+/* Ritual filters (Haldi, Mehendi, Sangeet…) — hidden for folders with no
+   sections, so an unsectioned archive looks exactly as it always did. */
+.wpage-album__filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 1100px;
+  margin: clamp(30px, 5vh, 52px) auto 0;
+  padding: 0 var(--container-gutter);
+}
+
+.wpage-album__filters[hidden] { display: none; }
+
+.wpage-album__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  background: transparent;
+  border: 1px solid rgba(158, 122, 78, 0.28);
+  border-radius: 50px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.wpage-album__filter:hover {
+  color: var(--color-accent);
+  border-color: rgba(158, 122, 78, 0.55);
+}
+
+.wpage-album__filter.is-active {
+  color: #FAF7F4;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.wpage-album__filter-count {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  opacity: 0.65;
+}
+
 /* Masonry of photographs */
 .wpage-album__masonry {
   columns: 3;
   column-gap: 24px;
   max-width: 1100px;
   margin: clamp(36px, 6vh, 64px) auto 0;
+}
+
+/* The filter row already supplies the gap above the photographs */
+.wpage-album__filters:not([hidden]) + .wpage-album__masonry {
+  margin-top: clamp(24px, 4vh, 40px);
 }
 
 .wpage-album__photo {
@@ -573,6 +627,25 @@
 
   .wpage-album__photo {
     margin-bottom: 18px;
+  }
+
+  /* Phones: let a long ritual list scroll sideways instead of stacking into
+     four rows of chips that push the photographs off the screen. */
+  .wpage-album__filters {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wpage-album__filters::-webkit-scrollbar { display: none; }
+
+  .wpage-album__filter {
+    flex: 0 0 auto;
+    font-size: 0.66rem;
+    letter-spacing: 0.14em;
+    padding: 8px 14px;
   }
 }
 
