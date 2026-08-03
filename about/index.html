@@ -3,6 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google tag (gtag.js) — Amour Affairs GA4 · G-F9MZ2ZETYL (alias GT-57Z7KGW) -->
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    // Consent Mode v2 — nothing is stored until the visitor accepts. A returning
+    // visitor's answer is restored here, before the first page_view is sent.
+    // The banner itself lives in src/js/consent.js.
+    var aaConsent = 'denied';
+    try { if (localStorage.getItem('aa_consent') === 'granted') aaConsent = 'granted'; } catch (e) {}
+    gtag('consent', 'default', {
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: aaConsent,
+      wait_for_update: 500
+    });
+    gtag('js', new Date());
+    gtag('config', 'G-F9MZ2ZETYL');
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F9MZ2ZETYL"></script>
   <title>Taher Husain — Wedding Photographer, Pune | About Amour Affairs</title>
   <meta name="description" content="Meet Taher Husain, the photographer behind Amour Affairs — a trusted, professional wedding photography studio in Pune with 15+ years of experience. Understated, intentional, deeply personal imagery since 2011.">
   <link rel="canonical" href="https://www.amouraffairs.in/about/">
@@ -638,6 +660,7 @@
           <a href="/terms-and-conditions/" class="footer__bar-link">Terms &amp; Conditions</a>
           <a href="/faqs/" class="footer__bar-link">FAQs</a>
           <a href="/careers/" class="footer__bar-link">Careers</a>
+          <a href="#" class="footer__bar-link" data-consent-open>Cookie Preferences</a>
         </div>
       </div>
     </div>

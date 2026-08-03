@@ -9,6 +9,7 @@
    ============================================================ */
 
 import { submitInquiry } from './api.js';
+import { gaEvent } from './analytics.js';
 
 const WHATSAPP_FALLBACK =
   'We couldn’t send your inquiry right now — please message us directly on ' +
@@ -127,6 +128,12 @@ function bindLeadForm(form) {
     });
 
     if (result.ok) {
+      // GA4 conversion — which page/form produced the enquiry, and for what
+      gaEvent('generate_lead', {
+        form_source: form.dataset.source || 'Website',
+        event_type: val('event_type') || '',
+        article_page: form.dataset.page || '',
+      });
       showSuccess();
       return;
     }

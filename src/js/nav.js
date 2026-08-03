@@ -7,9 +7,16 @@ import { loadStudioProfile } from './api.js';
 import { applyStudioProfile } from './site-content.js';
 import { initNotice } from './notice.js';
 import './track.js'; // first-party pageview beacon — self-fires once on load
+import { initOutboundTracking } from './analytics.js';
+import { initConsent } from './consent.js';
 
 export function initNav(lenisInstance) {
   const nav = document.querySelector('.nav');
+
+  // GA4 contact-intent events (WhatsApp / call / email) + the cookie consent
+  // banner. Both run before the `!nav` bail-out so they cover every page.
+  initOutboundTracking();
+  initConsent();
 
   // Studio profile (contact details + map) is editable from the dashboard
   // Settings → apply it to the footer/contact on every page. Non-blocking.

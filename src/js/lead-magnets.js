@@ -10,6 +10,7 @@
 
 import { fetchFromAPI, assetUrl } from './api.js';
 import { escapeHtml, decodeDeep } from './content-page.js';
+import { gaEvent } from './analytics.js';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -73,9 +74,11 @@ export async function initLeadMagnets() {
   const submit = document.getElementById('lmSubmit');
   const titleEl = document.getElementById('lmModalTitle');
   let currentId = null;
+  let currentTitle = '';
 
   const open = (id, title) => {
     currentId = id;
+    currentTitle = title || '';
     titleEl.textContent = title || 'Your Guide';
     status.textContent = '';
     status.classList.remove('is-error', 'is-success');
@@ -129,6 +132,9 @@ export async function initLeadMagnets() {
       const body = await res.json().catch(() => null);
 
       if (res.ok && body && body.file_url) {
+        // A gated download is both a download and a new lead — report both.
+        gaEvent('file_download', { file_name: currentTitle, magnet_id: currentId });
+        gaEvent('generate_lead', { form_source: 'Lead Magnet', magnet_title: currentTitle });
         form.style.display = 'none';
         status.classList.add('is-success');
         status.innerHTML = `Your guide is ready — <a href="${assetUrl(body.file_url)}" target="_blank" rel="noopener">open it here</a> if the download doesn't start.`;
