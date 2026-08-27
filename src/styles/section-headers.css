@@ -302,6 +302,9 @@
   font-size: var(--sh-sub);
   font-weight: 400;
   font-style: normal;
+  /* press.css tracked its sub at 0.15em; the reference sets none, and a
+     tracked sub reads as a second eyebrow rather than body copy. */
+  letter-spacing: normal;
   line-height: 1.65;
   text-transform: none;
   color: var(--color-text-dim);
