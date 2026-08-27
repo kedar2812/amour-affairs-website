@@ -59,13 +59,18 @@
       text-align: center;
       z-index: 1;
     }
+    /* Eyebrow matches the site-wide tier-1 style (see section-headers.css).
+       The title below keeps its bespoke shimmer — this is a standalone
+       coming-soon splash, not a section header. */
     .shop__eyebrow {
       font-family: var(--font-body);
-      font-size: 0.9rem;
+      font-size: var(--sh-eyebrow);
+      font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.25em;
+      letter-spacing: var(--sh-eyebrow-track);
+      line-height: 1.4;
       opacity: 0;
-      color: var(--color-text-dim);
+      color: var(--color-accent);
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
     }
     .shop__title {

@@ -14,6 +14,7 @@ import '../styles/info-page.css';
 import '../styles/content-pages.css';
 import '../styles/sections/inquiry.css';
 import '../styles/buttons.css';
+import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 
 import { fetchFromAPI, assetUrl } from './api.js';
 import { createLenis, finishBoot, escapeHtml, injectJsonLd, initAnchorScroll, decodeDeep } from './content-page.js';

@@ -13,6 +13,7 @@ import '../styles/sections/hero.css';
 import '../styles/sections/contact.css';
 import '../styles/service-pages.css';
 import '../styles/buttons.css'; // unified button identity — must load last
+import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 
 // ── Libraries ──
 import Lenis from '@studio-freight/lenis';

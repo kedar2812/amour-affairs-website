@@ -18,6 +18,7 @@ import '../styles/service-pages.css';
 import '../styles/testimonials-page.css'; // reuse the exact testimonial card + marquee design
 import '../styles/weddings-page.css';
 import '../styles/buttons.css'; // unified button identity — must load last
+import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';

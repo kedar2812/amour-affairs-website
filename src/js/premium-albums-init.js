@@ -15,6 +15,7 @@ import '../styles/sections/inquiry.css';
 import '../styles/service-pages.css';
 import '../styles/premium-albums-page.css';
 import '../styles/buttons.css'; // unified button identity — must load last
+import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';
