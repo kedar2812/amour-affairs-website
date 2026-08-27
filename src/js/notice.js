@@ -34,12 +34,69 @@ function safeColor(value, fallback) {
   return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v) ? v : fallback;
 }
 
+/* ── Season years ──
+   The notice copy names the seasons being booked ("Now booking 2026 & 2027
+   weddings", "Limited 2026 dates"). Those numbers have to roll over on
+   1 January IST — the studio's clock, not the visitor's — without anyone
+   opening the dashboard, and the bar and badge must never disagree.
+
+   Two ways to write a year in the dashboard copy:
+     · {year} / {year+1}  — tokens, always resolved to the current IST year
+     · a literal "2026"   — left exactly as typed until it falls into the
+                            past, at which point every literal year across
+                            both strings shifts by the same amount, so
+                            "2026 & 2027" becomes "2027 & 2028".
+   A literal year still in the future is somebody's deliberate choice, so
+   it is never touched. */
+const YEAR_RE = /\b(20\d{2})\b/g;
+
+/** The current year in Asia/Kolkata, whatever timezone the visitor is in. */
+function istYear() {
+  try {
+    const y = parseInt(new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Kolkata', year: 'numeric',
+    }).format(new Date()), 10);
+    if (y >= 2000) return y;
+  } catch { /* no tz data in this engine — fall through */ }
+  // IST is a flat UTC+5:30 and has never observed DST.
+  return new Date(Date.now() + 5.5 * 3600 * 1000).getUTCFullYear();
+}
+
+/** Resolve {year} / {year+1} / {year-1} against the IST year. */
+function resolveYearTokens(text, year) {
+  return String(text || '').replace(
+    /\{\s*year\s*([+-]\s*\d+)?\s*\}/gi,
+    (_, offset) => String(year + (offset ? parseInt(offset.replace(/\s+/g, ''), 10) : 0)),
+  );
+}
+
+/** Shift the literal years in every string by one shared delta, so that the
+    earliest of them is never behind `year`. Returns the strings in order. */
+function syncYears(texts, year) {
+  let earliest = Infinity;
+  for (const text of texts) {
+    for (const match of text.matchAll(YEAR_RE)) {
+      earliest = Math.min(earliest, parseInt(match[1], 10));
+    }
+  }
+  const delta = earliest === Infinity ? 0 : Math.max(0, year - earliest);
+  if (delta === 0) return texts;
+  return texts.map((text) => text.replace(YEAR_RE, (y) => String(parseInt(y, 10) + delta)));
+}
+
+
 export async function initNotice() {
   let n;
   try { n = await noticePromise; } catch { return; }
   if (!n || !isOn(n.notice_enabled)) return;
 
-  const message = (n.notice_message || '').trim();
+  // Bar and badge share one delta so their years can never drift apart.
+  const year = istYear();
+  const [message, badgeCopy] = syncYears([
+    resolveYearTokens(n.notice_message, year),
+    resolveYearTokens(n.notice_badge_text, year),
+  ], year).map((text) => text.trim());
+
   const ctaLabel = (n.notice_cta_label || '').trim();
   const ctaLink = safeLink(n.notice_cta_link);
   const bg = safeColor(n.notice_bg_color, '#2A1E16');
@@ -51,7 +108,7 @@ export async function initNotice() {
 
   // Floating badge — homepage only (where the hero lives).
   if (isOn(n.notice_badge_enabled) && document.querySelector('.hero--canvas')) {
-    const badgeText = (n.notice_badge_text || message || '').trim();
+    const badgeText = badgeCopy || message;
     if (badgeText) renderBadge({ badgeText, ctaLink, bg, fg });
   }
 }
@@ -78,11 +135,12 @@ function renderBar({ message, ctaLabel, ctaLink, bg, fg, position, dismissible }
   const inner = document.createElement('div');
   inner.className = 'aa-notice-bar__inner';
 
-  const spark = document.createElement('span');
-  spark.className = 'aa-notice-bar__spark';
-  spark.setAttribute('aria-hidden', 'true');
-  spark.textContent = '✦';
-  inner.appendChild(spark);
+  // The same live-availability dot the floating badge wears (notice.css
+  // styles both from one rule) — decorative, so it stays out of the AT tree.
+  const dot = document.createElement('span');
+  dot.className = 'aa-notice-bar__dot';
+  dot.setAttribute('aria-hidden', 'true');
+  inner.appendChild(dot);
 
   const msg = document.createElement('span');
   msg.className = 'aa-notice-bar__msg';

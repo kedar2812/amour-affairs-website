@@ -58,11 +58,6 @@ html.aa-notice-animating .nav {
   line-height: 1.35;
 }
 
-.aa-notice-bar__spark {
-  color: var(--color-accent-light, #C9A97C);
-  font-size: 0.7rem;
-  opacity: 0.85;
-}
 
 .aa-notice-bar__msg {
   font-size: 0.82rem;
@@ -158,6 +153,9 @@ html.aa-notice-animating .nav {
 
 .aa-notice-badge__close:hover { opacity: 1; }
 
+/* Live-availability dot. Shared by the announcement bar and the floating
+   badge so both read as the same "we're open right now" signal. */
+.aa-notice-bar__dot,
 .aa-notice-badge__dot {
   width: 9px;
   height: 9px;
@@ -183,5 +181,6 @@ html.aa-notice-animating .nav {
 @media (prefers-reduced-motion: reduce) {
   .aa-notice-badge { transition: opacity 0.3s ease; transform: none; }
   .aa-notice-badge.is-in { transform: none; }
+  .aa-notice-bar__dot,
   .aa-notice-badge__dot { animation: none; }
 }
