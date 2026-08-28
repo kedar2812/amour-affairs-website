@@ -13,14 +13,13 @@ import { decodeEntities } from "@/lib/utils";
    · the enquiry section inside Weddings folders
    · the enquiry section inside Couple Shoots folders
    · the three couple-shoot session packages
+   · the three wedding collections
    The website falls back to identical bundled defaults when a
    key is missing, so partial saves can never break a page.
    ============================================================ */
 
 interface PackageRow { label: string; value: string }
 interface SessionPackage { name: string; tagline: string; rows: PackageRow[] }
-
-interface WeddingType { title: string; text: string }
 
 interface StatItem { number: string; suffix: string; label: string }
 
@@ -80,27 +79,42 @@ const DEFAULT_COUPLE_ENQ: EnquiryCopy = {
   button: "Send Inquiry",
 };
 
-const DEFAULT_WTYPES_EYEBROW = "How We Shoot";
-const DEFAULT_WTYPES_HEADING = "One Studio, *Every Kind of Wedding*";
+const DEFAULT_WPKG_EYEBROW = "What We Offer";
+const DEFAULT_WPKG_HEADING = "Wedding *Collections*";
 
-const DEFAULT_WTYPES: WeddingType[] = [
+const DEFAULT_WPACKAGES: SessionPackage[] = [
   {
-    title: "Candid Wedding Photography",
-    text:
-      "Unposed and unhurried — our candid wedding photographers move quietly through your day, " +
-      "catching the glances, tears and laughter you didn’t know were being kept.",
+    name: "The Ceremony Collection",
+    tagline: "One wedding day",
+    rows: [
+      { label: "Coverage", value: "One wedding day" },
+      { label: "Team", value: "2 photographers" },
+      { label: "Deliverables", value: "400–500 fully edited images" },
+      { label: "Turnaround", value: "6–8 weeks" },
+      { label: "Album", value: "One fine-art album, 30 spreads" },
+    ],
   },
   {
-    title: "Traditional Wedding Photography",
-    text:
-      "The rituals, the family portraits, the moments your grandparents will ask for — traditional " +
-      "wedding photography done with care, so no one and nothing is missed.",
+    name: "The Celebration Collection",
+    tagline: "Photographs + cinematic film",
+    rows: [
+      { label: "Coverage", value: "Up to 3 functions" },
+      { label: "Team", value: "2 photographers + 1 cinematographer" },
+      { label: "Deliverables", value: "700–900 images + a 5–7 minute film" },
+      { label: "Turnaround", value: "8–10 weeks" },
+      { label: "Album", value: "One fine-art album, 40 spreads" },
+    ],
   },
   {
-    title: "Destination Weddings",
-    text:
-      "From Goa’s beaches to Udaipur’s palaces, we travel as your destination wedding photographer — " +
-      "one team, familiar faces, the same eye wherever you celebrate.",
+    name: "The Heirloom Collection",
+    tagline: "Every function, start to finish",
+    rows: [
+      { label: "Coverage", value: "All functions, multi-city" },
+      { label: "Team", value: "3 photographers + 2 cinematographers" },
+      { label: "Deliverables", value: "1200+ images, feature film + teaser" },
+      { label: "Turnaround", value: "10–12 weeks" },
+      { label: "Album", value: "Two fine-art albums + parent copies" },
+    ],
   },
 ];
 
@@ -297,13 +311,86 @@ function EnquiryEditor({ copy, onChange }: { copy: EnquiryCopy; onChange: (c: En
   );
 }
 
+function PackagesEditor({ packages, onChange }: {
+  packages: SessionPackage[]; onChange: (p: SessionPackage[]) => void;
+}) {
+  const setPkg = (i: number, patch: Partial<SessionPackage>) =>
+    onChange(packages.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
+
+  const setRow = (i: number, j: number, patch: Partial<PackageRow>) =>
+    onChange(packages.map((p, idx) => (idx === i
+      ? { ...p, rows: p.rows.map((r, k) => (k === j ? { ...r, ...patch } : r)) }
+      : p)));
+
+  const addRow = (i: number) =>
+    onChange(packages.map((p, idx) => (idx === i
+      ? { ...p, rows: [...p.rows, { label: "", value: "" }] } : p)));
+
+  const removeRow = (i: number, j: number) =>
+    onChange(packages.map((p, idx) => (idx === i
+      ? { ...p, rows: p.rows.filter((_, k) => k !== j) } : p)));
+
+  const addPackage = () =>
+    onChange([...packages, { name: "", tagline: "", rows: [{ label: "", value: "" }] }]);
+
+  const removePackage = (i: number) => onChange(packages.filter((_, idx) => idx !== i));
+
+  return (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {packages.map((pkg, i) => (
+          <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
+            <div className="flex items-start justify-between gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Card {i + 1}</span>
+              <button onClick={() => removePackage(i)} title="Remove card"
+                className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <Field label="Name" value={pkg.name} onChange={(v) => setPkg(i, { name: v })} />
+            <Field label="Tagline" value={pkg.tagline} onChange={(v) => setPkg(i, { tagline: v })}
+              hint="The small gold line under the name." />
+
+            <div>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Detail Rows</label>
+              <div className="space-y-2">
+                {pkg.rows.map((row, j) => (
+                  <div key={j} className="flex items-center gap-2">
+                    <input type="text" value={row.label} placeholder="Label" onChange={(e) => setRow(i, j, { label: e.target.value })}
+                      className="w-[30%] h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
+                    <input type="text" value={row.value} placeholder="Value" onChange={(e) => setRow(i, j, { value: e.target.value })}
+                      className="flex-1 h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
+                    <button onClick={() => removeRow(i, j)} title="Remove row"
+                      className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => addRow(i)}
+                className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:opacity-80 transition-opacity">
+                <Plus className="h-3.5 w-3.5" /> Add Row
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={addPackage}
+        className="inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:opacity-80 transition-opacity">
+        <Plus className="h-3.5 w-3.5" /> Add Card
+      </button>
+    </>
+  );
+}
+
 export default function WebsiteContentPage() {
   const [stats, setStats] = useState<StatItem[]>(DEFAULT_STATS);
   const [weddingsEnq, setWeddingsEnq] = useState<EnquiryCopy>(DEFAULT_WEDDINGS_ENQ);
   const [coupleEnq, setCoupleEnq] = useState<EnquiryCopy>(DEFAULT_COUPLE_ENQ);
-  const [wtypesEyebrow, setWtypesEyebrow] = useState(DEFAULT_WTYPES_EYEBROW);
-  const [wtypesHeading, setWtypesHeading] = useState(DEFAULT_WTYPES_HEADING);
-  const [wtypes, setWtypes] = useState<WeddingType[]>(DEFAULT_WTYPES);
+  const [wpkgEyebrow, setWpkgEyebrow] = useState(DEFAULT_WPKG_EYEBROW);
+  const [wpkgHeading, setWpkgHeading] = useState(DEFAULT_WPKG_HEADING);
+  const [wpackages, setWpackages] = useState<SessionPackage[]>(DEFAULT_WPACKAGES);
   const [pkgEyebrow, setPkgEyebrow] = useState(DEFAULT_PKG_EYEBROW);
   const [pkgHeading, setPkgHeading] = useState(DEFAULT_PKG_HEADING);
   const [packages, setPackages] = useState<SessionPackage[]>(DEFAULT_PACKAGES);
@@ -352,16 +439,13 @@ export default function WebsiteContentPage() {
         text: s.site_couple_enq_text || DEFAULT_COUPLE_ENQ.text,
         button: s.site_couple_enq_button || DEFAULT_COUPLE_ENQ.button,
       });
-      setWtypesEyebrow(s.site_weddings_types_eyebrow || DEFAULT_WTYPES_EYEBROW);
-      setWtypesHeading(s.site_weddings_types_heading || DEFAULT_WTYPES_HEADING);
-      if (s.site_weddings_types_json) {
+      setWpkgEyebrow(s.site_weddings_pkg_eyebrow || DEFAULT_WPKG_EYEBROW);
+      setWpkgHeading(s.site_weddings_pkg_heading || DEFAULT_WPKG_HEADING);
+      if (s.site_weddings_packages_json) {
         try {
-          const parsed = JSON.parse(s.site_weddings_types_json);
-          if (parsed && Array.isArray(parsed.types) && parsed.types.length > 0) {
-            setWtypes(parsed.types.map((t: Partial<WeddingType>) => ({
-              title: String(t.title ?? ""),
-              text: String(t.text ?? ""),
-            })));
+          const parsed = JSON.parse(s.site_weddings_packages_json);
+          if (parsed && Array.isArray(parsed.packages) && parsed.packages.length > 0) {
+            setWpackages(parsed.packages);
           }
         } catch { /* keep defaults on malformed JSON */ }
       }
@@ -407,36 +491,6 @@ export default function WebsiteContentPage() {
 
   React.useEffect(() => { fetchContent(); }, [fetchContent]);
 
-  const updatePackage = (i: number, pkg: SessionPackage) => {
-    setPackages(prev => prev.map((p, idx) => idx === i ? pkg : p));
-  };
-
-  const updateWtype = (i: number, patch: Partial<WeddingType>) => {
-    setWtypes(prev => prev.map((t, idx) => idx === i ? { ...t, ...patch } : t));
-  };
-
-  const addWtype = () => setWtypes(prev => [...prev, { title: "", text: "" }]);
-
-  const removeWtype = (i: number) => setWtypes(prev => prev.filter((_, idx) => idx !== i));
-
-  const updateRow = (pkgIdx: number, rowIdx: number, row: PackageRow) => {
-    setPackages(prev => prev.map((p, i) =>
-      i === pkgIdx ? { ...p, rows: p.rows.map((r, j) => j === rowIdx ? row : r) } : p
-    ));
-  };
-
-  const addRow = (pkgIdx: number) => {
-    setPackages(prev => prev.map((p, i) =>
-      i === pkgIdx ? { ...p, rows: [...p.rows, { label: "", value: "" }] } : p
-    ));
-  };
-
-  const removeRow = (pkgIdx: number, rowIdx: number) => {
-    setPackages(prev => prev.map((p, i) =>
-      i === pkgIdx ? { ...p, rows: p.rows.filter((_, j) => j !== rowIdx) } : p
-    ));
-  };
-
   const handleSave = async () => {
     if (mockMode) {
       setError("Connect to the live API to save — demo mode is read-only.");
@@ -445,7 +499,7 @@ export default function WebsiteContentPage() {
     setIsSaving(true);
     setError("");
     try {
-      const cleanedPackages = packages
+      const cleanPackages = (list: SessionPackage[]) => list
         .map(p => ({
           name: p.name.trim(),
           tagline: p.tagline.trim(),
@@ -453,17 +507,11 @@ export default function WebsiteContentPage() {
         }))
         .filter(p => p.name);
 
-      if (cleanedPackages.length === 0) {
-        setError("At least one package needs a name.");
-        return;
-      }
+      const cleanedPackages = cleanPackages(packages);
+      const cleanedWpackages = cleanPackages(wpackages);
 
-      const cleanedWtypes = wtypes
-        .map(t => ({ title: t.title.trim(), text: t.text.trim() }))
-        .filter(t => t.title && t.text);
-
-      if (cleanedWtypes.length === 0) {
-        setError("Add at least one wedding photography style (a title and a description).");
+      if (cleanedPackages.length === 0 || cleanedWpackages.length === 0) {
+        setError("Every package card needs a name — both on Weddings and Couple Shoots.");
         return;
       }
 
@@ -488,9 +536,9 @@ export default function WebsiteContentPage() {
         site_couple_enq_title: coupleEnq.title.trim(),
         site_couple_enq_text: coupleEnq.text.trim(),
         site_couple_enq_button: coupleEnq.button.trim(),
-        site_weddings_types_eyebrow: wtypesEyebrow.trim(),
-        site_weddings_types_heading: wtypesHeading.trim(),
-        site_weddings_types_json: JSON.stringify({ types: cleanedWtypes }),
+        site_weddings_pkg_eyebrow: wpkgEyebrow.trim(),
+        site_weddings_pkg_heading: wpkgHeading.trim(),
+        site_weddings_packages_json: JSON.stringify({ packages: cleanedWpackages }),
         site_couple_pkg_eyebrow: pkgEyebrow.trim(),
         site_couple_pkg_heading: pkgHeading.trim(),
         site_couple_packages_json: JSON.stringify({ packages: cleanedPackages }),
@@ -585,42 +633,23 @@ export default function WebsiteContentPage() {
             <EnquiryEditor copy={weddingsEnq} onChange={setWeddingsEnq} />
           </div>
 
-          {/* Weddings photography styles ("How We Shoot" cards) */}
+          {/* Weddings collections (the three package cards) */}
           <div className="dash-card p-6 md:p-8 space-y-6">
             <div>
-              <h2 className="dash-card-title">Weddings — Photography Styles</h2>
+              <h2 className="dash-card-title">Weddings — Collections</h2>
               <p className="text-[13px] text-muted-foreground mt-0.5">
-                The cards in the &ldquo;How We Shoot&rdquo; section on the Weddings page — each with a
-                title and a short description. Add, edit, reorder-by-removing, or remove cards freely.
+                The three package cards in the &ldquo;What We Offer&rdquo; section on the Weddings
+                page. Same card design as the couple-shoot packages. No pricing is shown on the website.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Section Eyebrow" value={wtypesEyebrow} onChange={setWtypesEyebrow} />
-              <Field label="Section Heading" value={wtypesHeading} onChange={setWtypesHeading}
-                hint="Wrap a word in *asterisks* for the italic accent, e.g. One Studio, *Every Kind of Wedding*" />
+              <Field label="Section Eyebrow" value={wpkgEyebrow} onChange={setWpkgEyebrow} />
+              <Field label="Section Heading" value={wpkgHeading} onChange={setWpkgHeading}
+                hint="Wrap a word in *asterisks* for the italic accent, e.g. Wedding *Collections*" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {wtypes.map((t, i) => (
-                <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Card {i + 1}</span>
-                    <button onClick={() => removeWtype(i)} title="Remove card"
-                      className="h-8 w-8 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  <Field label="Title" value={t.title} onChange={(v) => updateWtype(i, { title: v })} />
-                  <Field label="Description" value={t.text} onChange={(v) => updateWtype(i, { text: v })} textarea />
-                </div>
-              ))}
-            </div>
-
-            <button onClick={addWtype}
-              className="inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:opacity-80 transition-opacity">
-              <Plus className="h-3.5 w-3.5" /> Add Card
-            </button>
+            <PackagesEditor packages={wpackages} onChange={setWpackages} />
           </div>
 
           {/* Couple shoots enquiry */}
@@ -650,36 +679,7 @@ export default function WebsiteContentPage() {
                 hint="Wrap a word in *asterisks* for the italic accent, e.g. Choose Your *Session*" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {packages.map((pkg, i) => (
-                <div key={i} className="border border-border/50 rounded-xl p-5 space-y-4 bg-muted/10">
-                  <Field label={`Package ${i + 1} — Name`} value={pkg.name} onChange={(v) => updatePackage(i, { ...pkg, name: v })} />
-                  <Field label="Tagline" value={pkg.tagline} onChange={(v) => updatePackage(i, { ...pkg, tagline: v })} />
-
-                  <div>
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Detail Rows</label>
-                    <div className="space-y-2">
-                      {pkg.rows.map((row, j) => (
-                        <div key={j} className="flex items-center gap-2">
-                          <input type="text" value={row.label} placeholder="Label" onChange={(e) => updateRow(i, j, { ...row, label: e.target.value })}
-                            className="w-[30%] h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
-                          <input type="text" value={row.value} placeholder="Value" onChange={(e) => updateRow(i, j, { ...row, value: e.target.value })}
-                            className="flex-1 h-9 px-2.5 bg-muted/30 border border-border/50 rounded-lg text-[13px] text-foreground focus:outline-none focus:border-primary/50" />
-                          <button onClick={() => removeRow(i, j)} title="Remove row"
-                            className="h-9 w-9 shrink-0 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <button onClick={() => addRow(i)}
-                      className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-bold text-primary hover:opacity-80 transition-opacity">
-                      <Plus className="h-3.5 w-3.5" /> Add Row
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PackagesEditor packages={packages} onChange={setPackages} />
           </div>
         </>
       )}

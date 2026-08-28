@@ -165,30 +165,42 @@ export const SITE_CONTENT_DEFAULTS = {
     'the two of you and we’ll get back within 24 hours with dates, locations and ideas.',
   site_couple_enq_button: 'Send Inquiry',
 
-  site_weddings_types_eyebrow: 'How We Shoot',
-  site_weddings_types_heading: 'One Studio, *Every Kind of Wedding*',
-  site_weddings_types_json: {
-    types: [
+  site_weddings_pkg_eyebrow: 'What We Offer',
+  site_weddings_pkg_heading: 'Wedding *Collections*',
+  site_weddings_packages_json: {
+    packages: [
       {
-        title: 'Candid Wedding Photography',
-        text:
-          'Unposed and unhurried — our candid wedding photographers move quietly ' +
-          'through your day, catching the glances, tears and laughter you didn’t ' +
-          'know were being kept.',
+        name: 'The Ceremony Collection',
+        tagline: 'One wedding day',
+        rows: [
+          { label: 'Coverage', value: 'One wedding day' },
+          { label: 'Team', value: '2 photographers' },
+          { label: 'Deliverables', value: '400–500 fully edited images' },
+          { label: 'Turnaround', value: '6–8 weeks' },
+          { label: 'Album', value: 'One fine-art album, 30 spreads' },
+        ],
       },
       {
-        title: 'Traditional Wedding Photography',
-        text:
-          'The rituals, the family portraits, the moments your grandparents will ' +
-          'ask for — traditional wedding photography done with care, so no one and ' +
-          'nothing is missed.',
+        name: 'The Celebration Collection',
+        tagline: 'Photographs + cinematic film',
+        rows: [
+          { label: 'Coverage', value: 'Up to 3 functions' },
+          { label: 'Team', value: '2 photographers + 1 cinematographer' },
+          { label: 'Deliverables', value: '700–900 images + a 5–7 minute film' },
+          { label: 'Turnaround', value: '8–10 weeks' },
+          { label: 'Album', value: 'One fine-art album, 40 spreads' },
+        ],
       },
       {
-        title: 'Destination Weddings',
-        text:
-          'From Goa’s beaches to Udaipur’s palaces, we travel as your destination ' +
-          'wedding photographer — one team, familiar faces, the same eye wherever ' +
-          'you celebrate.',
+        name: 'The Heirloom Collection',
+        tagline: 'Every function, start to finish',
+        rows: [
+          { label: 'Coverage', value: 'All functions, multi-city' },
+          { label: 'Team', value: '3 photographers + 2 cinematographers' },
+          { label: 'Deliverables', value: '1200+ images, feature film + teaser' },
+          { label: 'Turnaround', value: '10–12 weeks' },
+          { label: 'Album', value: 'Two fine-art albums + parent copies' },
+        ],
       },
     ],
   },
@@ -288,81 +300,76 @@ export function applyEnquiryContent(prefix, content = {}) {
   if (slots.button) slots.button.textContent = get('button');
 }
 
-/* ── Couple-shoot session packages ── */
+/* ── Offering packages ──
+   One card design, two sections: the couple-shoots session packages and the
+   weddings collections. Both are dashboard-editable; the only differences are
+   the settings keys, the mount and the BEM namespace, so they share a renderer
+   rather than drifting apart. Card styling lives in package-cards.css. */
 
-const packageCardHTML = (pkg) => `
-  <div class="cpage-session__card cpage-session__card--package">
-    <div class="cpage-session__pkg-head">
-      <h3 class="cpage-session__pkg-name">${escapeHTML(pkg.name)}</h3>
-      ${pkg.tagline ? `<span class="cpage-session__pkg-tagline">${escapeHTML(pkg.tagline)}</span>` : ''}
+const packageCardHTML = (pkg, ns) => `
+  <div class="${ns}__card">
+    <div class="${ns}__head">
+      <h3 class="${ns}__name">${escapeHTML(pkg.name)}</h3>
+      ${pkg.tagline ? `<span class="${ns}__tagline">${escapeHTML(pkg.tagline)}</span>` : ''}
     </div>
     ${(pkg.rows || [])
       .filter((row) => row && row.label && row.value)
       .map((row) => `
-        <div class="cpage-session__row">
-          <span class="cpage-session__label">${escapeHTML(row.label)}</span>
-          <span class="cpage-session__value">${escapeHTML(row.value)}</span>
+        <div class="${ns}__row">
+          <span class="${ns}__label">${escapeHTML(row.label)}</span>
+          <span class="${ns}__value">${escapeHTML(row.value)}</span>
         </div>`)
       .join('')}
   </div>`;
 
-export function renderSessionPackages(content = {}) {
-  const mount = document.getElementById('sessionPackages');
+function renderPackages(content, cfg) {
+  const mount = document.getElementById(cfg.mountId);
   if (!mount) return;
 
-  const data = content.site_couple_packages_json;
+  const data = content[cfg.jsonKey];
   const packages =
     data && Array.isArray(data.packages) && data.packages.length > 0
       ? data.packages
-      : SITE_CONTENT_DEFAULTS.site_couple_packages_json.packages;
+      : SITE_CONTENT_DEFAULTS[cfg.jsonKey].packages;
 
-  const eyebrowEl = document.querySelector('[data-pkg="eyebrow"]');
-  const headingEl = document.querySelector('[data-pkg="heading"]');
+  const eyebrowEl = document.querySelector(`[${cfg.attr}="eyebrow"]`);
+  const headingEl = document.querySelector(`[${cfg.attr}="heading"]`);
   if (eyebrowEl) {
     eyebrowEl.textContent =
-      content.site_couple_pkg_eyebrow || SITE_CONTENT_DEFAULTS.site_couple_pkg_eyebrow;
+      content[cfg.eyebrowKey] || SITE_CONTENT_DEFAULTS[cfg.eyebrowKey];
   }
   if (headingEl) {
     headingEl.innerHTML = emphasize(
-      content.site_couple_pkg_heading || SITE_CONTENT_DEFAULTS.site_couple_pkg_heading
+      content[cfg.headingKey] || SITE_CONTENT_DEFAULTS[cfg.headingKey]
     );
   }
 
-  mount.innerHTML = packages.map(packageCardHTML).join('');
+  mount.innerHTML = packages
+    .filter((pkg) => pkg && pkg.name)
+    .map((pkg) => packageCardHTML(pkg, cfg.ns))
+    .join('');
 }
 
-/* ── Weddings "How We Shoot" style cards ── */
+/* Couple shoots — "What to Expect" session packages */
+export function renderSessionPackages(content = {}) {
+  renderPackages(content, {
+    mountId: 'sessionPackages',
+    ns: 'cpage-session',
+    attr: 'data-pkg',
+    jsonKey: 'site_couple_packages_json',
+    eyebrowKey: 'site_couple_pkg_eyebrow',
+    headingKey: 'site_couple_pkg_heading',
+  });
+}
 
-const weddingTypeCardHTML = (type) => `
-  <div class="wpage-types__item">
-    <h3 class="wpage-types__title">${escapeHTML(type.title)}</h3>
-    <p class="wpage-types__text">${escapeHTML(type.text)}</p>
-  </div>`;
-
-export function renderWeddingTypes(content = {}) {
-  const mount = document.getElementById('weddingTypes');
-  if (!mount) return;
-
-  const data = content.site_weddings_types_json;
-  const types =
-    data && Array.isArray(data.types) && data.types.length > 0
-      ? data.types
-      : SITE_CONTENT_DEFAULTS.site_weddings_types_json.types;
-
-  const eyebrowEl = document.querySelector('[data-wtypes="eyebrow"]');
-  const headingEl = document.querySelector('[data-wtypes="heading"]');
-  if (eyebrowEl) {
-    eyebrowEl.textContent =
-      content.site_weddings_types_eyebrow || SITE_CONTENT_DEFAULTS.site_weddings_types_eyebrow;
-  }
-  if (headingEl) {
-    headingEl.innerHTML = emphasize(
-      content.site_weddings_types_heading || SITE_CONTENT_DEFAULTS.site_weddings_types_heading
-    );
-  }
-
-  mount.innerHTML = types
-    .filter((type) => type && type.title)
-    .map(weddingTypeCardHTML)
-    .join('');
+/* Weddings — "Collections" packages */
+export function renderWeddingPackages(content = {}) {
+  renderPackages(content, {
+    mountId: 'weddingPackages',
+    ns: 'wpage-pkg',
+    attr: 'data-wpkg',
+    jsonKey: 'site_weddings_packages_json',
+    eyebrowKey: 'site_weddings_pkg_eyebrow',
+    headingKey: 'site_weddings_pkg_heading',
+  });
 }

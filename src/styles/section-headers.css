@@ -79,7 +79,7 @@
 :root .tpage-cta__label,
 :root .wpage-album__eyebrow,
 :root .wpage-testi__eyebrow,
-:root .wpage-types__eyebrow {
+:root .wpage-pkg__eyebrow {
   font-family: var(--font-body);
   font-size: var(--sh-eyebrow);
   font-weight: 500;
@@ -129,7 +129,7 @@
 :root .wpage-album__title,
 :root .wpage-archive__heading,
 :root .wpage-testi__heading,
-:root .wpage-types__heading {
+:root .wpage-pkg__heading {
   font-family: var(--font-display);
   font-size: var(--sh-heading);
   font-weight: 400;
@@ -178,8 +178,7 @@
 :root .ipage-value__title,
 :root .ppage-card__title,
 :root .ppage-craft__title,
-:root .wpage-card__title,
-:root .wpage-types__title {
+:root .wpage-card__title {
   font-family: var(--font-display);
   font-weight: 400;
   font-style: normal;
@@ -257,8 +256,7 @@
 :root .wpage-card__title em,
 :root .wpage-hero__title em,
 :root .wpage-testi__heading em,
-:root .wpage-types__heading em,
-:root .wpage-types__title em {
+:root .wpage-pkg__heading em {
   font-style: italic;
   font-weight: 400;
   color: var(--color-accent);

@@ -16,6 +16,7 @@ import '../styles/sections/inquiry.css'; // folder enquiry form (same design as 
 import '../styles/sections/contact.css';
 import '../styles/service-pages.css';
 import '../styles/couple-shoots-page.css';
+import '../styles/package-cards.css'; // session package cards — shared with weddings
 import '../styles/buttons.css'; // unified button identity — must load last
 import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 

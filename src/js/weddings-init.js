@@ -17,6 +17,7 @@ import '../styles/sections/contact.css';
 import '../styles/service-pages.css';
 import '../styles/testimonials-page.css'; // reuse the exact testimonial card + marquee design
 import '../styles/weddings-page.css';
+import '../styles/package-cards.css'; // Collections cards — shared with couple shoots
 import '../styles/buttons.css'; // unified button identity — must load last
 import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
 
@@ -26,7 +27,7 @@ import { albums as fallbackAlbums } from './weddings-albums-data.js';
 import { loadArchiveAlbums, loadWeddingsTestimonials, loadSiteContent } from './api.js';
 import { fallbackWeddingsTestimonials } from './weddings-testimonials-data.js';
 import { testimonialCardHTML } from './testimonial-cards.js';
-import { applyEnquiryContent, renderWeddingTypes } from './site-content.js';
+import { applyEnquiryContent, renderWeddingPackages } from './site-content.js';
 import { initLeadForm } from './lead-form.js';
 
 /* ── Testimonial marquee ─────────────────────────────────── */
@@ -72,9 +73,9 @@ function renderMarquee(testimonials) {
 const testimonialsPromise = loadWeddingsTestimonials(STOCK_PHOTOS).catch(() => null);
 const siteContentPromise = loadSiteContent().catch(() => null);
 
-// Paint the bundled "How We Shoot" style cards immediately so the section is
-// present before scroll reveals are measured; CMS overrides re-render below.
-renderWeddingTypes({});
+// Paint the bundled Collections cards immediately so the section is present
+// before scroll reveals are measured; CMS overrides re-render below.
+renderWeddingPackages({});
 
 loadArchiveAlbums('wedding', fallbackAlbums).then((albums) => {
   initArchivePage({
@@ -90,7 +91,7 @@ loadArchiveAlbums('wedding', fallbackAlbums).then((albums) => {
       siteContentPromise.then((content) => {
         if (content) {
           applyEnquiryContent('site_weddings_enq', content);
-          renderWeddingTypes(content);
+          renderWeddingPackages(content);
           if (ScrollTrigger) ScrollTrigger.refresh();
         }
       });
