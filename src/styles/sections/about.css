@@ -274,6 +274,20 @@
     width: min(100%, 520px);
     margin: clamp(28px, 5vw, 56px) auto 0;
   }
+
+  /* The plate keeps ~16% of page-coloured margin around the sphere so the cast
+     shadow has room to fade. In the two-column layout that reads as breathing
+     space; stacked into a ~340px column it just makes the globe look small.
+     Scale the canvas past its box so the sphere fills ~85% of the column —
+     a transform, so the square aspect-ratio box is left alone. Everything out
+     there is masked page colour, and .about clips the overflow. */
+  .about__globe {
+    transform: scale(1.134); /* 0.9 pre-reveal * 1.26 */
+  }
+
+  .about__globe.is-ready {
+    transform: scale(1.26);
+  }
 }
 
 @media (max-width: 768px) {
