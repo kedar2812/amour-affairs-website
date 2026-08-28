@@ -62,10 +62,18 @@ export function initGlobe() {
   /* Size the backing store to the box. Returns false while the section is
      still display:none / zero-width so we can try again later. */
   function resize() {
+    /* The reveal animation scales this canvas (0.9 -> 1, and 1.26 again on
+       phones), and getBoundingClientRect folds that transform in — measuring
+       mid-reveal sized the backing store to 610 for a 678px box and left the
+       globe permanently upscaled. clientWidth ignores the transform, which is
+       right pre-reveal but too small on phones, where the canvas really is
+       drawn larger than its box. Take whichever is bigger. */
     const rect = canvas.getBoundingClientRect();
-    if (!rect.width || !rect.height) return false;
-    const w = Math.round(rect.width * dpr());
-    const h = Math.round(rect.height * dpr());
+    const cw = Math.max(canvas.clientWidth, Math.round(rect.width));
+    const ch = Math.max(canvas.clientHeight, Math.round(rect.height));
+    if (!cw || !ch) return false;
+    const w = Math.round(cw * dpr());
+    const h = Math.round(ch * dpr());
     if (canvas.width !== w || canvas.height !== h) {
       canvas.width = w;
       canvas.height = h;
@@ -102,16 +110,19 @@ export function initGlobe() {
     video && typeof video.requestVideoFrameCallback === 'function';
 
   function paint() {
-    if (!video || !canvas.width) return;
+    /* HAVE_CURRENT_DATA or better, else drawImage throws and we would leave a
+       canvas that a resize has just cleared blank until something repaints. */
+    if (!video || !canvas.width || video.readyState < 2) return false;
     try {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     } catch {
-      return; /* frame not decodable yet */
+      return false; /* frame not decodable yet */
     }
     if (!ready) {
       ready = true;
       canvas.classList.add('is-ready');
     }
+    return true;
   }
 
   function tick() {
@@ -123,7 +134,12 @@ export function initGlobe() {
   }
 
   function start() {
-    if (disposed || running || !video || reduced) return;
+    if (disposed || !video || reduced) return;
+    /* Always put a frame up first. A backgrounded tab gets no rAF ticks, so if
+       a resize cleared the canvas while hidden the loop alone would never
+       restore it — the section would come back into view blank. */
+    paint();
+    if (running) return;
     running = true;
     const p = video.play();
     if (p && p.catch) p.catch(() => {}); /* held still is an acceptable end state */
@@ -204,18 +220,26 @@ export function initGlobe() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) stop();
     else if (visible) start();
+    else paint(); /* off screen but visible again — leave a correct still frame */
   });
 
+  /* Resizing the backing store clears it, so always repaint straight after. */
   if ('ResizeObserver' in window) {
     const ro = new ResizeObserver(() => {
-      if (resize() && video) paint();
+      if (resize()) paint();
     });
     ro.observe(canvas);
   } else {
     window.addEventListener('resize', () => {
-      if (resize() && video) paint();
+      if (resize()) paint();
     });
   }
+
+  /* The reveal settles the scale from 0.9 to its final value; a ResizeObserver
+     never sees that (the layout box did not move), so re-measure here. */
+  canvas.addEventListener('transitionend', () => {
+    if (resize()) paint();
+  });
 
   /* Belt and braces: the canvas is already pointer-events:none, so this only
      matters if that rule is ever relaxed. */
