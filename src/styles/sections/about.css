@@ -2,7 +2,7 @@
    ABOUT.CSS — Intro/About Strip Section
    Amour Affairs · Premium Wedding Photography
 
-   Layout: copy left, revolving dot-matrix globe right (globe.js).
+   Layout: copy left, revolving globe right (globe.js).
    Colours and type come entirely from the existing tokens in
    variables.css — this section introduces no new palette.
    ============================================================ */
@@ -162,8 +162,21 @@
   width: 100%;
   height: 100%;
   display: block;
+  /* Nothing here is interactive: a right-click passes through to the section
+     beneath rather than landing on the canvas. */
   pointer-events: none;
-  /* globe.js adds .is-ready once the point cloud is built */
+  -webkit-user-select: none;
+  user-select: none;
+  /* The plate is composited onto --color-bg-alt, so its outer region is flat
+     page colour and would otherwise sit as an opaque square over the drifting
+     gold streaks behind this section. Past the globe and its cast shadow
+     (~73% of the half-width) there is nothing left to show, so dissolve it and
+     let the section's own background come back through. */
+  -webkit-mask-image: radial-gradient(circle closest-side at 50% 50%,
+      #000 0 78%, rgba(0, 0, 0, 0) 99%);
+  mask-image: radial-gradient(circle closest-side at 50% 50%,
+      #000 0 78%, rgba(0, 0, 0, 0) 99%);
+  /* globe.js adds .is-ready once the first frame has been painted */
   opacity: 0;
   transform: scale(0.9);
   transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
