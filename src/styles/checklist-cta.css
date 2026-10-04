@@ -1,0 +1,282 @@
+/* ============================================================
+   CHECKLIST-CTA.CSS — "Free Pune Wedding Photography Checklist"
+   Amour Affairs · Premium Wedding Photography
+
+   The lead-magnet band (.ckl-band, static markup in each page) and
+   the capture popup (.ckl-modal, injected by checklist-cta.js).
+   Selectors carry a :root prefix so they win over page CSS whatever
+   order Vite emits the chunks in.
+   ============================================================ */
+
+:root .ckl-band {
+  background: var(--color-bg);
+  padding: clamp(56px, 8vw, 104px) 16px;
+}
+
+:root .ckl-band__inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04), 0 24px 60px -36px rgba(61, 32, 16, 0.28);
+  display: grid;
+  grid-template-columns: minmax(150px, 230px) 1fr;
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+  padding: clamp(28px, 4.5vw, 56px);
+}
+
+:root .ckl-band__cover {
+  margin: 0;
+  justify-self: center;
+  width: 100%;
+  max-width: 230px;
+}
+:root .ckl-band__cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 22px 44px -18px rgba(61, 32, 16, 0.45), 0 2px 6px rgba(61, 32, 16, 0.12);
+  transform: rotate(-3deg);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+:root .ckl-band__inner:hover .ckl-band__cover img { transform: rotate(-1deg) translateY(-4px); }
+
+:root .ckl-band__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--sh-eyebrow, 0.85rem);
+  font-weight: 500;
+  letter-spacing: var(--sh-eyebrow-track, 0.32em);
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.9rem;
+}
+
+:root .ckl-band__title {
+  font-family: var(--font-display);
+  font-size: var(--sh-heading-panel, clamp(1.9rem, 3.2vw, 2.9rem));
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  margin: 0 0 1rem;
+}
+:root .ckl-band__title em {
+  font-style: italic;
+  text-transform: none;
+  color: var(--color-accent);
+}
+
+:root .ckl-band__text {
+  font-family: var(--font-body);
+  font-size: var(--sh-body, 1rem);
+  line-height: 1.7;
+  color: var(--color-text-dim);
+  max-width: 52ch;
+  margin: 0 0 1.75rem;
+}
+:root .ckl-band__text strong { color: var(--color-text); font-weight: 600; }
+
+:root .ckl-band__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 2.1rem;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+:root .ckl-band__btn-arrow { display: inline-block; transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+:root .ckl-band__btn:hover .ckl-band__btn-arrow { transform: translateX(5px); }
+
+:root .ckl-band__note {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+@media (max-width: 720px) {
+  :root .ckl-band__inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 26px;
+  }
+  :root .ckl-band__cover { max-width: 150px; }
+  :root .ckl-band__text { margin-left: auto; margin-right: auto; }
+}
+
+/* ── Capture popup ─────────────────────────────────────────── */
+
+:root .ckl-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+:root .ckl-modal.is-open { display: flex; }
+:root .ckl-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(20, 14, 10, 0.55);
+  backdrop-filter: blur(4px);
+}
+:root .ckl-modal__panel {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  background: var(--color-bg);
+  border-radius: 20px;
+  padding: 48px clamp(22px, 5vw, 40px) clamp(28px, 5vw, 40px);
+  text-align: center;
+  box-shadow: 0 40px 80px -30px rgba(20, 14, 10, 0.6);
+  animation: cklPop 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+@keyframes cklPop {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+:root .ckl-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--color-text-dim);
+  cursor: pointer;
+}
+:root .ckl-modal__close:hover { color: var(--color-accent); }
+
+:root .ckl-modal__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4.6vw, 2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--color-text);
+  margin: 0.4rem 0 0.7rem;
+}
+:root .ckl-modal__text {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-text-dim);
+  margin: 0 0 1.4rem;
+}
+
+:root .ckl-field { display: block; text-align: left; margin-bottom: 0.85rem; }
+:root .ckl-field__label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  margin-bottom: 0.4rem;
+}
+:root .ckl-field__label small {
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--color-text-dim);
+}
+:root .ckl-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 1rem;
+  font-family: var(--font-body);
+  font-size: 16px; /* 16px stops iOS zooming into the field */
+  color: var(--color-text);
+  background: #FFFDF9;
+  border: 1px solid rgba(158, 122, 78, 0.3);
+  border-radius: 12px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+:root .ckl-input:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(158, 122, 78, 0.15); }
+:root .ckl-input[aria-invalid="true"] { border-color: #b4452f; }
+
+:root .ckl-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+:root .ckl-submit {
+  width: 100%;
+  height: 52px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+:root .ckl-submit:disabled { opacity: 0.65; cursor: default; transform: none !important; }
+
+:root .ckl-consent {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--color-text-dim);
+}
+:root .ckl-consent a { color: var(--color-accent); text-decoration: underline; }
+
+:root .ckl-status {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.8rem 0 0;
+  min-height: 1.1em;
+  color: #b4452f;
+}
+
+/* Thank-you state */
+:root .ckl-done { display: none; }
+:root .ckl-modal.is-done .ckl-form { display: none; }
+:root .ckl-modal.is-done .ckl-done { display: block; }
+:root .ckl-done__icon {
+  width: 56px;
+  height: 56px;
+  margin: 0.4rem auto 1rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--color-accent);
+  box-shadow: 0 6px 18px rgba(158, 122, 78, 0.2);
+}
+:root .ckl-done__text {
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-text-dim);
+  margin: 0 0 1.4rem;
+}
+:root .ckl-done__download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  height: 52px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+}

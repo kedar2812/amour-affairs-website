@@ -21,6 +21,7 @@ import '../styles/testimonial-marquee.css'; // marquee section shell — shared 
 import '../styles/package-cards.css'; // Collections cards — shared with couple shoots
 import '../styles/buttons.css'; // unified button identity — must load last
 import '../styles/section-headers.css'; // one section-header identity — must load after the page CSS
+import './checklist-cta.js'; // free Pune checklist lead magnet — binds [data-checklist-open] + injects the popup
 
 // ── Shared archive page behaviour + data ──
 import { initArchivePage } from './archive-page.js';

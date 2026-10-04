@@ -38,6 +38,9 @@
 .testi__read-more,
 .inquiry__submit,
 .aa-consent__btn--accept,
+.ckl-band__btn,
+.ckl-submit,
+.ckl-done__download,
 .footer__cta {
   /* !important so this single identity wins regardless of bundle/cascade
      order — Vite hoists this shared file ahead of per-page CSS. */
@@ -77,6 +80,9 @@
 .ppage-album__next:hover,
 .testi__read-more:hover,
 .aa-consent__btn--accept:hover,
+.ckl-band__btn:hover,
+.ckl-submit:hover:not(:disabled),
+.ckl-done__download:hover,
 .footer__cta:hover,
 .inquiry__submit:hover:not(:disabled) {
   transform: scale(1.04) !important;
