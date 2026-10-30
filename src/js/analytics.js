@@ -32,6 +32,19 @@ export function gaEvent(name, params = {}) {
   }
 }
 
+/**
+ * Send a Meta Pixel standard event (Lead, Contact, …). The base code in each
+ * page's <head> queues calls until fbevents.js loads, and holds them back
+ * until the visitor accepts cookies. No-ops if the pixel is blocked.
+ */
+export function metaEvent(name, params = {}) {
+  try {
+    if (typeof window.fbq === 'function') window.fbq('track', name, params);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
 // Best-effort label for *where* on the page a link was clicked, so the
 // same WhatsApp number in the nav, the hero and the footer stay distinct.
 function linkLocation(el) {
@@ -59,10 +72,13 @@ export function initOutboundTracking() {
 
       if (/^https?:\/\/(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)/i.test(href)) {
         gaEvent('contact_whatsapp', params);
+        metaEvent('Contact', { content_category: 'whatsapp' });
       } else if (/^tel:/i.test(href)) {
         gaEvent('contact_call', params);
+        metaEvent('Contact', { content_category: 'call' });
       } else if (/^mailto:/i.test(href)) {
         gaEvent('contact_email', params);
+        metaEvent('Contact', { content_category: 'email' });
       }
     },
     true, // capture — fires even when a handler stops propagation

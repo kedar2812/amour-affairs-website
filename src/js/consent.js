@@ -32,11 +32,14 @@ function remember(choice) {
   try { localStorage.setItem(STORAGE_KEY, choice); } catch { /* storage blocked */ }
 }
 
-/** Tell the Google tag what the visitor decided. */
+/** Tell the Google tag and the Meta Pixel what the visitor decided. */
 function applyConsent(choice) {
   try {
     if (typeof window.gtag === 'function') {
       window.gtag('consent', 'update', { analytics_storage: choice });
+    }
+    if (typeof window.fbq === 'function') {
+      window.fbq('consent', choice === 'granted' ? 'grant' : 'revoke');
     }
   } catch { /* consent must never break the page */ }
 }
@@ -54,8 +57,8 @@ function bannerMarkup() {
         A note on cookies
       </h2>
       <p class="aa-consent__text">
-        We use a few analytics cookies to understand how couples find our work —
-        never for advertising, and never sold on. Read more in our
+        We use analytics and Meta (Facebook / Instagram) cookies to understand
+        how couples find our work and to measure our ads — never sold on. Read more in our
         <a class="aa-consent__link" href="${PRIVACY_URL}">Privacy Policy</a>.
       </p>
     </div>

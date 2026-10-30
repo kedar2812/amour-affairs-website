@@ -9,7 +9,7 @@
    ============================================================ */
 
 import { submitInquiry } from './api.js';
-import { gaEvent } from './analytics.js';
+import { gaEvent, metaEvent } from './analytics.js';
 
 const STUDIO_WHATSAPP = '919921000052';
 
@@ -37,6 +37,145 @@ function whatsappHandoff(values) {
   return `https://wa.me/${STUDIO_WHATSAPP}?text=${encodeURIComponent(lines.join('\n'))}`;
 }
 
+/* ── International enquiries ───────────────────────────────────────────────
+   Couples abroad (NRI families, destination weddings) need three things the
+   original form assumed away: a dialling code, a venue country, and an
+   explicit currency. Every inquiry form shares this module, so the extra
+   controls are added here rather than hand-copied into each page's HTML.
+   The API contract is unchanged: the code is folded into `phone` and the
+   country into `venue` before submitting. */
+
+const DIAL_CODES = [
+  ['India', '+91'],
+  ['UAE', '+971'],
+  ['USA / Canada', '+1'],
+  ['United Kingdom', '+44'],
+  ['Australia', '+61'],
+  ['Singapore', '+65'],
+  ['New Zealand', '+64'],
+  ['Saudi Arabia', '+966'],
+  ['Qatar', '+974'],
+  ['Kuwait', '+965'],
+  ['Oman', '+968'],
+  ['Bahrain', '+973'],
+  ['Germany', '+49'],
+  ['France', '+33'],
+  ['Netherlands', '+31'],
+  ['Ireland', '+353'],
+  ['Switzerland', '+41'],
+  ['Italy', '+39'],
+  ['Spain', '+34'],
+  ['Sweden', '+46'],
+  ['Hong Kong', '+852'],
+  ['Malaysia', '+60'],
+  ['Thailand', '+66'],
+  ['Indonesia', '+62'],
+  ['Japan', '+81'],
+  ['South Africa', '+27'],
+  ['Kenya', '+254'],
+  ['Mauritius', '+230'],
+  ['Nepal', '+977'],
+  ['Sri Lanka', '+94'],
+  ['Bangladesh', '+880'],
+];
+
+const VENUE_COUNTRIES = [
+  'India', 'UAE', 'Thailand', 'Indonesia (Bali)', 'Sri Lanka', 'Maldives',
+  'Nepal', 'Mauritius', 'Singapore', 'Malaysia', 'Vietnam', 'Oman', 'Qatar',
+  'Turkey', 'Italy', 'France', 'Greece', 'Portugal', 'Spain',
+  'United Kingdom', 'Ireland', 'USA', 'Canada', 'Australia', 'New Zealand',
+];
+
+const OTHER_COUNTRY = 'Other';
+
+/** A native <select> laid invisibly over a short visible "face", so the
+ *  closed control stays compact ("+91") while the open list reads in full. */
+function makePicker({ name, label, options }) {
+  const picker = document.createElement('span');
+  picker.className = 'inquiry__picker';
+
+  const face = document.createElement('span');
+  face.className = 'inquiry__picker-face';
+  face.setAttribute('aria-hidden', 'true');
+
+  const select = document.createElement('select');
+  select.className = 'inquiry__picker-select';
+  select.name = name;
+  select.setAttribute('aria-label', label);
+  options.forEach(([text, value]) => select.add(new Option(text, value)));
+
+  const sync = () => { face.textContent = select.value; };
+  select.addEventListener('change', sync);
+  sync();
+
+  picker.append(face, select);
+  return picker;
+}
+
+/** Put `picker` in front of `input`, joined into one control. */
+function comboWrap(input, picker) {
+  const combo = document.createElement('div');
+  combo.className = 'inquiry__combo';
+  input.replaceWith(combo);
+  combo.append(picker, input);
+}
+
+/** Replace a label's leading text, keeping its "(optional)" span. */
+function relabel(label, text) {
+  if (label?.firstChild?.nodeType === Node.TEXT_NODE) label.firstChild.nodeValue = text;
+}
+
+function enhanceInternational(form) {
+  const phone = form.elements.phone;
+  if (phone && !form.elements.phone_cc) {
+    comboWrap(phone, makePicker({
+      name: 'phone_cc',
+      label: 'Country code',
+      options: DIAL_CODES.map(([country, code]) => [`${country} (${code})`, code]),
+    }));
+    phone.maxLength = 15; // + the longest code still fits the API's 20-char rule
+    phone.placeholder = 'Mobile number';
+  }
+
+  const venue = form.elements.venue;
+  if (venue && !form.elements.venue_country) {
+    comboWrap(venue, makePicker({
+      name: 'venue_country',
+      label: 'Venue country',
+      options: [...VENUE_COUNTRIES, OTHER_COUNTRY].map((c) => [c, c]),
+    }));
+    venue.maxLength = 200; // leaves room for ", <country>" within 255
+    relabel(form.querySelector(`label[for="${venue.id}"]`), 'Country & Venue ');
+  }
+
+  const budget = form.elements.budget_range;
+  if (budget && !form.querySelector('.inquiry__hint')) {
+    relabel(form.querySelector(`label[for="${budget.id}"]`), 'Budget in INR (₹) ');
+    const hint = document.createElement('span');
+    hint.className = 'inquiry__hint';
+    hint.textContent = 'All packages are quoted in Indian Rupees (INR). ₹1,00,000 = 1 lakh ≈ US$1,150.';
+    budget.after(hint);
+  }
+}
+
+/** Phone as the studio should dial it: "+44 7700 900123". A number already
+ *  written internationally (+…, 00…, or the code typed in front) is kept. */
+function composePhone(raw, code) {
+  const number = raw.trim();
+  if (!number || !code || /^(\+|00)/.test(number)) return number;
+  const digits = number.replace(/\D/g, '');
+  if (digits.length > 10 && digits.startsWith(code.replace(/\D/g, ''))) return `+${digits}`;
+  return `${code} ${number.replace(/^0+/, '')}`;
+}
+
+/** Venue with its country appended: "Taj, Goa, India". */
+function composeVenue(place, country) {
+  const where = place.trim();
+  if (!country || country === OTHER_COUNTRY) return where;
+  if (!where) return country === 'India' ? '' : country; // India is the untouched default
+  return where.toLowerCase().includes(country.toLowerCase()) ? where : `${where}, ${country}`;
+}
+
 // Wire every inquiry form on the page. A page may carry more than one
 // (e.g. the Weddings page has a folder-overlay form and a page-foot form);
 // each is bound independently with its own submit button and status line.
@@ -57,6 +196,7 @@ function bindLeadForm(form) {
   if (!submitBtn || !status) return;
 
   form.dataset.leadFormBound = '1';
+  enhanceInternational(form);
   let isSubmitting = false;
 
   const fieldEl = (input) => input.closest('.inquiry__field');
@@ -79,7 +219,7 @@ function bindLeadForm(form) {
   // Mirrors the server-side rules in api/leads.php
   function validate() {
     const name = form.client_name.value.trim();
-    const phone = form.phone.value.trim();
+    const phone = composePhone(form.phone.value, form.elements.phone_cc?.value);
     const email = form.email.value.trim();
     let firstInvalid = null;
 
@@ -125,6 +265,9 @@ function bindLeadForm(form) {
   form.querySelectorAll('.inquiry__input').forEach((input) => {
     input.addEventListener('input', () => setFieldError(input, ''));
   });
+  form.querySelectorAll('.inquiry__picker-select').forEach((select) => {
+    select.addEventListener('change', () => setFieldError(select, ''));
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -144,11 +287,11 @@ function bindLeadForm(form) {
 
     const values = {
       client_name: val('client_name').trim(),
-      phone: val('phone').trim(),
+      phone: composePhone(val('phone'), val('phone_cc')),
       email: val('email').trim(),
       event_type: val('event_type'),
       event_date: val('event_date'),
-      venue: val('venue').trim(),
+      venue: composeVenue(val('venue'), val('venue_country')),
       guest_count: val('guest_count'),
       budget_range: val('budget_range'),
       message: val('message').trim(),
@@ -166,6 +309,7 @@ function bindLeadForm(form) {
         event_type: val('event_type') || '',
         article_page: form.dataset.page || '',
       });
+      metaEvent('Lead', { content_name: form.dataset.source || 'Website' });
       showSuccess();
       return;
     }

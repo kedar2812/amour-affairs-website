@@ -10,7 +10,7 @@
 
 import { fetchFromAPI, assetUrl } from './api.js';
 import { escapeHtml, decodeDeep } from './content-page.js';
-import { gaEvent } from './analytics.js';
+import { gaEvent, metaEvent } from './analytics.js';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -135,6 +135,7 @@ export async function initLeadMagnets() {
         // A gated download is both a download and a new lead — report both.
         gaEvent('file_download', { file_name: currentTitle, magnet_id: currentId });
         gaEvent('generate_lead', { form_source: 'Lead Magnet', magnet_title: currentTitle });
+        metaEvent('Lead', { content_name: currentTitle });
         form.style.display = 'none';
         status.classList.add('is-success');
         status.innerHTML = `Your guide is ready — <a href="${assetUrl(body.file_url)}" target="_blank" rel="noopener">open it here</a> if the download doesn't start.`;

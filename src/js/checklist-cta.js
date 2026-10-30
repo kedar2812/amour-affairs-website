@@ -14,7 +14,7 @@
    ============================================================ */
 
 import '../styles/checklist-cta.css';
-import { gaEvent } from './analytics.js';
+import { gaEvent, metaEvent } from './analytics.js';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 const PDF_PATH = '/downloads/Amour-Affairs-Pune-Wedding-Photography-Checklist.pdf';
@@ -159,6 +159,7 @@ export function initChecklistCta() {
       }
       gaEvent('generate_lead', { form_source: 'Checklist', cta_location: lastTrigger?.dataset.checklistOpen || 'page' });
       gaEvent('file_download', { file_name: 'Pune Wedding Photography Checklist' });
+      metaEvent('Lead', { content_name: 'Checklist' });
 
       download.href = (body && body.download_url) || PDF_PATH;
       doneText.textContent = body && body.emailed

@@ -187,6 +187,74 @@
   display: none;
 }
 
+/* ── International: code / country picker joined to an input ──
+   Markup is injected by lead-form.js. The native <select> sits invisibly over
+   a short face, so the closed control reads "+91" while the list is full. */
+
+.inquiry__combo {
+  display: flex;
+  min-width: 0;
+}
+
+.inquiry__combo .inquiry__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.inquiry__picker {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  max-width: 46%;
+  background: rgba(245, 237, 226, 0.55) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239E7A4E' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border: 1px solid rgba(158, 122, 78, 0.28);
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.inquiry__picker-face {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--color-text);
+  min-width: 0;
+  padding: 0 30px 0 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inquiry__picker-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px; /* stops iOS zooming in on focus */
+  border: 0;
+}
+
+.inquiry__picker:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(158, 122, 78, 0.14);
+}
+
+.inquiry__field.has-error .inquiry__picker {
+  border-color: #A8473C;
+}
+
+.inquiry__hint {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-text-dim);
+  margin-top: 6px;
+}
+
 /* ── Submit ── */
 
 .inquiry__submit {
